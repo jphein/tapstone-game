@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3ead3" media="(prefers-color-scheme: light)">
+<title>Tapstone Arena</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>Tapstone Arena</h1><span id="status">connecting…</span></header>
+<main><canvas id="board" role="img" aria-label="battlefield" aria-describedby="summary"></canvas>
+<p id="summary" class="sr-only" aria-live="polite"></p></main>
+<footer id="banner" hidden></footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

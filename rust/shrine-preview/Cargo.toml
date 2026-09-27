@@ -1,0 +1,16 @@
+[package]
+name = "shrine-preview"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Pixel-accurate 320x240 preview of the Tapstone shrine screens, drawn with embedded-graphics from real engine states. Host-only; never ships to the device."
+
+[dependencies]
+tapstone-rules = { path = "../tapstone-rules" }
+tapstone-progression = { path = "../tapstone-progression" }
+shrine-render = { path = "../shrine-render" }
+tapstone-sim = { path = "../tapstone-sim" }
+embedded-graphics = "0.8"
+embedded-graphics-simulator = { version = "0.7", default-features = false }
+clap = { version = "4", features = ["derive"] }

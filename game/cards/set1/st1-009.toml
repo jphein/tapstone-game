@@ -1,0 +1,8 @@
+id = "st1-009"
+name = "Tidal Lash"
+faction = "tide"
+type = "spell"
+cost = 2
+effect = "damage:3:unit"
+rarity = "common"
+version = 1

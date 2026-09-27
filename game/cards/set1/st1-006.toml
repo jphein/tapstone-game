@@ -1,0 +1,10 @@
+id = "st1-006"
+name = "Reef Archer"
+faction = "tide"
+type = "unit"
+cost = 2
+attack = 1
+toughness = 2
+keywords = ["ranged"]
+rarity = "common"
+version = 1

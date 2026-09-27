@@ -1,0 +1,10 @@
+[package]
+name = "tapstone-progression"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Tapstone commander progression (0030/0031/0034): XP, levels, slots, items and ClaimSeat stat derivation. no_std, no alloc."
+
+[dependencies]
+tapstone-rules = { path = "../tapstone-rules" }

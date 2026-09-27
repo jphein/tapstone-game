@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="t">
+<title id="t">Play at the table: real cards on a stone shrine</title>
+<!-- Tapstone promo icon (hand-authored SVG). A self-contained badge: dark disc, gold rim, so it
+     works on dark and light pages. -->
+<defs><radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="122" fill="#1a1626" stroke="#c9a24a" stroke-width="8"/>
+<g stroke="#0c0a10" stroke-width="5" stroke-linejoin="round">
+  <!-- shrine -->
+  <path d="M58 200h140v18H58z" fill="#57505f"/>
+  <path d="M70 130h116l-4 70H74z" fill="#6d6678"/>
+  <path d="M70 130l20-26h76l20 26z" fill="#a39cab"/>
+  <rect x="94" y="146" width="68" height="40" rx="6" fill="#10182a"/>
+</g>
+<rect x="116" y="158" width="24" height="20" fill="#ff8a3d"/><rect x="120" y="152" width="16" height="8" fill="#d9d4c8"/>
+<circle cx="128" cy="112" r="56" fill="url(#g)"/>
+<g stroke="#0c0a10" stroke-width="5" stroke-linejoin="round">
+  <!-- two real cards: Ember resting, Tide tapping down -->
+  <rect x="56" y="54" width="52" height="72" rx="6" fill="#f3ead6" transform="rotate(-16 82 90)"/>
+  <rect x="136" y="36" width="52" height="72" rx="6" fill="#f3ead6" transform="rotate(12 162 72)"/>
+</g>
+<rect x="63" y="61" width="38" height="32" rx="3" fill="#ff8a3d" transform="rotate(-16 82 90)"/>
+<rect x="143" y="43" width="38" height="32" rx="3" fill="#35c8e0" transform="rotate(12 162 72)"/>
+<g stroke="#f5b942" stroke-width="6" stroke-linecap="round"><path d="M128 40V20M204 110h18M34 110h18"/></g>
+</svg>

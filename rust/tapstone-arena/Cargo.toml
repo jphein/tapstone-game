@@ -1,0 +1,55 @@
+[package]
+name = "tapstone-arena"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "The Tapstone arena: arbiter, battlefield canvas, commander ledger and transcript poster (0028)."
+
+[dependencies]
+tapstone-rules = { path = "../tapstone-rules" }
+tapstone-proto = { path = "../tapstone-proto" }
+tapstone-progression = { path = "../tapstone-progression" }
+tapstone-sim = { path = "../tapstone-sim" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = { version = "0.8", optional = true }
+sha2 = { version = "0.11", optional = true }
+rusqlite = { version = "0.32", features = ["bundled"], optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "net", "signal"], optional = true }
+tokio-stream = { version = "0.1", features = ["sync"], optional = true }
+axum = { version = "0.8", optional = true }
+serialport = { version = "4", optional = true }
+ureq = { version = "2", features = ["json"], optional = true }
+clap = { version = "4", features = ["derive"], optional = true }
+rand = { version = "0.9", optional = true }
+# `divergent-themed-realms` is realm-sigil's opt-in for the themed realms that name a *build* (here
+# FANTASY, for /api/version), named after its hazard: a themed corpus that drifted from the go/python/js
+# bindings would publish a different version name for the same commit. realm-sigil reports that set as
+# empty since its 2026-07-29 sync, and guards it by a content check. Remove this, and the arena can
+# reach only the identity realms (FLEET, CREATURE).
+realm-sigil = { git = "https://github.com/jphein/sigil.realm.watch", rev = "9c19c3f", features = ["divergent-themed-realms"], optional = true }
+
+[features]
+default = ["server"]
+# Everything that touches a socket, a file, a serial port or a clock. Off, the crate is the sans-IO
+# core (core, view, decks, registry, transcript, link::{desk, lines}), which builds for wasm32.
+server = ["dep:toml", "dep:sha2", "dep:rusqlite", "dep:tokio", "dep:tokio-stream", "dep:axum",
+          "dep:serialport", "dep:ureq", "dep:clap", "dep:rand", "dep:realm-sigil"]
+
+[[bin]]
+name = "tapstone-arena"
+path = "src/main.rs"
+required-features = ["server"]
+
+# A desk-style shrine behind a real gateway (tapstone#132): docs/runbooks/radio-match.md.
+[[bin]]
+name = "radio_shrine"
+path = "src/bin/radio_shrine.rs"
+required-features = ["server"]
+
+[dev-dependencies]
+heapless = "0.8"
+rand = { version = "0.9", features = ["std_rng"] }
+tempfile = "3"
+nix = { version = "0.29", features = ["term", "fs"] }

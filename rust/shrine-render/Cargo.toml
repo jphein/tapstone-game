@@ -1,0 +1,22 @@
+[package]
+name = "shrine-render"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Tapstone shrine renderer: 320x240 RGB565 screens drawn with embedded-graphics. no_std, no alloc — vendored into smol the way tapstone-rules is."
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+tapstone-rules = { path = "../tapstone-rules" }
+tapstone-progression = { path = "../tapstone-progression" }
+embedded-graphics = "0.8"
+heapless = "0.8"
+
+[dev-dependencies]
+embedded-graphics = "0.8"
+
+[features]
+default = []

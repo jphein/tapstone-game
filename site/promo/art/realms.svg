@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="t d">
+<title id="t">The six realm doors around the Tea House</title>
+<desc id="d">A ring of six doors around the Tea House at the centre: the Hearthlands, the Deep Tides (the blue door), the Forge Peaks, the Wandering Courts, the Star Fields and the Dreaming.</desc>
+<!-- Tapstone promo art (hand-authored SVG). No page background: doors and name plates carry
+     their own dark fills, so the ring works on dark and light pages.
+     Canon (docs/decisions/0039): the six names and the Deep Tides' door being blue. Every other
+     door's colour and scene is the artist's guess, not canon. -->
+<defs>
+  <clipPath id="arch"><path d="M-62 98V-30A62 62 0 0 1 62-30V98z"/></clipPath>
+  <radialGradient id="core" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffc26a" stop-opacity=".55"/><stop offset="1" stop-color="#ffc26a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="lantern" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="#fff4c9"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9642a"/></radialGradient>
+  <linearGradient id="hearth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf7a"/><stop offset="1" stop-color="#c46a2a"/></linearGradient>
+  <linearGradient id="tides" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c6fa8"/><stop offset="1" stop-color="#0a2444"/></linearGradient>
+  <linearGradient id="forge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a1a14"/><stop offset="1" stop-color="#ff7a2a"/></linearGradient>
+  <linearGradient id="courts" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a3aa0"/><stop offset="1" stop-color="#2a1848"/></linearGradient>
+  <linearGradient id="stars" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0c30"/><stop offset="1" stop-color="#2a2a70"/></linearGradient>
+  <linearGradient id="dream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0b0d8"/><stop offset="1" stop-color="#7a5ab0"/></linearGradient>
+  <path id="frame" d="M-76 108V-30A76 76 0 0 1 76-30V108z"/>
+  <g id="plate"><rect x="-120" y="0" width="240" height="44" rx="22" fill="#1a1626" stroke="#c9a24a" stroke-width="2.5"/></g>
+</defs>
+<!-- the ring and spokes -->
+<circle cx="500" cy="500" r="330" fill="none" stroke="#c9a24a" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round"/>
+<g stroke="#c9a24a" stroke-width="2.5" stroke-opacity=".6">
+  <path d="M500 390V260M595 445l110-64M595 555l110 64M500 610v130M405 555l-110 64M405 445l-110-64"/>
+</g>
+<!-- centre: the Tea House -->
+<circle cx="500" cy="500" r="170" fill="url(#core)"/>
+<g stroke="#1a0e0a" stroke-width="3" stroke-linejoin="round">
+  <circle cx="500" cy="500" r="100" fill="#2e1a16"/>
+  <path d="M410 460q90 22 180 0l-8 18q-82 16-164 0z" fill="#b3202a"/>
+  <rect x="440" y="474" width="14" height="80" fill="#b3202a"/><rect x="546" y="474" width="14" height="80" fill="#b3202a"/>
+  <path d="M420 556h160v12H420z" fill="#6a4a3a"/>
+  <path d="M476 548q0-34 24-34t24 34z" fill="#3d5a55"/>
+  <path d="M524 536q16-4 18-18" fill="none" stroke="#3d5a55" stroke-width="6"/>
+</g>
+<path d="M500 492v18" stroke="#1a0e0a" stroke-width="2"/>
+<ellipse cx="500" cy="494" rx="12" ry="14" fill="url(#lantern)"/>
+<path d="M538 508q-6-18 6-30" fill="none" stroke="#aefcf0" stroke-width="3" stroke-opacity=".8" stroke-linecap="round"/>
+<g font-family="Georgia,'Iowan Old Style','Palatino Linotype',serif" font-size="22" font-weight="bold" text-anchor="middle">
+  <use href="#plate" x="500" y="612" transform="translate(500 612) scale(.8) translate(-500 -612)"/>
+  <text x="500" y="636" fill="#ffd9a8" font-size="20">The Tea House</text>
+</g>
+<!-- 1. the Hearthlands (top) -->
+<g transform="translate(500 170)">
+  <use href="#frame" fill="#3a2a22" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#hearth)"/>
+    <path d="M-70 60q40-30 80-10t60-10v60H-70z" fill="#6a8a3a"/>
+    <path d="M-24 60V30l24-20 24 20v30z" fill="#6a3a22"/><path d="M-6 60V40h12v20z" fill="#ffe08a"/>
+    <path d="M10 18v-18h8v12" fill="#4a2a18"/>
+    <circle cx="30" cy="-40" r="14" fill="#fff4c9"/>
+  </g>
+</g>
+<!-- 2. the Deep Tides (upper right): the blue door -->
+<g transform="translate(786 335)">
+  <use href="#frame" fill="#123a52" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#tides)"/>
+    <g fill="none" stroke="#bff4ff" stroke-width="4" stroke-linecap="round" stroke-opacity=".8"><path d="M-62 10q15-12 31 0t31 0 31 0 31 0"/><path d="M-62 40q15-12 31 0t31 0 31 0 31 0"/><path d="M-62 70q15-12 31 0t31 0 31 0 31 0"/></g>
+    <g fill="none" stroke="#bff4ff" stroke-width="2.5"><circle cx="-20" cy="-40" r="7"/><circle cx="10" cy="-60" r="5"/><circle cx="24" cy="-24" r="4"/></g>
+  </g>
+</g>
+<!-- 3. the Forge Peaks (lower right) -->
+<g transform="translate(786 665)">
+  <use href="#frame" fill="#3a1a12" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#forge)"/>
+    <path d="M-70 100l30-100 20 40 24-80 30 70 16-30 20 100z" fill="#2a1010"/>
+    <path d="M-4-40l8 0 8 30-8 -6-8 6z" fill="#ffb347"/>
+    <g fill="#ffe08a"><circle cx="-20" cy="-60" r="3"/><circle cx="12" cy="-72" r="2.5"/><circle cx="30" cy="-50" r="3"/></g>
+  </g>
+</g>
+<!-- 4. the Wandering Courts (bottom) -->
+<g transform="translate(500 830)">
+  <use href="#frame" fill="#2a1848" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#courts)"/>
+    <path d="M-46 70V10l-8-6 18-24 18 24-8 6v60zM22 70V-10l-8-6 18-24 18 24-8 6v80z" fill="#1a1030"/>
+    <path d="M-36-20v-24l16 6-16 6M32-40v-24l16 6-16 6" fill="#f0c060" stroke="#f0c060" stroke-width="2"/>
+    <path d="M-70 98q70-50 140 0" fill="none" stroke="#f0c060" stroke-width="5" stroke-dasharray="10 8"/>
+  </g>
+</g>
+<!-- 5. the Star Fields (lower left) -->
+<g transform="translate(214 665)">
+  <use href="#frame" fill="#1a1a40" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#stars)"/>
+    <path d="M-70 80q70-24 140 0v20H-70z" fill="#3a3a8a"/>
+    <g fill="#fff6c8"><path d="M0-50l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><circle cx="-34" cy="-20" r="3"/><circle cx="30" cy="-6" r="2.5"/><circle cx="-20" cy="30" r="2"/><circle cx="38" cy="40" r="3"/><circle cx="-40" cy="56" r="2"/><circle cx="14" cy="60" r="2"/><circle cx="-8" cy="4" r="2"/></g>
+  </g>
+</g>
+<!-- 6. the Dreaming (upper left) -->
+<g transform="translate(214 335)">
+  <use href="#frame" fill="#3a2a58" stroke="#c9a24a" stroke-width="3.5"/>
+  <g clip-path="url(#arch)">
+    <rect x="-70" y="-100" width="140" height="200" fill="url(#dream)"/>
+    <path d="M18-54a26 26 0 1 0 14 44a22 22 0 1 1-14-44z" fill="#fff6e8"/>
+    <path d="M-70 50q10-20 30-10q10-20 34-8q20-14 36 4q20-6 30 14v50H-70z" fill="#fbe8f4"/>
+    <path d="M-70 80q20-14 40-4q20-12 40 0q20-10 60 2v22H-70z" fill="#e8c8ec"/>
+  </g>
+</g>
+<!-- name plates -->
+<g font-family="Georgia,'Iowan Old Style','Palatino Linotype',serif" font-size="22" font-weight="bold" text-anchor="middle">
+  <use href="#plate" x="500" y="284"/><text x="500" y="313" fill="#ffd9a8">The Hearthlands</text>
+  <use href="#plate" x="786" y="449"/><text x="786" y="478" fill="#bff4ff">The Deep Tides</text>
+  <use href="#plate" x="786" y="779"/><text x="786" y="808" fill="#ffc28a">The Forge Peaks</text>
+  <use href="#plate" x="500" y="944"/><text x="500" y="973" fill="#e8d0ff">The Wandering Courts</text>
+  <use href="#plate" x="214" y="779"/><text x="214" y="808" fill="#fff6c8">The Star Fields</text>
+  <use href="#plate" x="214" y="449"/><text x="214" y="478" fill="#f8d8f0">The Dreaming</text>
+</g>
+</svg>

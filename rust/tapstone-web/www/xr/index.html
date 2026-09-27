@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="icon" href="data:," />
+    <title>spike</title>
+    <style>
+      :root { --panel-bg: rgba(248, 244, 234, 0.92); --panel-fg: #2a2622; --panel-edge: #b9ab8c; }
+      @media (prefers-color-scheme: dark) {
+        :root { --panel-bg: rgba(22, 24, 30, 0.9); --panel-fg: #efe6cf; --panel-edge: #5b5f66; }
+      }
+      #access {
+        position: fixed; left: 12px; bottom: 12px; z-index: 10; margin: 0; padding: 10px 14px;
+        background: var(--panel-bg); color: var(--panel-fg); border: 1px solid var(--panel-edge);
+        border-radius: 8px; font: 500 16px system-ui, sans-serif;
+      }
+      #access legend { font-weight: 700; padding: 0 4px; }
+      #access label { display: block; padding: 6px 0; min-height: 24px; cursor: pointer; }
+      #access input { width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; }
+    </style>
+  </head>
+  <body style="margin: 0">
+    <div id="scene-container"></div>
+    <!-- Accessibility (logic/access.js). Captions are not here: the voice band is always shown. -->
+    <fieldset id="access">
+      <legend>Comfort</legend>
+      <label><input type="checkbox" name="seated" />Seated: the table follows my head height</label>
+      <label><input type="checkbox" name="leftHanded" />Left-handed: the deck on my left</label>
+      <label><input type="checkbox" name="reducedMotion" />Reduced motion: no travelling effects</label>
+    </fieldset>
+    <script type="module" src="/src/index.js"></script>
+  </body>
+</html>

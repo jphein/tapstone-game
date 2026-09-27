@@ -1,0 +1,8 @@
+id = "it1-000"
+name = "Ember Sabre"
+faction = "ember"
+slot = "weapon"
+effect = "haste"
+min_level = 1
+loot = true
+version = 1

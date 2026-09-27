@@ -1,0 +1,8 @@
+id = "st1-005"
+name = "Flare"
+faction = "ember"
+type = "spell"
+cost = 1
+effect = "damage:2:castle"
+rarity = "common"
+version = 1

@@ -1,0 +1,8 @@
+id = "st1-012"
+name = "Mend"
+faction = "neutral"
+type = "spell"
+cost = 1
+effect = "heal:2:unit"
+rarity = "common"
+version = 1

@@ -1,0 +1,8 @@
+id = "st1-011"
+name = "Deep Breath"
+faction = "neutral"
+type = "spell"
+cost = 1
+effect = "draw:2"
+rarity = "common"
+version = 1

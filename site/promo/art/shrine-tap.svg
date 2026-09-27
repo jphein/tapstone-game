@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -110 800 750" role="img" aria-labelledby="t d">
+<title id="t">Tap the card to the stone</title>
+<desc id="d">A hand taps a card onto a small stone shrine. Where the card touches the stone a golden burst of light flares, and the shrine's little screen lights up with the unit arriving.</desc>
+<!-- Tapstone promo art (hand-authored SVG). No page background; the stone has a light rim and a
+     dark outline so it holds its shape on both dark and light pages. -->
+<defs>
+  <linearGradient id="stoneTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a39cab"/><stop offset="1" stop-color="#7e7788"/></linearGradient>
+  <linearGradient id="stoneFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d6678"/><stop offset="1" stop-color="#46404f"/></linearGradient>
+  <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10182a"/><stop offset="1" stop-color="#1e2a44"/></linearGradient>
+  <radialGradient id="burst" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff8d8"/><stop offset=".3" stop-color="#ffd27a" stop-opacity=".85"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+  <radialGradient id="screenGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".55"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+  <linearGradient id="cardArt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1a2a"/><stop offset=".6" stop-color="#c2462a"/><stop offset="1" stop-color="#ffb35a"/></linearGradient>
+  <linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f6a8c"/><stop offset="1" stop-color="#154a64"/></linearGradient>
+  <symbol id="knight" viewBox="0 0 16 16" shape-rendering="crispEdges">
+    <path d="M6 1h4v1h1v3H5V2h1z" fill="#d9d4c8"/><path d="M6 3h4v1H6z" fill="#1a1020"/>
+    <path d="M4 6h8v5H4z" fill="#ff8a3d"/><path d="M5 7h6v1H5z" fill="#ffd27a"/>
+    <path d="M3 6h1v4H3zM12 6h1v4h-1z" fill="#b5501f"/>
+    <path d="M13 1h1v8h-1z" fill="#eef2ff"/><path d="M12 8h3v1h-3z" fill="#c9a24a"/>
+    <path d="M5 11h2v4H5zM9 11h2v4H9z" fill="#5a2a18"/>
+  </symbol>
+  <!-- fades the arm out before it reaches the frame edge -->
+  <linearGradient id="armFade" gradientUnits="userSpaceOnUse" x1="90" y1="-230" x2="190" y2="-330"><stop offset=".25" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <mask id="arm" maskUnits="userSpaceOnUse" x="-400" y="-700" width="1000" height="1000"><rect x="-400" y="-700" width="1000" height="1000" fill="url(#armFade)"/></mask>
+</defs>
+<!-- shadow -->
+<ellipse cx="400" cy="600" rx="260" ry="22" fill="#000" fill-opacity=".25"/>
+<!-- stepped base -->
+<path d="M170 560h460v34H170z" fill="#3e3846" stroke="#221e28" stroke-width="3"/>
+<path d="M200 530h400v32H200z" fill="#57505f" stroke="#221e28" stroke-width="3"/>
+<!-- shrine body -->
+<path d="M230 330h340l-6 202H236z" fill="url(#stoneFront)" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/>
+<path d="M230 330l54-78h232l54 78z" fill="url(#stoneTop)" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/>
+<path d="M236 330h328" stroke="#c8c2d0" stroke-width="3"/>
+<!-- carved stepped fret along the front -->
+<path d="M250 510h20v-10h14v-10h14v10h14v10h20M350 510h20v-10h14v-10h14v10h14v10h20M450 510h20v-10h14v-10h14v10h14v10h20" fill="none" stroke="#2c2733" stroke-width="3"/>
+<!-- card pad carved into the top -->
+<path d="M330 316l22-50h96l22 50z" fill="#5d5668" stroke="#3a3442" stroke-width="3"/>
+<!-- screen -->
+<circle cx="400" cy="410" r="120" fill="url(#screenGlow)"/>
+<rect x="296" y="352" width="208" height="130" rx="10" fill="url(#screen)" stroke="#221e28" stroke-width="4"/>
+<path d="M306 470h188" stroke="#ff8a3d" stroke-width="3" stroke-opacity=".7"/>
+<ellipse cx="400" cy="458" rx="34" ry="6" fill="#ff8a3d" fill-opacity=".35"/>
+<use href="#knight" x="364" y="386" width="72" height="72"/>
+<g fill="#ffd27a"><path d="M334 380l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M468 372l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></g>
+<!-- the burst where card meets stone -->
+<circle cx="400" cy="290" r="150" fill="url(#burst)"/>
+<g stroke="#f2a93b" stroke-linecap="round" stroke-width="7">
+  <path d="M400 150v-44M290 200l-30-30M510 200l30-30M240 290h-44M560 290h44M280 380l-26 22M520 380l26 22"/>
+</g>
+<g fill="none" stroke="#f5b942" stroke-width="4">
+  <ellipse cx="400" cy="292" rx="120" ry="34" stroke-opacity=".9"/>
+  <ellipse cx="400" cy="292" rx="180" ry="52" stroke-opacity=".45"/>
+</g>
+<!-- the card, touching down on the pad, and the hand holding it -->
+<g transform="translate(400 296) rotate(-14)">
+  <rect x="-62" y="-172" width="124" height="172" rx="10" fill="#f3ead6" stroke="#221e28" stroke-width="4"/>
+  <rect x="-52" y="-160" width="104" height="92" rx="4" fill="url(#cardArt)"/>
+  <path d="M-52-96l30-30 20 18 26-34 28 36v38H-52z" fill="#2a1420" fill-opacity=".7"/>
+  <circle cx="18" cy="-138" r="10" fill="#ffe7a0"/>
+  <rect x="-52" y="-60" width="104" height="10" rx="3" fill="#c9a24a"/>
+  <path d="M-44-38h88M-44-24h60" stroke="#8a7a60" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="-44" cy="-148" r="12" fill="#ff8a3d" stroke="#221e28" stroke-width="3"/>
+  <!-- fingers behind the card top -->
+  <path d="M-10-186q10-26 34-18l40 12q14 6 8 20l-24 4z" fill="#b5764f" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/>
+  <!-- sleeve -->
+  <g mask="url(#arm)"><path d="M70-250l150-136 70 76-140 142z" fill="url(#sleeve)" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/></g>
+  <path d="M70-250l80 82" stroke="#c9a24a" stroke-width="8"/>
+  <!-- back of hand and thumb, in front of the card -->
+  <path d="M20-178q-2-44 40-66l40 8q30 24 12 64l-30 24q-24 10-44 0z" fill="#d9966a" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M26-166q-40 8-44 30q-2 12 14 12l40-14z" fill="#d9966a" stroke="#221e28" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M50-200q20-6 34 6" fill="none" stroke="#a8663f" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- sparks -->
+<g fill="#f5b942" stroke="#b5741f" stroke-width="1">
+  <path d="M600 210l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M190 230l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/>
+  <path d="M640 330l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M160 350l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+</g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="t">
+<title id="t">Play in Roblox: a blocky avatar at the Tea House table</title>
+<!-- Tapstone promo icon (hand-authored SVG). A self-contained badge: dark disc, gold rim, so it
+     works on dark and light pages. A generic blocky figure, not any platform's mascot. -->
+<circle cx="128" cy="128" r="122" fill="#1a1626" stroke="#c9a24a" stroke-width="8"/>
+<circle cx="128" cy="96" r="70" fill="#ffb347" fill-opacity=".14"/>
+<!-- lantern -->
+<path d="M196 28v22" stroke="#6a5a4a" stroke-width="3"/><ellipse cx="196" cy="62" rx="13" ry="15" fill="#ffb347"/>
+<g stroke="#0c0a10" stroke-width="5" stroke-linejoin="round">
+  <!-- blocky avatar -->
+  <rect x="92" y="40" width="72" height="64" rx="6" fill="#f2c94c"/>
+  <rect x="84" y="108" width="88" height="72" rx="6" fill="#35c8e0"/>
+  <rect x="58" y="112" width="26" height="62" rx="5" fill="#f2c94c"/>
+  <rect x="172" y="112" width="26" height="46" rx="5" fill="#f2c94c" transform="rotate(-24 185 112)"/>
+  <!-- table -->
+  <path d="M36 176h184l-12 26H48z" fill="#8a5a34"/>
+  <!-- card being played -->
+  <rect x="176" y="120" width="34" height="46" rx="4" fill="#f3ead6" transform="rotate(-24 193 143)"/>
+</g>
+<g fill="#0c0a10"><rect x="110" y="64" width="10" height="12" rx="2"/><rect x="136" y="64" width="10" height="12" rx="2"/></g>
+<path d="M112 86q16 10 32 0" fill="none" stroke="#0c0a10" stroke-width="5" stroke-linecap="round"/>
+<rect x="182" y="128" width="20" height="16" rx="2" fill="#ff8a3d" transform="rotate(-24 193 143)"/>
+<path d="M58 214h140" stroke="#c9a24a" stroke-width="5" stroke-linecap="round" stroke-opacity=".6"/>
+</svg>

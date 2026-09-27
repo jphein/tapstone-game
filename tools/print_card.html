@@ -1,0 +1,73 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Tapstone card face, 63 x 88 mm trim + 3 mm bleed a side (69 x 94 mm), rendered by tools/print_cards.py through
+   headless Chrome. Adapted from ~/Projects/printing/realm-cards/card.html (printing@9be9b57): same frame, title bar,
+   art window, type bar, text box and P/T box, in the same millimetres; the frame colours come from the card's realm
+   door (roblox/src/shared/TeaHouseLayout.luau), passed in as --door and --glow. */
+:root{ --bleed:3mm; --w:69mm; --h:94mm; --door:#48403a; --glow:#ff7828; --ink:#f2ead6; --parch:#e9dfc4; --parch2:#d6c8a3; }
+html,body{margin:0;background:#fff}
+#card{position:relative;width:var(--w);height:var(--h);box-sizing:border-box;padding:calc(var(--bleed) + 2.6mm) calc(var(--bleed) + 2.6mm) calc(var(--bleed) + 2.2mm);
+  background:var(--frame);color:var(--ink);font-family:'EB Garamond',serif;overflow:hidden}
+#card::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--glow) 34%, transparent), transparent 55%);pointer-events:none}
+.inner{position:relative;height:100%;display:flex;flex-direction:column;border:.35mm solid var(--glow);border-radius:1.6mm;overflow:hidden;background:linear-gradient(180deg,var(--well) 0%,var(--well2) 100%)}
+.title{display:flex;align-items:center;justify-content:space-between;gap:1mm;padding:1.1mm 2mm .8mm;background:linear-gradient(180deg,var(--parch),var(--parch2));color:#1a140a;border-bottom:.3mm solid var(--glow)}
+.name{font-family:'Cinzel',serif;font-weight:800;font-size:3.6mm;letter-spacing:.1mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.cost{display:flex;gap:.5mm;flex:none}
+.pip{width:3.4mm;height:3.4mm;border-radius:50%;border:.25mm solid #2a2313;background:radial-gradient(circle at 35% 30%, #fff8 0 18%, transparent 40%), var(--glow);box-shadow:inset 0 -0.5mm 0 rgba(0,0,0,.25)}
+.art{flex:none;height:37mm;margin:0 1.4mm;border:.3mm solid var(--glow);border-top:0;background:#000 center/cover no-repeat;position:relative}
+.art::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 6mm rgba(0,0,0,.55)}
+.type{display:flex;justify-content:space-between;align-items:center;gap:1mm;padding:.8mm 2mm .6mm;margin:0 1.4mm;background:linear-gradient(180deg,var(--parch),var(--parch2));color:#1a140a;border:.3mm solid var(--glow);border-top:0;font-family:'Cinzel',serif;font-weight:600;font-size:2.4mm;white-space:nowrap;overflow:hidden}
+.type span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.set{width:3.2mm;height:3.2mm;flex:none}
+.text{flex:1;min-height:0;margin:1mm 1.4mm 0;padding:1.6mm 2.2mm 1mm;background:linear-gradient(180deg,#f3ecd9,#e6dbbd);color:#1a140a;border:.3mm solid var(--glow);border-radius:.6mm;display:flex;flex-direction:column;gap:1.2mm;overflow:hidden}
+.ability{font-size:3.4mm;line-height:1.28}
+.ability b{font-family:'Cinzel',serif;font-weight:800;font-size:3.1mm;letter-spacing:.05mm}
+.ability i{color:#4a3c26}
+.ability b .n{font-family:'EB Garamond',serif;font-weight:500;font-size:3.5mm}   /* Cinzel's 1 reads as I */
+.foot{display:flex;justify-content:space-between;align-items:flex-end;padding:1mm 14mm 0 2mm;font-size:1.9mm;white-space:nowrap;overflow:hidden;color:#cfc3a3;font-family:'IBM Plex Mono',monospace}
+.foot .prop{color:#1a140a;background:var(--glow);padding:0 .6mm;border-radius:.4mm;font-weight:700}
+.pt{position:absolute;right:1.2mm;bottom:.9mm;padding:.6mm 2.2mm;background:linear-gradient(180deg,var(--parch),var(--parch2));color:#1a140a;border:.35mm solid var(--glow);border-radius:1.2mm;font-family:'Cinzel',serif;font-weight:800;font-size:3.6mm;box-shadow:0 .4mm 0 rgba(0,0,0,.5)}
+.pt:empty{display:none}
+</style></head><body>
+<div id="card"><div class="inner">
+  <div class="title"><div class="name" id="name"></div><div class="cost" id="cost"></div></div>
+  <div class="art" id="art"></div>
+  <div class="type"><span id="type"></span><svg class="set" viewBox="0 0 24 24" id="set"></svg></div>
+  <div class="text"><div class="ability" id="ability"></div></div>
+  <div class="foot"><span id="left" style="margin-right:2mm;overflow:hidden;text-overflow:ellipsis"></span><span id="right" style="flex:none"></span></div>
+  <div class="pt" id="pt"></div>
+</div></div>
+<script>
+const q = new URLSearchParams(location.search), v = (k, d='') => q.get(k) ?? d, $ = id => document.getElementById(id);
+const rgb = s => s.split(',').map(Number), css = a => `rgb(${a.map(x => Math.round(x)).join(',')})`;
+const door = rgb(v('door', '72,60,58')), glow = rgb(v('glow', '255,120,40'));
+const R = document.documentElement.style;
+// Frame ground = the door colour pushed toward black; the well behind the art a little darker again; lines and pips in
+// the door's weather colour, so a Tide card reads blue at arm's length and an Ember card reads as embers on basalt.
+R.setProperty('--frame', css(door.map(x => x * 0.55)));
+R.setProperty('--well', css(door.map(x => x * 0.42 + 8)));
+R.setProperty('--well2', css(door.map(x => x * 0.30 + 6)));
+R.setProperty('--glow', css(glow));
+$('name').textContent = v('name');
+$('type').textContent = v('type');
+$('art').style.backgroundImage = `url("${v('art')}")`;
+$('ability').innerHTML = v('ability').split('|').map(s => s.replace(/\*\*(.+?)\*\*/g, (_, k) => '<b>' + k.replace(/(\d+)/g, '<span class="n">$1</span>') + '</b>').replace(/_(.+?)_/g, '<i>$1</i>')).join('<br>');
+$('left').textContent = v('left');
+$('right').innerHTML = v('proposal') ? `<span class="prop">${v('proposal')}</span>` : v('right');
+$('pt').textContent = v('pt');
+if (!v('pt')) document.querySelector('.foot').style.paddingRight = '2mm';   // no P/T box: the footer may use its corner
+for (let i = 0; i < +v('cost', '0'); i++) { const e = document.createElement('div'); e.className = 'pip'; $('cost').appendChild(e); }
+const RAR = { common:'#1a140a', uncommon:'#b8b8b8', rare:'#d4af37' };
+$('set').innerHTML = `<circle cx="12" cy="12" r="9" fill="none" stroke="#1a140a" stroke-width="2"/><path d="M12 5 L14.5 10.5 20 11 15.8 14.6 17 20 12 17 7 20 8.2 14.6 4 11 9.5 10.5Z" fill="${RAR[v('rarity','common')] || RAR.common}" stroke="#1a140a" stroke-width=".8"/>`;
+document.fonts.ready.then(() => {
+  const fit = (el, fs, min, unit='mm') => { for (; fs >= min && el.scrollWidth > el.clientWidth; fs -= 0.1) el.style.fontSize = fs.toFixed(1) + unit; };
+  fit($('name'), 3.6, 2.2); fit(document.querySelector('.type'), 2.4, 1.5); fit($('left'), 1.9, 1.3);
+  // the text box: shrink the rules text until it fits vertically, and record whether it did (read back by the generator)
+  const box = document.querySelector('.text'), ab = $('ability');
+  for (let fs = 3.4; fs >= 2.2 && box.scrollHeight > box.clientHeight + 1; fs -= 0.1) ab.style.fontSize = fs.toFixed(1) + 'mm';
+  // Width with no tolerance: text-overflow:ellipsis fires on any overflow at all, and a +1 px allowance let a footer
+  // 69 px wide in a 68 px box print as "comm…" while this check said READY (2026-09-27).
+  const clipped = [box, $('name'), document.querySelector('.type'), $('left')].some(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth);
+  document.title = clipped ? 'CLIPPED' : 'READY'; window.__ready = true; });
+</script></body></html>

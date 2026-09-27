@@ -1,0 +1,8 @@
+id = "it1-002"
+name = "Hearthguard Plate"
+faction = "neutral"
+slot = "armour"
+effect = "taunt"
+min_level = 3
+loot = true
+version = 1

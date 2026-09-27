@@ -1,0 +1,13 @@
+scratch/
+.claude/worktrees/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+target/
+dist/
+build/
+.env
+*.db
+rust/target/
+site/media/

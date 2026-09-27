@@ -1,0 +1,10 @@
+id = "st1-004"
+name = "Hearth Warden"
+faction = "ember"
+type = "unit"
+cost = 2
+attack = 1
+toughness = 3
+keywords = ["taunt"]
+rarity = "common"
+version = 1

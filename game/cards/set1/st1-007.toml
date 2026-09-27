@@ -1,0 +1,10 @@
+id = "st1-007"
+name = "Tidecaller"
+faction = "tide"
+type = "unit"
+cost = 3
+attack = 2
+toughness = 3
+keywords = []
+rarity = "common"
+version = 1

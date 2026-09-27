@@ -1,0 +1,345 @@
+/* Tapstone promo page. Lantern light in the dark, jade mist by day.
+   No web fonts: Palatino-family display with system fallbacks, a humanist sans for reading. */
+
+:root {
+  --bg: #1d1733;          /* night over the Tea House */
+  --bg-deep: #140f26;
+  --panel: #2a2147;
+  --ink: #f4e9cf;          /* lantern-lit paper */
+  --ink-soft: #d6c9ad;
+  --gold: #eab54f;         /* lantern */
+  --red: #cf3b2f;          /* the red door */
+  --red-ink: #ff8a7a;      /* red that reads as text on the night */
+  --ember: #f08a3c;
+  --tide: #52c7bf;
+  --line: rgba(234, 181, 79, .35);
+  --glow: rgba(234, 181, 79, .45);
+  --title-shadow: 0 0 .35em var(--glow), 0 .06em 0 rgba(0, 0, 0, .35);
+  --hero-scrim: linear-gradient(180deg, rgba(20, 15, 38, .55) 0%, rgba(20, 15, 38, .35) 45%, var(--bg) 100%);
+  --display: "Palatino Linotype", "Book Antiqua", Palatino, "URW Palladio L", P052, "TeX Gyre Pagella", Georgia, serif;
+  --body: "Trebuchet MS", "Segoe UI", Ubuntu, "Noto Sans", system-ui, sans-serif;
+  --measure: 38rem;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #e9f0e8;         /* jade mist */
+    --bg-deep: #dce7dc;
+    --panel: #f7f9f4;
+    --ink: #271c38;
+    --ink-soft: #4a3f5c;
+    --gold: #7d5200;
+    --red: #b52a20;
+    --red-ink: #a3241b;
+    --ember: #a84a0c;
+    --tide: #0d6f68;
+    --line: rgba(125, 82, 0, .35);
+    --glow: rgba(234, 181, 79, .55);
+    --title-shadow: 0 0 .4em rgba(255, 250, 235, .9);
+    --hero-scrim: linear-gradient(180deg, rgba(233, 240, 232, .35) 0%, rgba(233, 240, 232, .25) 45%, var(--bg) 100%);
+    color-scheme: light;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 1.125rem/1.6 var(--body);
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--gold); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.15; margin: 0 0 .5em; }
+h2 { font-size: clamp(2rem, 1.5rem + 2.2vw, 3rem); color: var(--gold); }
+h3 { font-size: 1.35rem; }
+p { margin: 0 0 1em; max-width: var(--measure); }
+strong { color: var(--gold); font-weight: 700; }
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  min-height: min(78vh, 46rem);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 3rem 1.25rem 4rem;
+  background:
+    var(--hero-scrim),
+    url("/promo/art/teahouse.svg") center 30% / cover no-repeat,
+    radial-gradient(ellipse at 50% 35%, var(--panel) 0%, var(--bg-deep) 70%);
+}
+
+.hero-inner { max-width: 44rem; }
+
+.title {
+  font-size: clamp(3.4rem, 1.5rem + 11vw, 8.5rem);
+  letter-spacing: .04em;
+  margin: 0;
+  color: var(--gold);
+  text-shadow: var(--title-shadow);
+}
+
+.tagline {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem);
+  margin: .2em auto 0;
+  max-width: none;
+}
+
+.hero-lede { margin: 0 auto; font-size: 1.2rem; color: var(--ink); }
+
+/* The one moment of motion: a card drops onto the stone, and the stone answers. */
+.tap {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+  margin: 2rem auto 1.5rem;
+}
+.tap-stone {
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 7rem; height: 3.2rem;
+  transform: translateX(-50%);
+  border-radius: 50% / 45%;
+  background: radial-gradient(ellipse at 50% 30%, #8a8298, #4b445c 70%);
+  box-shadow: inset 0 -.4rem .6rem rgba(0, 0, 0, .35), 0 .6rem 1.2rem rgba(0, 0, 0, .35);
+}
+.tap-ring {
+  position: absolute;
+  inset: .6rem 1.4rem;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 .8rem var(--glow);
+}
+.tap-card {
+  position: absolute;
+  left: 50%; top: 0;
+  width: 3.4rem; height: 4.8rem;
+  margin-left: -1.7rem;
+  border-radius: .4rem;
+  border: 3px solid var(--gold);
+  background: linear-gradient(160deg, var(--red), #6b1c3a);
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .4);
+  transform: translateY(0) rotate(-8deg);
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tap-card { animation: tap-drop 3.2s cubic-bezier(.5, 0, .3, 1) .6s 2 both; }
+  .tap-ring { animation: tap-glow 3.2s ease-out .6s 2 both; }
+}
+@keyframes tap-drop {
+  0%   { transform: translateY(0) rotate(-8deg); }
+  35%  { transform: translateY(3.2rem) rotate(0deg) scaleY(.45); }
+  60%  { transform: translateY(3.2rem) rotate(0deg) scaleY(.45); }
+  100% { transform: translateY(0) rotate(-8deg); }
+}
+@keyframes tap-glow {
+  0%, 30% { box-shadow: 0 0 .8rem var(--glow); transform: scale(1); }
+  40%     { box-shadow: 0 0 2.4rem 1rem var(--glow); transform: scale(1.15); }
+  100%    { box-shadow: 0 0 .8rem var(--glow); transform: scale(1); }
+}
+
+/* ---------- sections ---------- */
+
+main > section {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 4.5rem 1.25rem;
+}
+main > section + section { border-top: 1px solid var(--line); }
+
+.section-lede { color: var(--ink-soft); font-size: 1.2rem; }
+
+.split {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+@media (min-width: 52rem) {
+  .split { grid-template-columns: 1fr 1fr; gap: 3rem; }
+  .split-flip .split-text { order: 2; }
+}
+
+/* ---------- art slots (degrade to a labelled panel when an image is missing) ---------- */
+
+.art { margin: 0; }
+.art img { width: 100%; border-radius: .75rem; }
+.art-board { margin: 1.5rem 0 2.5rem; }
+
+.art.missing {
+  display: grid;
+  place-items: center;
+  min-height: 10rem;
+  padding: 1.5rem;
+  border: 2px dashed var(--line);
+  border-radius: .75rem;
+  background: var(--panel);
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: center;
+}
+.art.missing img { display: none; }
+.art.missing::after { content: attr(data-alt); }
+.art-card.missing { aspect-ratio: 5 / 7; min-height: 0; }
+
+/* ---------- how a match works ---------- */
+
+.steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.75rem;
+}
+@media (min-width: 52rem) {
+  .steps { grid-template-columns: 1fr 1fr; gap: 2.25rem 3rem; }
+}
+.step {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.step h3::before {
+  content: counter(step) ". ";
+  color: var(--gold);
+}
+.step p { margin: 0; }
+.step-icon {
+  width: 4rem; height: 4rem;
+  padding: .55rem;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--panel);
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* ---------- the Tea House ---------- */
+
+.teahouse { position: relative; }
+.door-frame {
+  justify-self: center;
+  width: min(100%, 22rem);
+  padding: .7rem;
+  border: 4px solid var(--red);
+  border-top-width: 1.1rem;
+  border-radius: .5rem .5rem .25rem .25rem;
+  box-shadow: 0 0 2.5rem rgba(207, 59, 47, .35);
+}
+.door-frame img { border-radius: .25rem; }
+.door-frame.missing { min-height: 16rem; }
+
+.realms { margin-top: 3rem; }
+.realm-list {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+.realm-list li {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  padding: .35rem .95rem;
+  border: 1px solid var(--line);
+  border-radius: 1.2rem .3rem;
+  background: var(--panel);
+}
+
+/* ---------- two cards ---------- */
+
+.card-pair {
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+@media (min-width: 44rem) {
+  .card-pair { grid-template-columns: 1fr 1fr; gap: 3rem; }
+}
+.card-entry { --accent: var(--gold); }
+.card-entry.ember { --accent: var(--ember); }
+.card-entry.tide { --accent: var(--tide); }
+.card-entry .art-card { width: min(100%, 17rem); margin-bottom: 1.25rem; }
+.card-entry h3 { font-size: 1.8rem; color: var(--accent); margin-bottom: .2em; }
+.card-entry .faction { color: var(--ink-soft); }
+.card-entry strong { color: var(--accent); }
+
+.stats {
+  display: flex;
+  gap: .75rem;
+  margin: 0 0 1rem;
+}
+.stats div {
+  min-width: 5.5rem;
+  padding: .45rem .7rem;
+  border: 2px solid var(--accent);
+  border-radius: .5rem;
+  text-align: center;
+}
+.stats dt { font-size: .85rem; color: var(--ink-soft); }
+.stats dd { margin: 0; font-family: var(--display); font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+
+/* ---------- play it three ways ---------- */
+
+.ways {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 52rem) {
+  .ways { grid-template-columns: repeat(3, 1fr); }
+}
+.way {
+  padding: 1.5rem;
+  border-radius: .75rem;
+  background: var(--panel);
+  border: 2px solid var(--line);
+}
+.way.now { border-color: var(--gold); box-shadow: 0 0 1.5rem var(--glow); }
+.way-icon { width: 4.5rem; height: 4.5rem; margin-bottom: .75rem; }
+.way-icon.missing { display: none; }
+.way h3 { margin-bottom: .25em; }
+.way p { margin-bottom: .5em; }
+.status {
+  display: inline-block;
+  font-weight: 700;
+  font-size: .95rem;
+  padding: .15rem .7rem;
+  border-radius: 1rem;
+  border: 2px solid currentColor;
+}
+.now .status { color: var(--gold); }
+.soon .status { color: var(--ink-soft); border-style: dashed; }
+
+/* ---------- footer ---------- */
+
+.foot {
+  text-align: center;
+  padding: 2.5rem 1.25rem 3rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: var(--display);
+}
+.foot p { margin: 0 auto; }

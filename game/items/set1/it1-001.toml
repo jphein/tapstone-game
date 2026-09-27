@@ -1,0 +1,8 @@
+id = "it1-001"
+name = "Tide Trident"
+faction = "tide"
+slot = "weapon"
+effect = "look"
+min_level = 1
+loot = true
+version = 1

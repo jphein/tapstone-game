@@ -1,0 +1,18 @@
+[package]
+name = "tapstone-sim"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+tapstone-rules = { path = "../tapstone-rules" }
+tapstone-progression = { path = "../tapstone-progression" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rand = { version = "0.9", default-features = false, features = ["std", "std_rng"] }
+clap = { version = "4", features = ["derive"] }
+toml = "0.8"
+
+[dev-dependencies]
+proptest = "1"

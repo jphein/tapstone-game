@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000" role="img" aria-labelledby="t d">
+<title id="t">The Dueling Grounds board: three lanes of six cells</title>
+<desc id="d">The battlefield seen from above. Three lanes run from the Ember castle at the bottom to the Tide castle at the top; each lane has six cells, three for each side. Your Ember units stand as pixel figures: Cinder Whelp 2/1, Ashen Vanguard 3/2 and Hearth Warden 1/3. The opponent's Tide units are stones: Reef Archer 1/2, Pearl Shieldbearer 1/2 and Tidecaller 2/3. In the left lane the whelp clashes with the archer.</desc>
+<!-- Tapstone promo art (hand-authored SVG). No page background: the stone slab carries its own
+     dark fill and outline, so it works on dark and light pages. Portrait so it stays large at
+     phone width. Layout per 0027: each lane holds six cells, yours as figures, theirs as stone.
+     Stats are the real set1 values (st1-002/003/004 and st1-006/007/008). -->
+<defs>
+  <linearGradient id="slab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2330"/><stop offset=".5" stop-color="#2a2432"/><stop offset="1" stop-color="#33251f"/></linearGradient>
+  <radialGradient id="clash" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d0"/><stop offset=".4" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
+  <symbol id="whelp" viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M11 1h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM1 3h1v1h-1zM9 3h1v1h-1zM1 4h2v1h-2zM1 5h3v1h-3zM2 6h3v1h-3zM3 7h3v1h-3z" fill="#b5401f"/><path d="M11 2h1v1h-1zM10 3h4v1h-4zM8 4h2v1h-2zM12 4h2v1h-2zM7 5h5v1h-5zM6 6h6v1h-6zM6 7h5v1h-5zM4 8h3v1h-3zM9 8h2v1h-2zM3 9h4v1h-4zM9 9h3v1h-3zM2 10h2v1h-2zM5 10h2v1h-2zM9 10h1v1h-1zM11 10h1v1h-1zM5 11h6v1h-6zM4 12h2v1h-2zM8 12h2v1h-2z" fill="#ff8a3d"/><path d="M10 4h1v1h-1zM3 13h2v1h-2zM9 13h2v1h-2z" fill="#2a1010"/><path d="M11 4h1v1h-1z" fill="#fff6d8"/><path d="M12 5h2v1h-2zM7 8h2v1h-2zM7 9h2v1h-2zM7 10h2v1h-2z" fill="#ffd27a"/></symbol>
+  <symbol id="knight" viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M6 1h4v1h1v3H5V2h1z" fill="#d9d4c8"/><path d="M6 3h4v1H6z" fill="#1a1020"/><path d="M4 6h8v5H4z" fill="#ff8a3d"/><path d="M5 7h6v1H5z" fill="#ffd27a"/><path d="M3 6h1v4H3zM12 6h1v4h-1z" fill="#b5501f"/><path d="M13 1h1v8h-1z" fill="#eef2ff"/><path d="M12 8h3v1h-3z" fill="#c9a24a"/><path d="M5 11h2v4H5zM9 11h2v4H9z" fill="#5a2a18"/></symbol>
+  <symbol id="warden" viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M6 1h4v1h-4zM5 2h6v1h-6zM5 3h1v1h-1zM7 3h2v1h-2zM10 3h1v1h-1zM6 4h4v1h-4z" fill="#d9d4c8"/><path d="M6 3h1v1h-1zM9 3h1v1h-1z" fill="#1a1020"/><path d="M4 5h2v1h-2zM3 6h4v1h-4zM3 7h1v1h-1zM5 7h1v1h-1zM3 8h4v1h-4zM3 9h4v1h-4zM4 10h2v1h-2z" fill="#c9a24a"/><path d="M6 5h4v1h-4zM7 6h4v1h-4zM7 7h4v1h-4zM7 8h4v1h-4zM7 9h3v1h-3zM7 10h4v1h-4zM6 11h2v1h-2zM9 11h2v1h-2z" fill="#ff8a3d"/><path d="M4 7h1v1h-1zM6 7h1v1h-1z" fill="#8a6a1e"/><path d="M6 12h2v1h-2zM9 12h2v1h-2z" fill="#5a2a18"/></symbol>
+  <symbol id="stone" viewBox="0 0 16 16"><path d="M3 14l1-9 4-3 4 3 1 9z" fill="#9a9aa6"/><path d="M8 2l4 3 1 9H8z" fill="#6a6a78"/><path d="M2 14h12v2H2z" fill="#4a4a56"/><path d="M8 6v5M6 8.5h4" stroke="#35c8e0" stroke-width="1.2" stroke-linecap="round"/></symbol>
+  <g id="atk"><circle r="20" fill="#2a1a10" stroke="#c9a24a" stroke-width="3"/></g>
+  <g id="hp"><circle r="20" fill="#5a1418" stroke="#ff6a6a" stroke-width="3"/></g>
+</defs>
+<!-- Tide castle (theirs), top -->
+<g stroke="#10202c" stroke-width="3" stroke-linejoin="round">
+  <path d="M200 88V40h24v12h20V40h24v12h20V40h24v12h20V40h24v12h20V40h24v48z" fill="#5e6a7a"/>
+  <path d="M288 88V64q12-14 24 0v24z" fill="#10202c"/>
+</g>
+<path d="M300 40V8" stroke="#c9a24a" stroke-width="3"/><path d="M300 8l30 8-30 8z" fill="#35c8e0"/>
+<!-- the slab -->
+<rect x="30" y="92" width="540" height="816" rx="24" fill="url(#slab)" stroke="#0c0a10" stroke-width="5"/>
+<rect x="36" y="98" width="528" height="804" rx="20" fill="none" stroke="#c9a24a" stroke-opacity=".5" stroke-width="2"/>
+<!-- their cells (Tide rims) -->
+<g fill="#222c3a" stroke="#35c8e0" stroke-width="3" stroke-opacity=".75">
+  <rect x="50" y="110" width="152" height="120" rx="10"/><rect x="224" y="110" width="152" height="120" rx="10"/><rect x="398" y="110" width="152" height="120" rx="10"/>
+  <rect x="50" y="240" width="152" height="120" rx="10"/><rect x="224" y="240" width="152" height="120" rx="10"/><rect x="398" y="240" width="152" height="120" rx="10"/>
+  <rect x="50" y="370" width="152" height="120" rx="10"/><rect x="224" y="370" width="152" height="120" rx="10"/><rect x="398" y="370" width="152" height="120" rx="10"/>
+</g>
+<!-- my cells (Ember rims) -->
+<g fill="#3a2c28" stroke="#ff8a3d" stroke-width="3" stroke-opacity=".8">
+  <rect x="50" y="510" width="152" height="120" rx="10"/><rect x="224" y="510" width="152" height="120" rx="10"/><rect x="398" y="510" width="152" height="120" rx="10"/>
+  <rect x="50" y="640" width="152" height="120" rx="10"/><rect x="224" y="640" width="152" height="120" rx="10"/><rect x="398" y="640" width="152" height="120" rx="10"/>
+  <rect x="50" y="770" width="152" height="120" rx="10"/><rect x="224" y="770" width="152" height="120" rx="10"/><rect x="398" y="770" width="152" height="120" rx="10"/>
+</g>
+<!-- the midline -->
+<path d="M44 500h512" stroke="#ffd27a" stroke-width="4" stroke-dasharray="14 10"/>
+<!-- their units: stone -->
+<g>
+  <ellipse cx="126" cy="476" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#stone" x="86" y="382" width="80" height="96"/>
+  <ellipse cx="474" cy="346" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#stone" x="434" y="252" width="80" height="96"/>
+  <ellipse cx="300" cy="216" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#stone" x="260" y="122" width="80" height="96"/>
+</g>
+<!-- my units: figures -->
+<g>
+  <ellipse cx="126" cy="616" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#whelp" x="78" y="518" width="96" height="96"/>
+  <ellipse cx="474" cy="616" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#warden" x="426" y="520" width="96" height="96"/>
+  <ellipse cx="300" cy="746" rx="40" ry="8" fill="#000" fill-opacity=".35"/><use href="#knight" x="252" y="650" width="96" height="96"/>
+</g>
+<!-- the clash in lane 1 -->
+<circle cx="126" cy="500" r="56" fill="url(#clash)"/>
+<path d="M126 470l8 20 20 8-20 8-8 20-8-20-20-8 20-8z" fill="#fff6d0" stroke="#e0902a" stroke-width="2"/>
+<!-- stats: attack (gold) and health (red), from set1 -->
+<g font-family="Georgia,'Iowan Old Style',serif" font-weight="bold" font-size="24" text-anchor="middle">
+  <!-- Reef Archer 1/2 -->
+  <use href="#atk" x="72" y="388"/><text x="72" y="396" fill="#ffd27a">1</text>
+  <use href="#hp" x="180" y="388"/><text x="180" y="396" fill="#ffe0e0">2</text>
+  <!-- Pearl Shieldbearer 1/2 -->
+  <use href="#atk" x="420" y="258"/><text x="420" y="266" fill="#ffd27a">1</text>
+  <use href="#hp" x="528" y="258"/><text x="528" y="266" fill="#ffe0e0">2</text>
+  <!-- Tidecaller 2/3 -->
+  <use href="#atk" x="246" y="128"/><text x="246" y="136" fill="#ffd27a">2</text>
+  <use href="#hp" x="354" y="128"/><text x="354" y="136" fill="#ffe0e0">3</text>
+  <!-- Cinder Whelp 2/1 -->
+  <use href="#atk" x="72" y="612"/><text x="72" y="620" fill="#ffd27a">2</text>
+  <use href="#hp" x="180" y="612"/><text x="180" y="620" fill="#ffe0e0">1</text>
+  <!-- Hearth Warden 1/3 -->
+  <use href="#atk" x="420" y="612"/><text x="420" y="620" fill="#ffd27a">1</text>
+  <use href="#hp" x="528" y="612"/><text x="528" y="620" fill="#ffe0e0">3</text>
+  <!-- Ashen Vanguard 3/2 -->
+  <use href="#atk" x="246" y="742"/><text x="246" y="750" fill="#ffd27a">3</text>
+  <use href="#hp" x="354" y="742"/><text x="354" y="750" fill="#ffe0e0">2</text>
+</g>
+<!-- Ember castle (yours), bottom -->
+<path d="M190 990V920" stroke="#c9a24a" stroke-width="3"/><path d="M190 920l-30 8 30 8z" fill="#ff8a3d"/>
+<g stroke="#2a1008" stroke-width="3" stroke-linejoin="round">
+  <path d="M200 990v-56h24v12h20v-12h24v12h20v-12h24v12h20v-12h24v12h20v-12h24v56z" fill="#8a5a44"/>
+  <path d="M288 990v-26q12-14 24 0v26z" fill="#2a1008"/>
+</g>
+</svg>

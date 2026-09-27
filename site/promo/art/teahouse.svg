@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="t d">
+<title id="t">The Tea House: lantern light, magical tea, and the red door glowing</title>
+<desc id="d">A warm, lantern-lit tea house interior. Paper lanterns hang from carved beams, a low table holds a steaming teapot whose steam sparkles, and at the back a red door beneath a gateway glows with light from the Dueling Grounds. Other realm doors stand at the edges.</desc>
+<!-- Tapstone promo art (hand-authored SVG). Full-bleed scene: it paints its own background,
+     so it reads the same on dark and light pages. Corners are rounded (rx 28). -->
+<defs>
+  <radialGradient id="vig" cx=".5" cy=".45" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+  <clipPath id="frame"><rect width="1600" height="900" rx="28"/></clipPath>
+  <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1c1018"/><stop offset=".55" stop-color="#3a1f1c"/><stop offset="1" stop-color="#5a3322"/>
+  </linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#6b4228"/><stop offset="1" stop-color="#2a170f"/>
+  </linearGradient>
+  <radialGradient id="doorGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#ffd27a" stop-opacity=".95"/><stop offset=".35" stop-color="#ff7a3a" stop-opacity=".55"/><stop offset="1" stop-color="#c0202a" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="doorLight" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff1c2"/><stop offset=".5" stop-color="#ffb35a"/><stop offset="1" stop-color="#ff6a2a"/>
+  </linearGradient>
+  <linearGradient id="spill" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffc56a" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a3a" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8e1520"/><stop offset=".5" stop-color="#d42a2a"/><stop offset="1" stop-color="#8e1520"/>
+  </linearGradient>
+  <radialGradient id="lantern" cx=".45" cy=".4" r=".6">
+    <stop offset="0" stop-color="#fff4c9"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9642a"/>
+  </radialGradient>
+  <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#ffb347" stop-opacity=".45"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="tealHalo" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#7ff0e0" stop-opacity=".5"/><stop offset="1" stop-color="#7ff0e0" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5a3420"/><stop offset="1" stop-color="#2e1a10"/>
+  </linearGradient>
+  <linearGradient id="table" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8a5a34"/><stop offset="1" stop-color="#4a2c18"/>
+  </linearGradient>
+  <linearGradient id="pot" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3d5a55"/><stop offset="1" stop-color="#16282a"/>
+  </linearGradient>
+  <!-- Mayan-style stepped fret, tiled along friezes -->
+  <pattern id="fret" width="60" height="30" patternUnits="userSpaceOnUse">
+    <rect width="60" height="30" fill="#4a2618"/>
+    <path d="M0 26h12v-8h8v-8h8v-6h4v10h-8v8h-8v4zM30 26h12v-8h8v-8h8v-6h2" fill="none" stroke="#c9a24a" stroke-width="3" stroke-opacity=".75"/>
+  </pattern>
+  <g id="lamp">
+    <circle r="90" fill="url(#halo)"/>
+    <line y1="-400" y2="-38" stroke="#1a0e0a" stroke-width="3"/>
+    <rect x="-14" y="-44" width="28" height="10" rx="3" fill="#2a1a10"/>
+    <ellipse rx="34" ry="40" fill="url(#lantern)"/>
+    <path d="M-30-14q30 8 60 0M-33 4q33 8 66 0M-30 22q30 8 60 0" fill="none" stroke="#b5552a" stroke-width="2" stroke-opacity=".6"/>
+    <rect x="-14" y="34" width="28" height="9" rx="3" fill="#2a1a10"/>
+    <path d="M0 43v24" stroke="#c9a24a" stroke-width="3"/><circle cy="70" r="4" fill="#c9a24a"/>
+  </g>
+</defs>
+<g clip-path="url(#frame)">
+  <rect width="1600" height="900" fill="url(#wall)"/>
+  <!-- back wall panels (shoji-like lattices, warm from lantern light) -->
+  <g fill="#6a3a24" fill-opacity=".35" stroke="#2a150e" stroke-width="4">
+    <rect x="180" y="210" width="220" height="330"/><rect x="1200" y="210" width="220" height="330"/>
+  </g>
+  <g stroke="#2a150e" stroke-width="3" stroke-opacity=".8">
+    <path d="M253 210v330M326 210v330M180 320h220M180 430h220M1273 210v330M1346 210v330M1200 320h220M1200 430h220"/>
+  </g>
+  <!-- stepped frieze -->
+  <rect x="0" y="150" width="1600" height="30" fill="url(#fret)"/>
+  <rect x="0" y="146" width="1600" height="6" fill="#c9a24a" fill-opacity=".6"/>
+  <rect x="0" y="178" width="1600" height="6" fill="#c9a24a" fill-opacity=".6"/>
+  <!-- roof beams -->
+  <g fill="url(#wood)">
+    <rect x="0" y="0" width="1600" height="60"/>
+    <path d="M0 60h1600v24H0z" fill="#241208"/>
+    <path d="M140 0h40v150h-40zM1420 0h40v150h-40zM520 0h30v150h-30zM1050 0h30v150h-30z"/>
+  </g>
+  <!-- side realm doors (scenery). Colours are Ceres's guesses except the blue Deep Tides door. -->
+  <g>
+    <!-- Deep Tides: the blue door (canon colour) -->
+    <rect x="30" y="270" width="124" height="346" rx="62" fill="#0d2a44"/>
+    <rect x="42" y="282" width="100" height="334" rx="50" fill="#1c6fa8"/>
+    <path d="M42 500q25-18 50 0t50 0v116H42z" fill="#35c8e0" fill-opacity=".55"/>
+    <path d="M42 540q25-18 50 0t50 0M42 580q25-18 50 0t50 0" fill="none" stroke="#bff4ff" stroke-width="3" stroke-opacity=".7"/>
+    <circle cx="92" cy="430" r="80" fill="url(#tealHalo)"/>
+    <!-- Forge Peaks (guess: ember orange) -->
+    <rect x="1446" y="270" width="124" height="346" rx="62" fill="#2e1208"/>
+    <rect x="1458" y="282" width="100" height="334" rx="50" fill="#8a3a14"/>
+    <path d="M1458 616l32-110 22 44 22-70 24 136z" fill="#ff8a3d" fill-opacity=".85"/>
+    <circle cx="1525" cy="470" r="6" fill="#ffd27a"/><circle cx="1498" cy="430" r="4" fill="#ffd27a"/><circle cx="1540" cy="400" r="3" fill="#ffd27a"/>
+  </g>
+  <!-- the red door, back centre -->
+  <circle cx="800" cy="390" r="300" fill="url(#doorGlow)"/>
+  <rect x="690" y="235" width="220" height="330" fill="url(#doorLight)"/>
+  <!-- glimpse of the Dueling Grounds board through the door -->
+  <g transform="translate(800 470)" fill="none" stroke="#b5401f" stroke-opacity=".45" stroke-width="2">
+    <path d="M-70 95L-40-40M0 95V-40M70 95L40-40M-100 95H100M-88 50H88M-78 10H78M-64-25H64"/>
+  </g>
+  <!-- open door leaves swung inward -->
+  <path d="M690 235l-58-22v390l58-38z" fill="url(#red)"/>
+  <path d="M910 235l58-22v390l-58-38z" fill="url(#red)"/>
+  <g fill="none" stroke="#5e0c14" stroke-width="4"><path d="M640 250l42 12v130l-42-6zM640 410l42 4v140l-42 20zM960 250l-42 12v130l42-6zM960 410l-42 4v140l42 20z"/></g>
+  <path d="M690 235v330M910 235v330" stroke="#ffe7a8" stroke-width="3" stroke-opacity=".8"/>
+  <circle cx="678" cy="410" r="6" fill="#c9a24a"/><circle cx="922" cy="410" r="6" fill="#c9a24a"/>
+  <!-- torii-style gateway over the door -->
+  <g fill="#b3202a">
+    <rect x="590" y="200" width="26" height="380"/><rect x="984" y="200" width="26" height="380"/>
+    <path d="M540 150q260 24 520 0l-6 28q-254 18-508 0z"/>
+    <rect x="566" y="196" width="468" height="18"/>
+    <rect x="788" y="178" width="24" height="22"/>
+  </g>
+  <path d="M540 150q260 24 520 0l-2 8q-258 22-516 0z" fill="#1a0a0a"/>
+  <!-- shimenawa rope with paper streamers -->
+  <path d="M664 232q136 40 272 0" fill="none" stroke="#e8d3a0" stroke-width="10" stroke-linecap="round"/>
+  <path d="M664 232q136 40 272 0" fill="none" stroke="#b09560" stroke-width="3" stroke-dasharray="6 8"/>
+  <g fill="#fff7e6"><path d="M735 250l6 26-8 0 6 18"/><path d="M800 262l6 26-8 0 6 18"/><path d="M865 250l6 26-8 0 6 18"/></g>
+  <!-- stepped (Mayan) threshold stones -->
+  <g fill="#5a3a2a" stroke="#2a150e" stroke-width="2">
+    <rect x="620" y="580" width="360" height="18"/><rect x="590" y="598" width="420" height="18"/>
+  </g>
+  <!-- floor -->
+  <path d="M0 616h1600v284H0z" fill="url(#floor)"/>
+  <g stroke="#2a150e" stroke-width="2" stroke-opacity=".6">
+    <path d="M800 616L200 900M800 616L500 900M800 616V900M800 616l300 284M800 616l600 284M800 616L-100 900M800 616l900 284"/>
+    <path d="M0 680h1600M0 770h1600" stroke-opacity=".3"/>
+  </g>
+  <ellipse cx="800" cy="640" rx="360" ry="60" fill="url(#halo)" fill-opacity=".8"/>
+  <!-- lanterns -->
+  <use href="#lamp" x="330" y="260"/>
+  <use href="#lamp" x="1270" y="260"/>
+  <use href="#lamp" x="470" y="140" transform="translate(470 140) scale(.7) translate(-470 -140)"/>
+  <use href="#lamp" x="1130" y="140" transform="translate(1130 140) scale(.7) translate(-1130 -140)"/>
+  <use href="#lamp" x="80" y="120" transform="translate(80 120) scale(.8) translate(-80 -120)"/>
+  <use href="#lamp" x="1520" y="120" transform="translate(1520 120) scale(.8) translate(-1520 -120)"/>
+  <!-- cushions -->
+  <g>
+    <ellipse cx="420" cy="820" rx="150" ry="42" fill="#7a1e24"/><ellipse cx="420" cy="808" rx="140" ry="34" fill="#a8323a"/>
+    <ellipse cx="1180" cy="820" rx="150" ry="42" fill="#15405a"/><ellipse cx="1180" cy="808" rx="140" ry="34" fill="#1f6a8c"/>
+  </g>
+  <!-- low tea table -->
+  <path d="M560 740h480l50 60H510z" fill="url(#table)"/>
+  <rect x="510" y="800" width="580" height="18" fill="#3a2212"/>
+  <rect x="540" y="818" width="30" height="70" fill="#2a170c"/><rect x="1030" y="818" width="30" height="70" fill="#2a170c"/>
+  <path d="M560 740h480" stroke="#c9a24a" stroke-width="3" stroke-opacity=".6"/>
+  <!-- teapot -->
+  <circle cx="800" cy="720" r="120" fill="url(#tealHalo)"/>
+  <ellipse cx="800" cy="768" rx="80" ry="12" fill="#000" fill-opacity=".3"/>
+  <path d="M740 720q0-50 60-50t60 50q0 48-60 48t-60-48z" fill="url(#pot)"/>
+  <path d="M858 712q40-10 44-40" fill="none" stroke="#2c4744" stroke-width="12" stroke-linecap="round"/>
+  <path d="M742 700q-34 0-32 30t34 22" fill="none" stroke="#2c4744" stroke-width="9"/>
+  <ellipse cx="800" cy="674" rx="30" ry="8" fill="#1d3431"/><circle cx="800" cy="664" r="8" fill="#c9a24a"/>
+  <path d="M750 720q50 10 100 0" fill="none" stroke="#c9a24a" stroke-width="3"/>
+  <!-- cups -->
+  <g fill="#e8dcc0"><path d="M640 750h40l-5 22h-30z"/><path d="M920 750h40l-5 22h-30z"/></g>
+  <g fill="#6fe3cf" fill-opacity=".85"><ellipse cx="660" cy="751" rx="19" ry="4"/><ellipse cx="940" cy="751" rx="19" ry="4"/></g>
+  <!-- magical steam: teal ribbons and sparkles -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M902 668q-10-40 20-70t0-80" stroke="#aefcf0" stroke-width="6" stroke-opacity=".55"/>
+    <path d="M660 740q-12-30 8-54t-4-50" stroke="#aefcf0" stroke-width="4" stroke-opacity=".45"/>
+    <path d="M940 740q12-30-8-54t4-50" stroke="#aefcf0" stroke-width="4" stroke-opacity=".45"/>
+  </g>
+  <g fill="#fff6c8">
+    <path d="M930 520l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/>
+    <path d="M905 470l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+    <path d="M676 626l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+    <path d="M926 610l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+  </g>
+  <!-- floating motes drifting from the door -->
+  <g fill="#ffd27a">
+    <circle cx="720" cy="330" r="3"/><circle cx="880" cy="300" r="2.5"/><circle cx="760" cy="520" r="2"/><circle cx="850" cy="440" r="3"/>
+    <circle cx="600" cy="480" r="2" fill-opacity=".7"/><circle cx="1010" cy="420" r="2.5" fill-opacity=".7"/><circle cx="560" cy="360" r="2" fill-opacity=".6"/><circle cx="1040" cy="330" r="2" fill-opacity=".6"/>
+  </g>
+  <!-- warm vignette -->
+  <rect width="1600" height="900" fill="url(#vig)"/>
+</g>
+</svg>

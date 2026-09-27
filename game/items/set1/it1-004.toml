@@ -1,0 +1,8 @@
+id = "it1-004"
+name = "Ash Locket"
+faction = "ember"
+slot = "trinket"
+effect = "look"
+min_level = 7
+loot = true
+version = 1

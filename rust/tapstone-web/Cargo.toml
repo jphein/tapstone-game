@@ -1,0 +1,17 @@
+[package]
+name = "tapstone-web"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "The desk table in the browser (spec 2026-09-25): tapstone-arena's sans-IO core behind a C ABI for wasm32."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+tapstone-arena = { path = "../tapstone-arena", default-features = false }
+tapstone-rules = { path = "../tapstone-rules" }
+tapstone-sim = { path = "../tapstone-sim" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

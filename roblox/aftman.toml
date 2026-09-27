@@ -1,0 +1,6 @@
+# Tools for the Tapstone Roblox place. rojo and luau-lsp are ~/Projects/roblox's pins; lune runs
+# the pure modules' tests without Studio (tests/run.luau).
+[tools]
+rojo = "rojo-rbx/rojo@7.7.0"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.69.0"
+lune = "lune-org/lune@0.10.5"

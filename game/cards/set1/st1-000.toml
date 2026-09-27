@@ -1,0 +1,7 @@
+id = "st1-000"
+name = "Ember Castle"
+faction = "ember"
+type = "castle"
+cost = 0
+rarity = "common"
+version = 1

@@ -1,0 +1,10 @@
+id = "st1-002"
+name = "Cinder Whelp"
+faction = "ember"
+type = "unit"
+cost = 1
+attack = 2
+toughness = 1
+keywords = ["haste"]
+rarity = "common"
+version = 1

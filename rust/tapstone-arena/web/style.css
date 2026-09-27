@@ -1,0 +1,57 @@
+/* The battlefield page's palette. Every text colour the canvas draws is a `--X-ink` token and is
+ * drawn on the ground `--X` — the pair is declared here, the page draws with exactly these tokens,
+ * and tests/web_contrast.rs holds every pair to its floor in both themes (4.5:1 for text, 3:1 for
+ * a `-rim-ink`, which marks a non-text edge). A re-theme cannot quietly break legibility. */
+:root {
+  --bg: #10141a; --panel: #1b222c; --text: #e8e4d8; --muted: #8c96a3; --grid: #2c3642;
+  --ember: #e0663a; --tide: #3a9be0; --neutral: #7d8793; --gold: #e0a526; --danger: #d9534f;
+
+  /* The page's own text. */
+  --bg-ink: var(--text);
+  --bg-dim-ink: #9aa4b1;           /* the status line, on --bg */
+  /* A castle band: the active seat's glows gold; the other is quiet but still legible. */
+  --band-active: var(--gold); --band-active-ink: #10141a;
+  --band-idle: var(--grid);   --band-idle-ink: var(--text);
+  /* A unit tile and a chip. */
+  --tile: var(--bg);          --tile-ink: var(--text);
+  --tile-rim-ink: var(--gold);     /* the strike flash: a rim, never a fill over the numbers */
+  --tag: var(--gold);         --tag-ink: #10141a;   /* the arrival marker's "new" */
+  /* Lane labels, in their own gutter on the board. */
+  --board: var(--panel);      --board-ink: #9aa4b1;
+  /* The result / pause banner. */
+  --banner: #b3322e;          --banner-ink: #ffffff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3ead3; --panel: #fbf6e8; --text: #2a241a; --muted: #6d6452; --grid: #d8cdb2;
+    --ember: #b8431d; --tide: #1d6fae; --neutral: #6b7380; --gold: #8a6204; --danger: #b52b27;
+
+    --bg-dim-ink: #5f5747;
+    --band-active-ink: #fdf8ea;
+    --tile-rim-ink: #8a6204;
+    --tag: #8a6204;             --tag-ink: #fdf8ea;
+    --board-ink: #5f5747;
+    --banner: #b52b27;
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--bg-ink); font: 16px/1.3 system-ui, sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: space-between;
+  align-items: baseline; padding: .5rem 1rem; }
+h1 { font-size: 1.1rem; margin: 0; letter-spacing: .08em; }
+#status { color: var(--bg-dim-ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+main { display: grid; place-items: center; padding-bottom: 4rem; }
+/* 16:10 on a laptop; portrait under 640 px, so a spectator's phone gets a board it can read
+ * (three lane columns and six rows fit a phone well; the fonts have a floor in app.js). */
+canvas { width: min(96vw, 1100px); aspect-ratio: 16 / 10; background: var(--board); border-radius: 12px; }
+@media (max-width: 640px) {
+  canvas { aspect-ratio: 5 / 7; }
+  header { padding: .5rem .75rem; }
+}
+footer { position: fixed; inset: auto 0 0 0; padding: 1rem; text-align: center; font-weight: 700;
+  background: var(--banner); color: var(--banner-ink); }
+/* A text summary of the board for assistive tech: visually hidden, announced on change. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

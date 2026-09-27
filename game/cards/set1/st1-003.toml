@@ -1,0 +1,10 @@
+id = "st1-003"
+name = "Ashen Vanguard"
+faction = "ember"
+type = "unit"
+cost = 3
+attack = 3
+toughness = 2
+keywords = ["rush"]
+rarity = "common"
+version = 1

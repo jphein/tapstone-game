@@ -1,0 +1,596 @@
+{
+ "voice": "en-US-Ava:DragonHDLatestNeural",
+ "format": "webm-24khz-16bit-mono-opus",
+ "lines": [
+  {
+   "id": "lobby",
+   "text": "Setting the table…",
+   "text_sha256": "8f7972aa52af292d4d6ef80465331088f1115cfc41b863556f869aea42262b91",
+   "audio_sha256": "f38ab13885e3159915c63b4c42f065a4919c76105dba9330aae12ed77c3aa74e",
+   "bytes": 8088,
+   "file": "lobby.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "your-move",
+   "text": "Your move.",
+   "text_sha256": "d4d046aa0452ff546487a2fbed4b4e9efc09dfb1eae43334ed177333d4deb1cc",
+   "audio_sha256": "da9aea5cd581f969ab4bdeb917db435f03b88e92b30154a13fcb3ed4bdf7af4f",
+   "bytes": 5169,
+   "file": "your-move.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "other-seat",
+   "text": "The other seat is thinking…",
+   "text_sha256": "32bb2dfa0b58eaec1248fc1489fe3215cda673de9a993b7bb4c78ed6b5345255",
+   "audio_sha256": "27916aae1013e16aecefc64ff3ee1c3d4850aaddbe5a144025eb4bcde2e7e171",
+   "bytes": 9998,
+   "file": "other-seat.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "you-win",
+   "text": "You win.",
+   "text_sha256": "13894d0d4022fd3873940333c515b447a5e7c04e9aec2613dcb7552ad5dac794",
+   "audio_sha256": "4aa9cc7e7574cddde7a34261386ef3a4fb05bf85218e9ec02a1b70eec1ee74b4",
+   "bytes": 4918,
+   "file": "you-win.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "match-over",
+   "text": "The match is over.",
+   "text_sha256": "4a628ef3deb7828db4edfbe23525e029110446d3e5d16d2bf9bf291f31633456",
+   "audio_sha256": "ffabd5438a36977db60736813a04c7a9a3bf128c1ce7ff263ade90502291f0b6",
+   "bytes": 7458,
+   "file": "match-over.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "face-down",
+   "text": "Face down: touch a pad to charge it.",
+   "text_sha256": "0b3bfb31b8a6f747a6226c1e17fe60ce6b46f0ed5e0bf1b332430e1f68f938f1",
+   "audio_sha256": "ea6675edc4aa71ee8c27198534a8abb6b34aefaacd1d4cf42be07721a29b9c99",
+   "bytes": 15939,
+   "file": "face-down.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "face-up",
+   "text": "Face up: touch the pad under a lane.",
+   "text_sha256": "2eb9d13c5d16ddbd5803357d8c210164c4c2d67a35065021c40643fda5260618",
+   "audio_sha256": "8a51f4b5c8a7f819e1d270d7922198ac7f6bf008c5341beb4ec1ad765461610f",
+   "bytes": 17219,
+   "file": "face-up.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "deck-top",
+   "text": "The top card: touch a pad to draw it.",
+   "text_sha256": "9145ad2a572454999cd01a26e1d90bbea6aadfac76037fdea769897a475164f5",
+   "audio_sha256": "4e6a56919a3c47b5863fd2532dad4c48c03debf219d84f584aeb960f2f5cd86e",
+   "bytes": 15939,
+   "file": "deck-top.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "pass-mulligan",
+   "text": "Pass. Tap the castle again within 3 s to mulligan.",
+   "text_sha256": "87ef5a7bddfaea1478945b2a88266c5d2872526c2ea5476a5d9fffbd239e80f2",
+   "audio_sha256": "fe8fc5f1498352a36d48d0f3195585b01d2ebd563575da3049eb45790d9f910d",
+   "bytes": 20389,
+   "file": "pass-mulligan.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "choose-target",
+   "text": "Choose a target: look and pinch, or wait 3 s for the nearest.",
+   "text_sha256": "20f6e50b7d1805c43272fa31a7f4204f8545b82a1bb9f3709b17531372435c98",
+   "audio_sha256": "140f6740670298862cec295902bf984cedbda39cd0b2c6bfffcbb68850f8d95e",
+   "bytes": 26729,
+   "file": "choose-target.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "stone-refused",
+   "text": "The stone refused that move.",
+   "text_sha256": "cb44373cad01e32f9d2bf49158cd82d1a296e20c4f2150d344974ea198e230b7",
+   "audio_sha256": "795a8ea003bdc4e38bb8180153194265e3abc1fd67a7bc0d8871424e67d99649",
+   "bytes": 13419,
+   "file": "stone-refused.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "put-down",
+   "text": "Set your controllers down: this table is played with your hands.",
+   "text_sha256": "e6bd53c5a67d0c27d4d478bcde4c879cdf0ba792574710f8569173c510a21411",
+   "audio_sha256": "cb96291f21dabf26b1f076746fc2e5d7430ac3eabf94cf8d81a973062e0f24a5",
+   "bytes": 22279,
+   "file": "put-down.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "not-your-move",
+   "text": "It isn't your move.",
+   "text_sha256": "88c177254f62c6b1085363de8ab5e2686bf1efe1b5487265bfb66ffa4bb0837e",
+   "audio_sha256": "09e603a43a6380d64a79364889e0a56e5fdfb28bf1e402b331a2c76602870f05",
+   "bytes": 7458,
+   "file": "not-your-move.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-first",
+   "text": "Draw first: touch the top card of your deck to the stone.",
+   "text_sha256": "8f5a6577098282e61da0ead1dead0669f60518fdbd2f5ea08bd9e67bcb4128d5",
+   "audio_sha256": "7320392917ffc1fa4bb2eea26f7c212e1178a57ed1f72d267b2fcda040614758",
+   "bytes": 24819,
+   "file": "draw-first.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "no-draw-owed",
+   "text": "No draw is owed.",
+   "text_sha256": "6e9a30c41c51673792b68866a18d978866fd8c577a88a4db179ade66ba96e9ec",
+   "audio_sha256": "e7b54b3476dceab6d2c369c357a08921a4be92c56641904b8ce60f2474990299",
+   "bytes": 7079,
+   "file": "no-draw-owed.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "lane-cant-advance",
+   "text": "That lane can't advance now.",
+   "text_sha256": "2cf55f199a201df04ad4133b6e13f1ff953923b165c6b3a10c0136d2c43c2628",
+   "audio_sha256": "971a72d16e83bf21735f6ecaf18c63fe51c384cc6f328bd44ed09c3f716037bd",
+   "bytes": 9998,
+   "file": "lane-cant-advance.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "mulligan-closed",
+   "text": "The mulligan window is closed.",
+   "text_sha256": "61e4f9f78e9b91f58f08001757e92520cb09ca54f0384c2f35078f5e6fc70a77",
+   "audio_sha256": "8da0f7fb9ded60fd63174aae271a521ce5357c8b5be79e022d28a3aeead6ab3f",
+   "bytes": 11509,
+   "file": "mulligan-closed.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "cant-pass",
+   "text": "You can't pass now.",
+   "text_sha256": "7a32e7dcffa111b98dbd7441000ae6acb7e0e6e9a5707d651a1e5a6e2ebd1531",
+   "audio_sha256": "949faea3e68ae3d83ed62b1595c57bd556a58cfd2711c92ac2231c7b72f5de28",
+   "bytes": 8718,
+   "file": "cant-pass.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "cant-charge",
+   "text": "That card can't be charged now.",
+   "text_sha256": "55540436c102d9a06afb4c6e26c187d348f7a7ac467d2cad93b76ba3ee621e4d",
+   "audio_sha256": "98bd358435db1c6d31ab5215ea0b3fffbe8b96b77fe600c90b983b140b50953e",
+   "bytes": 11509,
+   "file": "cant-charge.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "touch-lane-pad",
+   "text": "Touch the pad under the lane you want.",
+   "text_sha256": "70abb1fbf3d17903e3f0b09dee1d1921daff03ae7f86e18b48f5e00dd961fb5d",
+   "audio_sha256": "e5096f96aa9863004efecf6da88ba9becb74fbd309b1b1eae44d21fcdfa2b777",
+   "bytes": 13168,
+   "file": "touch-lane-pad.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "entry-taken",
+   "text": "That lane's entry cell is taken.",
+   "text_sha256": "695150ae3973160ae69416a60e5ff9726c9d1f95a4de9d6b6279583e78804a45",
+   "audio_sha256": "f4ad4b05817c899e648d721f79c0da1da3c98c55e800335b878a352a13cf9cd2",
+   "bytes": 12769,
+   "file": "entry-taken.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "spell-cant-reach",
+   "text": "That spell can't reach there.",
+   "text_sha256": "ed7e3c6923aee54eeee0daf22ae4668069529171fb409d1630252f57b2977506",
+   "audio_sha256": "49662110f205de21c589a8d4bcadf25a408462e4bb86bc4dbfcaf5dafc636bb0",
+   "bytes": 10879,
+   "file": "spell-cant-reach.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "cant-play-card",
+   "text": "You can't play that card now.",
+   "text_sha256": "a4f00924f251cc042b1a11bd3dee1df55aa904c552cdc84dc95c95b1546b7b99",
+   "audio_sha256": "5959cbead2190f3975e27704a723662d8cafceffb57e69e66822f90a9f2981ba",
+   "bytes": 10879,
+   "file": "cant-play-card.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "commander-returns",
+   "text": "Your commander returns next round.",
+   "text_sha256": "73f94fc4b7b05a552d1488b196f89ecc8026f02e9d49fe7797971c49fac46132",
+   "audio_sha256": "5a5512daeb74bd705d0b35e04be45b2ed3afaf284c977f15826b8c465afa98b0",
+   "bytes": 13798,
+   "file": "commander-returns.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "commander-back",
+   "text": "Your commander is back on the field.",
+   "text_sha256": "265b733042ddd2b89ab928659d8ba1bd2777a8c1bf6acf8daf3388e4d34f18df",
+   "audio_sha256": "0d83624f41d2cf0273b022575a99df88032280c5ddfb81bc1d3447b591b09be8",
+   "bytes": 13798,
+   "file": "commander-back.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-place",
+   "text": "Set the stone on your table.",
+   "text_sha256": "90553fb9ab2bd0acfeb25d5dfed220e225a96584e522a8726ab1203eeae1467f",
+   "audio_sha256": "5b09c40329fba4fe64c16279508db6158bc3a0d26290d866c487e71e5cade0ef",
+   "bytes": 9599,
+   "file": "beat-place.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-claim",
+   "text": "Touch your castle card to the stone.",
+   "text_sha256": "a8ecf5d75d4ffac34db04111e193cd103bf96b8c19bda47f4e388690488f4e1c",
+   "audio_sha256": "7cd5ea4374329778cd22c37aad2853653a37091ade8b91259c0aec1be9ae2035",
+   "bytes": 11888,
+   "file": "beat-claim.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-draw",
+   "text": "Touch your deck to the stone five times to draw your hand.",
+   "text_sha256": "bd996bcbd72ea92788864c8de959d8f6dd83a0c3c4800bb2c72de188947d8990",
+   "audio_sha256": "e40f05b0c38b50592122b76d4a6684827f573537b1b6acaab46a4cae8f203801",
+   "bytes": 20389,
+   "file": "beat-draw.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-flip",
+   "text": "Turn a card face down and touch it to a pad for mana.",
+   "text_sha256": "be54eaf25aa7606c2d63a414248564ae4d4781df1c061b02ff91516447619319",
+   "audio_sha256": "2ce27b9afc1dbe35f0b2ece5ae4cbc461b0c102211e5552c6a52331a045fb2c0",
+   "bytes": 18858,
+   "file": "beat-flip.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-cast",
+   "text": "Touch a card face up to a pad to summon it.",
+   "text_sha256": "e913f0cf36118114350995b2afe6cd8e01da67d1bd63f70ba8aa8e552cd1711c",
+   "audio_sha256": "59ee46d46ed176ee08348e0c8e1aacb259c60216c23a7f1337524e3ef345eb13",
+   "bytes": 15309,
+   "file": "beat-cast.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-pass",
+   "text": "Touch your castle to the stone to end your turn.",
+   "text_sha256": "d6a6b9801aa51234b6709e89079f256eeca30db43eb9f1c72d4fbfebdf0a67ae",
+   "audio_sha256": "6545160dd45d435e6294ca2348642bb57944293e0945fd5646bdd1cbfe646cc5",
+   "bytes": 15939,
+   "file": "beat-pass.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-bot",
+   "text": "Now watch the other side move.",
+   "text_sha256": "bace590364016f9fc03c25b4839cd2bc5f2ba1f77412ed648e684b96eb6badb9",
+   "audio_sha256": "f6bbdc273165e6421535ba99aaf344e3475ef6e6aa341531328834f0c6352a37",
+   "bytes": 9998,
+   "file": "beat-bot.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "beat-unguided",
+   "text": "The board is yours, so break their keep.",
+   "text_sha256": "60ee9236767ea8393383c9183bd35294b4cfdd83e9decb1221e057b33fd1422b",
+   "audio_sha256": "339fd65fa2ea5ed2bd0c02d623c8422c43685085dc7217123296125018d90793",
+   "bytes": 14428,
+   "file": "beat-unguided.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-1",
+   "text": "Draw 1: touch the top card of your deck to the stone.",
+   "text_sha256": "c9c22a34dc810d87e2557eaf4e8a26be29ae4e4980e155268ebeebad85c39fec",
+   "audio_sha256": "fd78e6ddc37a1f8f0cdd4c03c7e35efe3cfd23d0cdd7f63ad8c30298290651e8",
+   "bytes": 21019,
+   "file": "draw-1.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-2",
+   "text": "Draw 2: touch the top card of your deck to the stone.",
+   "text_sha256": "bbe7d012e4e9da9f110909c6082e6dea3afbc724fbdc0260cc35f67a7afd6483",
+   "audio_sha256": "2cd6bd57f931cd863855f4b66ba2f7e4f7601940f3764c7f6570e9805f2519f0",
+   "bytes": 20389,
+   "file": "draw-2.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-3",
+   "text": "Draw 3: touch the top card of your deck to the stone.",
+   "text_sha256": "3fdca1347b78434c73a152a3a6ce24e80f20948cefc2950fb4a5713197382d16",
+   "audio_sha256": "a80966c389ac301e0aa7c4188ff9a7aebfa2275e59a0dff3a2d07047125341be",
+   "bytes": 22279,
+   "file": "draw-3.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-4",
+   "text": "Draw 4: touch the top card of your deck to the stone.",
+   "text_sha256": "b7190da8cc9a82a3f15ea651e6894214ef4aa7ffd349c75f4cd642ca288520a1",
+   "audio_sha256": "1b0488b05f39cf219260df4bca527a92ad8854d0a4b095f59808cef2ec8e7d39",
+   "bytes": 20768,
+   "file": "draw-4.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "draw-5",
+   "text": "Draw 5: touch the top card of your deck to the stone.",
+   "text_sha256": "9698fe8cf3846dace7b2b0624a70deb8ad26070ece4c8013a50c969cd0086cb7",
+   "audio_sha256": "9df6fdcf8810edcf045a03b0488b5a17f0302df467fcf8b5903df327171a4be3",
+   "bytes": 20768,
+   "file": "draw-5.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-cinder-whelp",
+   "text": "Cinder Whelp: touch a pad.",
+   "text_sha256": "fe78a52f3a936ebda3f419bd2ab55a0bc4853526c8e841a24eba1295fae81051",
+   "audio_sha256": "072de8cc84cec99b60603abb8f99071adc74aea9574fbdfc0e11966846621865",
+   "bytes": 13419,
+   "file": "card-cinder-whelp.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-ashen-vanguard",
+   "text": "Ashen Vanguard: touch a pad.",
+   "text_sha256": "8e9302a23a9b86bd26ebc09464f747b3fd20006bb301d0133de66ef977f41d7c",
+   "audio_sha256": "062ca61ebc8243d6b12fc7fe928df177077ef2ede8388cc8d74167a365333f96",
+   "bytes": 13419,
+   "file": "card-ashen-vanguard.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-hearth-warden",
+   "text": "Hearth Warden: touch a pad.",
+   "text_sha256": "2e8adb98b4961e22652c394400661b6fee41686095019c522a5386277ae139f6",
+   "audio_sha256": "9a111fdf20a9a410a81be39b97fd52e29425b9ff75eb6def0206343914971a3a",
+   "bytes": 14428,
+   "file": "card-hearth-warden.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-flare",
+   "text": "Flare: touch a pad.",
+   "text_sha256": "4b5cf7ea508208bf8fa0e674707e5ad502f2b3ff71d1af74d48f81c90780b099",
+   "audio_sha256": "337f8a38dd39898b4517bfad57ba51283a79ba21dd987c9055f378a25ea44bbc",
+   "bytes": 10249,
+   "file": "card-flare.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-reef-archer",
+   "text": "Reef Archer: touch a pad.",
+   "text_sha256": "dd170458c606e2eabacd74b8102fbbe14716160159a07c4fcc4e1e675229ca7f",
+   "audio_sha256": "570da6324788e088bf158c6e57d552618d59feb34d4f19975a925ccb9645d014",
+   "bytes": 12769,
+   "file": "card-reef-archer.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-tidecaller",
+   "text": "Tidecaller: touch a pad.",
+   "text_sha256": "4ebbc219b2ace393e940cd647599dd891d36e2723c0207dccfa7fd08e5a2a1b8",
+   "audio_sha256": "ca1b4666d4d290ac0a48fce500101e3f1e2fbffd6dc8c2eae1f202818efd5976",
+   "bytes": 11888,
+   "file": "card-tidecaller.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-pearl-shieldbearer",
+   "text": "Pearl Shieldbearer: touch a pad.",
+   "text_sha256": "7af283e3093c73692d1e0c3412a8c455d67261b6ca953a8dd545008aeaa84916",
+   "audio_sha256": "3b61e0061e20132db4e2c0aa07eae9fd25d2caaaae83f2afb66d46019fd9951b",
+   "bytes": 16338,
+   "file": "card-pearl-shieldbearer.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-tidal-lash",
+   "text": "Tidal Lash: touch a pad.",
+   "text_sha256": "b2872dd4bb771de010035838f17168d3b73250a0ed5fdf821aa6b52a5ee983c4",
+   "audio_sha256": "feed454e82971a8e1dfde832a5341778114f0b856c4d76a3c65fc726d6b5ba83",
+   "bytes": 13168,
+   "file": "card-tidal-lash.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-undertow",
+   "text": "Undertow: touch a pad.",
+   "text_sha256": "c6d6924cb14e4974eb1841031c77c8a832540319724344dadb8dae1686064f0a",
+   "audio_sha256": "4ecb201e5685ef1e024b3b906a7832c8b653e1359569a66480778c12665d1599",
+   "bytes": 11509,
+   "file": "card-undertow.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-deep-breath",
+   "text": "Deep Breath: touch a pad.",
+   "text_sha256": "ca984bc55212623cb571355e28ad50a62bdc5c2605b5c564dd49d20548c8c934",
+   "audio_sha256": "5bc38caaf06b273961c6205ae129fb097525a1b6b82810b39837a6837a8ae5a0",
+   "bytes": 13419,
+   "file": "card-deep-breath.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-mend",
+   "text": "Mend: touch a pad.",
+   "text_sha256": "8aa3f6b9a3d3d24f387fa36b422d7afbf93fe690bbddf4b0221e0c503be04694",
+   "audio_sha256": "4f4a44c2a63a2f980965274ae93367f2740c0bc97b5a6e7c3dc8d620a8f64ad7",
+   "bytes": 10879,
+   "file": "card-mend.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-riptide",
+   "text": "Riptide: touch a pad.",
+   "text_sha256": "1b19ec7f99f5d79c536df3bc67d054461ca3cf81098318a130b1dfc3a157bbcc",
+   "audio_sha256": "0781ac3a6e08e4758d869b0553d05f76241158eb66876dc7266039a41d7f1201",
+   "bytes": 11258,
+   "file": "card-riptide.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-2",
+   "text": "Level 2.",
+   "text_sha256": "b1cafe357adc5a24901c4bbe0bb5284711230f3736a93707ecc7cb217976cb34",
+   "audio_sha256": "3fd66f0ef481c7d2ea3ba89dd8c1d591983b9336a79be72a8ef22ada3d5fa314",
+   "bytes": 5548,
+   "file": "level-2.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-3",
+   "text": "Level 3.",
+   "text_sha256": "44292d422831cc080047ac65fe12bd8b32ab82e8a81b144f45ed3dfdbf42e831",
+   "audio_sha256": "d2bb9f203aebaa1b241a458a1b97f1bef1af12ce37551ac5e4ccddc478f22ebf",
+   "bytes": 6178,
+   "file": "level-3.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-4",
+   "text": "Level 4.",
+   "text_sha256": "80797ea6b57f7cd2382512ad1f768940f1baa598293e1d528b9e571b3722068a",
+   "audio_sha256": "aad5e5b96bc6551406587df6f5d99c5f8fcba18aff77a0c2db9990ed8ad90ffe",
+   "bytes": 7079,
+   "file": "level-4.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-5",
+   "text": "Level 5.",
+   "text_sha256": "0d9c8740f5499ee84fe48d3f41bf01ba72060f0462551fa20aacf1b5c2447197",
+   "audio_sha256": "1a7deda1621a795e39eafbec3a8e9728a8a5f950cc4c22c123173cd27efcaeb0",
+   "bytes": 5169,
+   "file": "level-5.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-6",
+   "text": "Level 6.",
+   "text_sha256": "cc8272ccbc60ef9f0afb003fd6fb0cbbb00ba6a474f98469241202a4d7c30ce9",
+   "audio_sha256": "4aa6bf8b027c90cedd6a18e45e6e4bcd7aa66d4d25ccb88aaac9b36f24eef7cf",
+   "bytes": 6429,
+   "file": "level-6.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-7",
+   "text": "Level 7.",
+   "text_sha256": "96825799eea19d47ae86b9172dda7748fef2c12f072271c423e02e1346954901",
+   "audio_sha256": "59ddce0b27d630a3e489e3f4aee690a53288cc57fccdcc6f4e92b109ad7bf9ea",
+   "bytes": 6429,
+   "file": "level-7.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-8",
+   "text": "Level 8.",
+   "text_sha256": "f4d9d29e49f485eb61afdc3cb11e134709a8429e1f12be4833e163b4ba8c2bc2",
+   "audio_sha256": "40cc33bde368eab8f3e5198edae1f6ad17c3485c9e606d91ea1c947b5570e14f",
+   "bytes": 5548,
+   "file": "level-8.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-9",
+   "text": "Level 9.",
+   "text_sha256": "eed5fe050168d5627581b62717aba046238acb4b449d40f5d68406db3820689c",
+   "audio_sha256": "8c9fb3a4087b38892277f902131171e5e06754c4f51a2ccbfae3d674e0d2eee5",
+   "bytes": 6178,
+   "file": "level-9.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "level-10",
+   "text": "Level 10.",
+   "text_sha256": "5bcb858264a46447e879112bc302bd18987803b19f541576632e6e3fa350b02a",
+   "audio_sha256": "5994a821a9a41aaa4f5bf518e742a93ce313e0b83cec48e75ba0aa7570f5bbf7",
+   "bytes": 6429,
+   "file": "level-10.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+id = "st1-010"
+name = "Undertow"
+faction = "tide"
+type = "spell"
+cost = 2
+effect = "shift"
+rarity = "common"
+version = 1

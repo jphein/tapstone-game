@@ -1,0 +1,7 @@
+id = "st1-001"
+name = "Tide Castle"
+faction = "tide"
+type = "castle"
+cost = 0
+rarity = "common"
+version = 1

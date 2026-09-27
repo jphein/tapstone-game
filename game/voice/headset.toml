@@ -1,0 +1,145 @@
+# The headset's fixed voice lines (0033 "Speaking": every predictable sentence is pre-rendered).
+# `python3 tools/voice_lines.py` renders them with Azure Speech into
+# rust/tapstone-web/www/xr/public/voice/ and writes manifest.json beside them; only lines whose
+# text changed are sent again. The altar plays a clip when its text matches a line here EXACTLY,
+# and otherwise draws the text alone (src/logic/voice.js), so a line missing here is silent, not
+# broken.
+#
+# This is the headset's clip set. The shrine's clips are a different set with different wording
+# (game/voice/clips.tsv, rendered with Piper per 0033) and nothing here changes them.
+#
+# The text must be the headset's own string, character for character: test/voice.test.js reads
+# every literal the headset says and fails if one is missing from the rendered manifest.
+
+voice = "en-US-Ava:DragonHDLatestNeural"
+format = "webm-24khz-16bit-mono-opus"
+ext = "webm"
+
+# ---- play.js ------------------------------------------------------------------------------------
+[[line]]
+id = "lobby"
+text = "Setting the table…"
+[[line]]
+id = "your-move"
+text = "Your move."
+[[line]]
+id = "other-seat"
+text = "The other seat is thinking…"
+[[line]]
+id = "you-win"
+text = "You win."
+[[line]]
+id = "match-over"
+text = "The match is over."
+[[line]]
+id = "face-down"
+text = "Face down: touch a pad to charge it."
+[[line]]
+id = "face-up"
+text = "Face up: touch the pad under a lane."
+[[line]]
+id = "deck-top"
+text = "The top card: touch a pad to draw it."
+[[line]]
+id = "pass-mulligan"
+text = "Pass. Tap the castle again within 3 s to mulligan."
+[[line]]
+id = "choose-target"
+text = "Choose a target: look and pinch, or wait 3 s for the nearest."
+[[line]]
+id = "stone-refused"
+text = "The stone refused that move."
+
+# ---- guard.js -----------------------------------------------------------------------------------
+[[line]]
+id = "put-down"
+text = "Set your controllers down: this table is played with your hands."
+
+# ---- logic/menu.js refusals ---------------------------------------------------------------------
+[[line]]
+id = "not-your-move"
+text = "It isn't your move."
+[[line]]
+id = "draw-first"
+text = "Draw first: touch the top card of your deck to the stone."
+[[line]]
+id = "no-draw-owed"
+text = "No draw is owed."
+[[line]]
+id = "lane-cant-advance"
+text = "That lane can't advance now."
+[[line]]
+id = "mulligan-closed"
+text = "The mulligan window is closed."
+[[line]]
+id = "cant-pass"
+text = "You can't pass now."
+[[line]]
+id = "cant-charge"
+text = "That card can't be charged now."
+[[line]]
+id = "touch-lane-pad"
+text = "Touch the pad under the lane you want."
+[[line]]
+id = "entry-taken"
+text = "That lane's entry cell is taken."
+[[line]]
+id = "spell-cant-reach"
+text = "That spell can't reach there."
+[[line]]
+id = "cant-play-card"
+text = "You can't play that card now."
+
+# ---- 0033's list: the commander, which the headset does not say yet -----------------------------
+[[line]]
+id = "commander-returns"
+text = "Your commander returns next round."
+[[line]]
+id = "commander-back"
+text = "Your commander is back on the field."
+
+# ---- expanded lines ----------------------------------------------------------------------------
+# play.js voiceFor(): `Draw ${me.owed_draws}: …`. The opening hand owes 5 (0036), the most at once.
+[[template]]
+id = "draw-{n}"
+text = "Draw {n}: touch the top card of your deck to the stone."
+n = [1, 2, 3, 4, 5]
+
+# play.js lift(): `${card.name}: touch a pad.` for every card a hand can hold (set 1, not castles).
+[[template]]
+id = "card-{slug}"
+text = "{name}: touch a pad."
+cards = "game/cards/set1"
+
+# Level-up (0033's list). The levels come from the shrine's generated level_up clips, which
+# progression's table produced, so the headset never names a level the game lacks.
+[[template]]
+id = "level-{n}"
+text = "Level {n}."
+levels_from = "game/voice/clips.tsv"
+
+# ---- logic/first-five.js: the first five minutes (spec §3.4), one sentence per beat -------------
+[[line]]
+id = "beat-place"
+text = "Set the stone on your table."
+[[line]]
+id = "beat-claim"
+text = "Touch your castle card to the stone."
+[[line]]
+id = "beat-draw"
+text = "Touch your deck to the stone five times to draw your hand."
+[[line]]
+id = "beat-flip"
+text = "Turn a card face down and touch it to a pad for mana."
+[[line]]
+id = "beat-cast"
+text = "Touch a card face up to a pad to summon it."
+[[line]]
+id = "beat-pass"
+text = "Touch your castle to the stone to end your turn."
+[[line]]
+id = "beat-bot"
+text = "Now watch the other side move."
+[[line]]
+id = "beat-unguided"
+text = "The board is yours, so break their keep."

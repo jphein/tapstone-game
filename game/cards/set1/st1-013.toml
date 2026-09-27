@@ -1,0 +1,8 @@
+id = "st1-013"
+name = "Riptide"
+faction = "tide"
+type = "spell"
+cost = 3
+effect = "destroy:2"
+rarity = "common"
+version = 1

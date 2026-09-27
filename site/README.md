@@ -1,0 +1,38 @@
+# site/ — tapstone.realm.watch
+
+Static card pages. Every inscribed tag points at `https://tapstone.realm.watch/c/<slug>/`.
+Served by Caddy on ubox0 from `/srv/tapstone.realm.watch` (file_server, LE cert via
+Cloudflare DNS challenge).
+
+`media/` is gitignored — the clips come from the magic repo (`art/<slug>/`, built by
+`tools/cardart.py`). The set 1 clips (Cinder Whelp, Reef Archer, Tidecaller, Ember Castle) come from
+katana's `scratch/cardart-run/art/<slug>/veo.mp4`, the same tool run from project scratch; copy each
+to `site/media/<slug>.mp4` before the rsync. Set 1's pages, their `art.webp`, the headset's
+`rust/tapstone-web/www/xr/public/cards/*.webp` and the two promo cards' paintings are written by
+`tools/card_art.py build <art dir> --video <slugs>` from those full-size paintings, which stay in
+scratch and out of git (`python3 -m unittest tools/test_card_art.py` checks what's committed). Deploy:
+
+```sh
+~/Projects/realm-sigil/static/build.sh --name tapstone --description "Tapstone card pages" \
+  --realm fantasy --repo https://github.com/jphein/tapstone-game --html site/c/<slug>/index.html
+mv version.json site/   # build.sh writes it to the cwd
+rsync -az --delete --exclude /competition/ site/ ubox0:~/tapstone-site/
+ssh ubox0 'sudo rsync -a --delete --exclude /competition/ ~/tapstone-site/ /srv/tapstone.realm.watch/ && sudo chmod -R a+rX /srv/tapstone.realm.watch'
+```
+
+`--exclude /competition/` keeps the frozen contest build (`docs/runbooks/contest-freeze.md`) out of
+both syncs: `site/` has no `competition/`, so `--delete` alone would wipe it on the next card deploy.
+
+**The promo page** (`site/promo/`, #131) is stamped the same way, from the repo root, before the
+rsync above. Keep `site/version.json` from the card-page build; the promo page carries its sigil
+in its meta tag only:
+
+```sh
+~/Projects/realm-sigil/static/build.sh --name tapstone --description "Tapstone promo page" \
+  --realm fantasy --repo https://github.com/jphein/tapstone-game --html site/promo/index.html
+rm version.json
+```
+
+Its art (`site/promo/art/*.svg`) comes from the promo-art branch. A missing picture shows its alt
+text in a framed panel (`promo.js`), so the page still reads before the art lands.
+
