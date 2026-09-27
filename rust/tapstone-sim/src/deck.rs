@@ -94,6 +94,9 @@ pub fn decks_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../decks")
 }
 
+/// Copies of one design a deck may hold (#147, card-data-format.md).
+pub const COPY_LIMIT: u32 = 3;
+
 pub fn load(path: &Path, rules: &HouseRules) -> Result<Deck, DeckError> {
     let err = |m: String| DeckError {
         path: path.to_path_buf(),
@@ -158,11 +161,18 @@ pub fn load(path: &Path, rules: &HouseRules) -> Result<Deck, DeckError> {
         )));
     }
 
-    // >>> NO COPY LIMIT IS ENFORCED, AND THAT IS A READING OF THE DOC RATHER THAN AN OMISSION. <<<
-    // card-data-format.md states none, and the two shipped lists hold five copies of one design,
-    // so inventing a conventional three-of rule here would make the decks this project has always
-    // played invalid and move every golden. The tally is reported instead, so a limit can be
-    // decided on evidence rather than assumed.
+    // #147 (2026-09-27): at most COPY_LIMIT copies of one design. It is tooling, not engine: the
+    // rules crate plays whatever list it is handed, and the limit is a deck-building rule.
+    let mut seen: BTreeMap<u16, u32> = BTreeMap::new();
+    for (id, &idx) in f.cards.iter().zip(&cards) {
+        let n = seen.entry(idx).or_insert(0);
+        *n += 1;
+        if *n > COPY_LIMIT {
+            return Err(err(format!(
+                "{n} copies of {id}; a deck holds at most {COPY_LIMIT} of one design"
+            )));
+        }
+    }
     Ok(Deck {
         name: f.name,
         owner: f.owner,
@@ -198,7 +208,7 @@ pub fn load_all(rules: &HouseRules) -> (Vec<Deck>, Vec<DeckError>) {
 }
 
 impl Deck {
-    /// design index → copies, so a limit can be argued from data if anyone wants one.
+    /// design index → copies; the loader refuses any above `COPY_LIMIT`.
     pub fn copies(&self) -> BTreeMap<u16, u32> {
         let mut m = BTreeMap::new();
         for &c in &self.cards {

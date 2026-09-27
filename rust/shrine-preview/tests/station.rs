@@ -823,7 +823,7 @@ fn control_the_fall_penalty_check_fails_when_the_castle_pays_less() {
 }
 
 /// 0029: a fall costs the castle the game's fall penalty. In the engine it is tallied with the
-/// combat's castle damage (seed 11: the drop is at least the penalty), and the view-side fall
+/// combat's castle damage (`FALL_SEED`: the drop is at least the penalty), and the view-side fall
 /// debits exactly the penalty. Both ends are checked, and the castle well gets its own frame.
 #[test]
 fn a_fall_debits_the_castle_by_the_fall_penalty() {
@@ -1801,7 +1801,7 @@ fn the_state_search_finds_what_the_fixtures_pin() {
 }
 
 /// Positive control for the exhausted-deck negative: the predicate can fire. At a table with an
-/// 8-card deck a real game runs out, so "none at 25 cards" is a finding, not a blind instrument.
+/// 8-card deck a real game runs out, so "none at 30 cards" is a finding, not a blind instrument.
 #[test]
 fn control_the_exhausted_deck_search_can_see_an_exhaustion() {
     use shrine_preview::search::{self, Wanted};
@@ -1853,4 +1853,28 @@ fn the_converted_states_are_real() {
     };
     assert!(want, "{:?} with {} owed", s.voice, s.st.owed);
     assert!(station::voice_agrees(&s.voice, &s.st));
+}
+
+/// The sheet captions name the seeds they were rendered from, so they are held to the pins: a
+/// re-pinned seed (#147 moved all three) cannot leave a caption naming the old game.
+#[test]
+fn the_engine_captions_name_the_pinned_seeds() {
+    let shots = fx::screens();
+    let caption = |name: &str| {
+        shots
+            .iter()
+            .find(|s| s.name == name)
+            .map(|s| s.caption)
+            .unwrap()
+    };
+    assert!(
+        caption("s3-station-fallen").ends_with(&format!("seed {})", fx::FALL_SEED)),
+        "{}",
+        caption("s3-station-fallen")
+    );
+    assert!(
+        caption("s3-station-waiting").ends_with(&format!("seed {})", fx::BLOCKED_AT.seed)),
+        "{}",
+        caption("s3-station-waiting")
+    );
 }

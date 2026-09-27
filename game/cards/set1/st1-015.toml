@@ -1,0 +1,10 @@
+id = "st1-015"
+name = "Bellows Raider"
+faction = "ember"
+type = "unit"
+cost = 2
+attack = 2
+toughness = 1
+keywords = ["rush"]
+rarity = "common"
+version = 1

@@ -1,0 +1,10 @@
+id = "st1-019"
+name = "Trench Leviathan"
+faction = "tide"
+type = "unit"
+cost = 4
+attack = 3
+toughness = 4
+keywords = ["shield1"]
+rarity = "uncommon"
+version = 1

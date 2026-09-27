@@ -18,8 +18,10 @@ art (Cinder Whelp, Reef Archer). A slug in --video gets a <video> from /media/<s
 gitignored and deployed like the other clips (site/README.md).
 
 Art direction: 0014 (painted scenes; the card's own subject). Realms: 0039. Tide's cards come from
-the Deep Tides and Ember's from the Forge Peaks (JP's ruling, 2026-09-26). Neutral cards are set in
-the Hearthlands, which is a PROPOSAL: no ruling places them yet. No other names are used.
+the Deep Tides and Ember's from the Forge Peaks (JP's ruling, 2026-09-26); neutral cards from the
+Hearthlands (JP's ruling, 2026-09-27). No other names are used.
+
+Cards listed in game/cards/awaiting-art.toml have a prompt but no art yet: `build` skips them.
 Python 3.11+ (tomllib) and Pillow with WebP.
 """
 import argparse
@@ -36,9 +38,11 @@ REPO = Path(__file__).resolve().parent.parent
 REALMS = {
     "tide": ("the Deep Tides", "ruled by JP, 2026-09-26 (0039): Tide's cards come from the Deep Tides"),
     "ember": ("the Forge Peaks", "ruled by JP, 2026-09-26 (0039): Ember's cards come from the Forge Peaks"),
-    "neutral": ("the Hearthlands", "PROPOSAL for JP: 0039 names the Hearthlands as a realm, but no ruling "
-                "places the neutral cards there yet"),
+    "neutral": ("the Hearthlands", "ruled by JP, 2026-09-27 (0039): the neutral cards come from the Hearthlands"),
 }
+# The cards with no art yet (0014 art costs Foundry credit and waits for JP): one list, which the
+# headset's card-art test reads too.
+AWAITING_ART = frozenset(tomllib.loads((REPO / "game" / "cards" / "awaiting-art.toml").read_text())["set1"])
 # What each realm looks like. Only 0039's names; the look is ours, from the faction rulings.
 SETTING = {
     "tide": "a realm of deep blue ocean water, drowned light, coral and pearl-pale sand",
@@ -73,6 +77,19 @@ SUBJECTS = {
                "cottage hearth fire",
     "st1-013": "a violent rip current tearing out to sea, sweeping away small wooden rafts and "
                "driftwood in its churning foam",
+    # #147's six (2026-09-27): prompts only. Their art waits for JP's OK (awaiting-art.toml).
+    "st1-014": "a lean young runner sprinting along a narrow basalt ridge, a glowing ingot clutched to "
+               "their chest, sparks streaming behind them",
+    "st1-015": "a wiry raider bursting through a curtain of forge smoke, a great leather bellows on their "
+               "back blasting a gout of flame ahead",
+    "st1-016": "a hulking brute of cooled black slag with molten orange seams, lumbering out of a lava "
+               "field, its fists dripping glowing rock",
+    "st1-017": "a fountain of molten magma erupting from a split in the ground, glowing boulders arcing "
+               "high toward distant fortress walls",
+    "st1-018": "a small, nimble skimmer gliding over the wave tops on a shell board, flicking a sling of "
+               "salt-crystal shot",
+    "st1-019": "a vast armoured sea creature rising from a dark ocean trench, barnacled shell plates like "
+               "a shield, pale eyes glowing in the deep",
 }
 STYLE = ("painted fantasy card illustration, rich visible brushwork, oil and gouache texture, "
          "dramatic light, the subject centred with room to crop the edges; no text, no letters, "
@@ -179,8 +196,8 @@ def page(card: dict, video: bool) -> str:
         media = f'  <img class="scene" src="{art}" alt="{alt}" width="960" height="640">\n'
         clip = ""
     realm = escape(card["realm"])
-    basis = ("This is a PROPOSAL: no ruling places the neutral cards in a realm yet."
-             if card["realm_basis"].startswith("PROPOSAL") else "JP's ruling of 2026-09-26 (decision 0039).")
+    ruled = re.search(r"\d{4}-\d\d-\d\d", card["realm_basis"])[0]
+    basis = f"JP's ruling of {ruled} (decision 0039)."
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(card['name'])} · Tapstone</title>
@@ -238,6 +255,9 @@ def build(art_dir: Path, video: set[str]) -> None:
         sys.exit(f"--video names no card: {', '.join(sorted(unknown))}")
     XR_CARDS.mkdir(parents=True, exist_ok=True)
     for c in cards:
+        if c["id"] in AWAITING_ART:
+            print(c["id"], c["slug"], "awaiting art (game/cards/awaiting-art.toml): skipped")
+            continue
         im = Image.open(art_dir / c["slug"] / "scene.png")
         d = REPO / "site" / "c" / c["slug"]
         d.mkdir(parents=True, exist_ok=True)

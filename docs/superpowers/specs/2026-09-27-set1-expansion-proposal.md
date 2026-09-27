@@ -1,7 +1,8 @@
-# Set 1 expansion toward two 30-card decks — PROPOSAL
+# Set 1 expansion toward two 30-card decks — PROPOSAL, approved as 0040
 
-Date: 2026-09-27 · Author: Pollux (overnight lane, umbrella #131) · Status: **PROPOSAL for JP — not
-approved, do not build from it** · Would amend: 0011 (deck size), card-data-format (a copy limit) ·
+Date: 2026-09-27 · Author: Pollux (overnight lane, umbrella #131) · Status: **APPROVED by JP
+(2026-09-27) and implemented: decision 0040.** Names kept as proposed; the realms below are rulings now;
+the bonus re-sweep (§3.2) and the art stay open · Would amend: 0011 (deck size), card-data-format (a copy limit) ·
 Evidence: branch `scratch/pollux-expansion-sim` at `1088098` (never merged)
 
 CLAUDE.md: *design before code*, and *keep the game small: ≤30-card decks, one tap per action,

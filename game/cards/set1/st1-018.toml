@@ -1,0 +1,10 @@
+id = "st1-018"
+name = "Brine Skimmer"
+faction = "tide"
+type = "unit"
+cost = 1
+attack = 1
+toughness = 1
+keywords = ["ranged"]
+rarity = "common"
+version = 1

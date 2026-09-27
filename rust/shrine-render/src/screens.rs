@@ -304,7 +304,13 @@ pub fn setup<D: DrawTarget<Color = Rgb565>>(d: &mut D, game: &Game, near: u8, th
         },
         Alignment::Left,
     );
-    status_line(d, "deck 7f3a - 25 cards", "deck b210 - 25");
+    // The deck hashes are placeholders; the count is the table's own deck_size (30 since #147).
+    let n = game.rules.deck_size;
+    status_line(
+        d,
+        &crate::txt!("deck 7f3a - {n} cards"),
+        &crate::txt!("deck b210 - {n}"),
+    );
 }
 
 /// 8. Result — who won, and the match's own title.

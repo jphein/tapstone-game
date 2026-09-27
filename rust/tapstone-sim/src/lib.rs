@@ -22,10 +22,15 @@ pub use replay::{Replay, ReplayError, replay};
 pub use seat::{ScriptedSeat, Style};
 pub use transcript::Transcript;
 
-/// Seat 0 plays Ember + Neutral, seat 1 Tide + Neutral.
-pub const DECK_DESIGNS: [&[u16]; SEATS] = [&[2, 3, 4, 5, 11, 12], &[6, 7, 8, 9, 10, 13, 11, 12]];
+/// Seat 0 plays Ember + Neutral, seat 1 Tide + Neutral: #147's lists (2026-09-27), each its
+/// faction's eight designs plus the two neutrals, cycled to three copies of each.
+pub const DECK_DESIGNS: [&[u16]; SEATS] = [
+    &[2, 3, 4, 5, 14, 15, 16, 17, 11, 12],
+    &[6, 7, 8, 9, 10, 13, 18, 19, 11, 12],
+];
 pub const CASTLES: [u16; SEATS] = [0, 1];
-pub const DECK_SIZE: usize = 25;
+/// `HouseRules::default().deck_size`; `tests/balance.rs` holds the two equal.
+pub const DECK_SIZE: usize = 30;
 
 /// Which decks the two seats hold. A mirror is the control that separates a SEAT effect from a
 /// DECK effect, and until now it needed a source edit — which meant the one experiment that can
@@ -92,7 +97,7 @@ impl Default for Setup {
     }
 }
 
-/// Cycle the seat's design list to 25 cards, then shuffle with a seat-specific stream.
+/// Cycle the seat's design list to `DECK_SIZE` cards, then shuffle with a seat-specific stream.
 pub fn build_deck(seed: u64, seat: u8) -> Vec<u16> {
     build_deck_from(seed, seat, Decks::default())
 }

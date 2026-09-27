@@ -29,7 +29,7 @@ class Prompts(unittest.TestCase):
 
     def test_one_prompt_per_card_file(self):
         ids = [tomllib.loads(p.read_text())["id"] for p in SET1]
-        self.assertEqual(len(ids), 14)
+        self.assertEqual(len(ids), 20)
         self.assertEqual(sorted(self.by_id), sorted(ids))
 
     def test_realm_follows_faction_per_0039(self):
@@ -42,15 +42,14 @@ class Prompts(unittest.TestCase):
             self.assertEqual(c["faction"], t["faction"])
             self.assertEqual(c["name"], t["name"])
 
-    def test_neutral_realm_is_a_proposal_and_factions_are_rulings(self):
+    def test_every_realm_is_a_ruling(self):
         n = [c for c in self.cards if c["faction"] == "neutral"]
         self.assertEqual(len(n), 2)  # Deep Breath, Mend
         for c in self.cards:
-            if c["faction"] == "neutral":
-                self.assertTrue(c["realm_basis"].startswith("PROPOSAL"), c["id"])
-            else:
-                self.assertIn("ruled by JP", c["realm_basis"], c["id"])
-                self.assertNotIn("PROPOSAL", c["realm_basis"], c["id"])
+            self.assertIn("ruled by JP", c["realm_basis"], c["id"])
+            self.assertNotIn("PROPOSAL", c["realm_basis"], c["id"])
+        for c in n:
+            self.assertIn("2026-09-27", c["realm_basis"], c["id"])
 
     def test_no_invented_proper_names(self):
         # Every capitalised word must come from the card's own name or its 0039 realm.
@@ -117,11 +116,11 @@ class PromoSvg(unittest.TestCase):
 class Sidecar(unittest.TestCase):
     def test_merge_adds_card_fields(self):
         base = {"model": "gpt-image-1.5", "prompt": "p", "size": "1536x1024"}
-        c = card_art.prompts()[11]
+        c = card_art.prompts()[11]  # Deep Breath, neutral
         out = card_art.sidecar(base, c)
         self.assertEqual(out["model"], "gpt-image-1.5")
         self.assertEqual((out["card"], out["realm"]), (c["id"], c["realm"]))
-        self.assertTrue(out["realm_basis"].startswith("PROPOSAL"))
+        self.assertEqual(out["realm_basis"], c["realm_basis"])
         json.dumps(out)
 
 
@@ -153,8 +152,17 @@ class Pages(unittest.TestCase):
         for c in self.by_id.values():
             self.assertTrue(card_art.rules_text(c), c["id"])
 
-    def test_neutral_page_says_proposal(self):
-        self.assertIn("PROPOSAL", card_art.page(self.by_id["st1-012"], video=False))
+    def test_neutral_page_cites_the_ruling(self):
+        html = card_art.page(self.by_id["st1-012"], video=False)
+        self.assertNotIn("PROPOSAL", html)
+        self.assertIn("JP's ruling of 2026-09-27 (decision 0039).", html)
+
+    def test_built_pages_carry_no_proposal(self):
+        # the committed site pages are this module's output; a stale one still says PROPOSAL
+        for c in self.by_id.values():
+            built = card_art.REPO / "site" / "c" / c["slug"] / "index.html"
+            if built.exists():
+                self.assertNotIn("PROPOSAL", built.read_text(), c["slug"])
 
     def test_video_only_when_asked_and_from_media(self):
         html = card_art.page(self.by_id["st1-006"], video=True)
@@ -173,13 +181,24 @@ class Committed(unittest.TestCase):
 
     def test_pages_and_site_art(self):
         cards = card_art.prompts()
-        self.assertEqual(len(cards), 14)
+        self.assertEqual(len(cards), 20)
         for c in cards:
             d = card_art.REPO / "site" / "c" / c["slug"]
+            if c["id"] in card_art.AWAITING_ART:
+                self.assertFalse(d.exists(), f"{c['slug']} has a page: take it off awaiting-art.toml")
+                continue
             html = (d / "index.html").read_text()
             self.assertEqual(html, card_art.page(c, video="<video" in html), c["slug"])
             self.assertLessEqual((d / "art.webp").stat().st_size, card_art.BUDGET, c["slug"])
             self.assertEqual(Image.open(d / "art.webp").size, (960, 640), c["slug"])
+
+    def test_awaiting_art_fails_closed_both_ways(self):
+        # Every listed card is in the set and has no headset WebP; every card not listed has one.
+        ids = {c["id"] for c in card_art.prompts()}
+        self.assertLessEqual(card_art.AWAITING_ART, ids, "awaiting-art.toml names a card the set lacks")
+        for i in sorted(ids):
+            has = (card_art.XR_CARDS / f"{i}.webp").is_file()
+            self.assertEqual(has, i not in card_art.AWAITING_ART, i)
 
     def test_promo_cards_carry_the_painting(self):
         for svg in card_art.PROMO.values():

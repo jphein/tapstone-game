@@ -407,28 +407,29 @@ return function(test: (string, () -> ()) -> (), eq: (any, any, string) -> ())
 		return counts
 	end
 
-	-- The fixture's own record (view.last): ember casts at views 22, 34, 46, 62, 75 (CastUnit);
-	-- tide at 29 (CastSpell), 40, 53, 54 (CastUnit), 70, 71 (CastSpell); seat 0 (ember) wins at 78.
-	test("door signs: a real match stirs Ember's door 5 times and Tide's 6, and Ember wins once", function()
+	-- The fixture's own record (view.last), #147's 30-card decks: ember casts at views 24 (CastUnit),
+	-- 38 (CastSpell), 48, 60 (CastUnit); tide at 20, 31 (CastUnit), 42, 54 (CastSpell), 65, 67
+	-- (CastUnit); seat 1 (tide) wins at 86.
+	test("door signs: a real match stirs Ember's door 4 times and Tide's 6, and Tide wins once", function()
 		local c = play(DoorSigns.new(), views)
-		eq(c["cast ember"], 5, "ember casts")
+		eq(c["cast ember"], 4, "ember casts")
 		eq(c["cast tide"], 6, "tide casts (units and spells)")
-		eq(c["win ember"], 1, "ember's win")
-		eq(c["win tide"], nil, "no tide win")
+		eq(c["win tide"], 1, "tide's win")
+		eq(c["win ember"], nil, "no ember win")
 	end)
 
 	test("door signs: a repeated view stirs nothing, and joining mid-match replays nothing", function()
 		local s = DoorSigns.new()
-		local c = play(s, { views[1], views[2], views[22], views[22], views[22] })
-		eq(c["cast ember"], 1, "view 22's cast, once")
+		local c = play(s, { views[1], views[2], views[24], views[24], views[24] })
+		eq(c["cast ember"], 1, "view 24's cast, once")
 		local late = DoorSigns.new()
-		eq(#DoorSigns.step(late, views[22]), 0, "the first view only primes, even a cast")
-		eq(#DoorSigns.step(late, views[22]), 0, "and again")
-		eq(#DoorSigns.step(late, views[23]), 0, "a charge is not a cast")
+		eq(#DoorSigns.step(late, views[24]), 0, "the first view only primes, even a cast")
+		eq(#DoorSigns.step(late, views[24]), 0, "and again")
+		eq(#DoorSigns.step(late, views[25]), 0, "a charge is not a cast")
 		local over = DoorSigns.new()
 		play(over, { views[1] })
-		local w = play(over, { views[78], views[79], views[79] })
-		eq(w["win ember"], 1, "the win, once: the lobby frame keeps the same finished board")
+		local w = play(over, { views[86], views[87], views[87] })
+		eq(w["win tide"], 1, "the win, once: the lobby frame keeps the same finished board")
 	end)
 
 	test("door signs: the second match stirs its doors again (test the second of anything)", function()
@@ -447,8 +448,8 @@ return function(test: (string, () -> ()) -> (), eq: (any, any, string) -> ())
 		local s = DoorSigns.new()
 		play(s, views)
 		local c = play(s, second)
-		eq(c["cast ember"], 5, "ember casts, match 2")
+		eq(c["cast ember"], 4, "ember casts, match 2")
 		eq(c["cast tide"], 6, "tide casts, match 2")
-		eq(c["win ember"], 1, "the win, match 2")
+		eq(c["win tide"], 1, "the win, match 2")
 	end)
 end

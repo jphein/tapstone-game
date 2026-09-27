@@ -103,7 +103,11 @@ while True:
         if call("POST", "/remote/propose", {"n": m["n"], "i": 0}, token=tok[seat])[0] == 202:
             moves += 1
 check(seen == list(range(seen[0], seen[0] + len(seen))), f"views numbered with no gap ({len(seen)} views)")
-check(moves == 77, f"every committed fixture record was proposed ({moves} of 77)")
+# One proposal per playing view of the fixture the fake serves (its default), counted from the file
+# rather than typed: #147's decks moved it from 77 to 85.
+with open(os.path.join(HERE, "../../rust/tapstone-arena/web/fixtures/desk-seed11.jsonl")) as f:
+    want = sum(json.loads(l)["phase"] == "playing" for l in f if l.strip())
+check(moves == want, f"every committed fixture record was proposed ({moves} of {want})")
 check(call("GET", "/remote/choices", token=tok[1])[0] == 401, "after the match, choices is 401")
 check(call("GET", f"/remote/view?after={n - 1}", token=tok[1])[0] == 200, "after the match, views are still readable")
 proc.terminate()

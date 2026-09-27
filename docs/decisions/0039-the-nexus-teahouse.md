@@ -28,6 +28,8 @@ exact than the first draft of this rule, so the rule follows it:
   rules or offers a choice the table doesn't.
   - **Ruled by JP, 2026-09-26:** Tide's cards come from **the Deep Tides** and Ember's from **the Forge Peaks**.
     Card art, door colours and door weather follow from this.
+  - **Ruled by JP, 2026-09-27:** the neutral cards come from **the Hearthlands**. Their card art and print
+    frames follow from this; a door's look stays a PROPOSAL wherever the bible is silent.
   - **Ruled by JP, same night:** the lead fills the remaining `LORE:` slots (the keeper, the door looks, the
     Dueling Grounds) from the *Inner Authority* bible. Anything the bible doesn't state is marked PROPOSAL for
     JP, never landed as canon.

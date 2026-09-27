@@ -16,7 +16,7 @@ const views = readFileSync(FIXTURE, 'utf8').trim().split('\n').map((l) => JSON.p
 const item = (kind, card, lane = -1, target = 0, aux = 0) => ({ key: '', label: `${kind} ${card}`, kind, useful: true, card, lane, target, aux });
 
 test('the fixture is the real desk match', () => {
-  assert.equal(views.length, 79);
+  assert.equal(views.length, 87);
 });
 
 // ---- menu.js --------------------------------------------------------------------------------

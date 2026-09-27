@@ -24,7 +24,7 @@ fn new_game_deals_hands_from_seeded_decks() {
 }
 
 #[test]
-fn house_rules_default_matches_decision_0035() {
+fn house_rules_default_matches_decision_0035_and_147() {
     let hr = HouseRules::default();
     assert_eq!(
         (
@@ -36,7 +36,8 @@ fn house_rules_default_matches_decision_0035() {
             hr.pressure,
             hr.stop_round
         ),
-        (25, 5, 1, 20, 8, 2, 12)
+        // deck_size 30 since #147 (2026-09-27): ten designs at three copies; the rest is 0035's.
+        (30, 5, 1, 20, 8, 2, 12)
     );
 }
 
@@ -66,18 +67,18 @@ fn remove_from_hand_removes_first_match_and_keeps_order() {
 fn deck_len_is_clamped_by_deck_size_and_deck_max() {
     let thirty: [u16; 30] = core::array::from_fn(|i| (i % 12 + 2) as u16);
     let thirty_one: [u16; 31] = core::array::from_fn(|i| (i % 12 + 2) as u16);
-    let g = Game::new(HouseRules::default(), [0, 1], [&thirty, &thirty]);
-    assert_eq!(
-        g.seats[0].deck_len, 25,
-        "default deck_size clamps a 30-card deck"
-    );
-    let big = HouseRules {
-        deck_size: 30,
+    let small = HouseRules {
+        deck_size: 25,
         ..HouseRules::default()
     };
-    let g = Game::new(big, [0, 1], [&thirty, &thirty]);
-    assert_eq!(g.seats[0].deck_len, 30);
-    let g = Game::new(big, [0, 1], [&thirty_one, &thirty_one]);
+    let g = Game::new(small, [0, 1], [&thirty, &thirty]);
+    assert_eq!(
+        g.seats[0].deck_len, 25,
+        "deck_size 25 clamps a 30-card deck"
+    );
+    let g = Game::new(HouseRules::default(), [0, 1], [&thirty, &thirty]);
+    assert_eq!(g.seats[0].deck_len, 30, "the default holds all 30 (#147)");
+    let g = Game::new(HouseRules::default(), [0, 1], [&thirty_one, &thirty_one]);
     assert_eq!(g.seats[1].deck_len, 30, "DECK_MAX clamps a 31-card deck");
 }
 

@@ -85,7 +85,7 @@ class PrintCards(unittest.TestCase):
         # the numbers (lead gate, 2026-09-27: attack/toughness swapped in card_params stayed green).
         doors = pc.doors()
         cards = [tomllib.loads(f.read_text()) for f in sorted((pc.REPO / "game/cards/set1").glob("*.toml"))]
-        self.assertEqual(len(cards), 14)
+        self.assertEqual(len(cards), 20)
         for c in cards:
             p = pc.card_params(c, __file__, doors)
             self.assertEqual(p["name"], c["name"])
@@ -94,6 +94,39 @@ class PrintCards(unittest.TestCase):
             self.assertEqual(p["pt"], want, c["name"])
         # a control the swap cannot pass: some unit's attack differs from its toughness
         self.assertTrue(any(c["type"] == "unit" and c["attack"] != c["toughness"] for c in cards))
+
+    def test_a_card_awaiting_art_is_skipped_in_a_set_run_and_refused_by_id(self):
+        # #147's cards have no painting yet: a whole-set run leaves them out and says so, and asking
+        # for one by id is refused rather than printing a face with an empty art window.
+        self.assertIn("st1-014", pc.AWAITING_ART)
+        with self.assertRaisesRegex(SystemExit, "awaiting art.*Forge Runner"):
+            pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out2"), "st1-014"])
+        # a set run gets past the awaiting cards to the first card with no scene here (st1-000):
+        with self.assertRaisesRegex(SystemExit, r"no scene.png for: Ember Castle") as e:
+            pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out3")])
+        self.assertNotIn("Forge Runner", str(e.exception))
+
+    def test_no_card_carries_a_proposal_mark(self):
+        doors = pc.doors()
+        for f in sorted((pc.REPO / "game/cards/set1").glob("*.toml")):
+            self.assertNotIn("proposal", pc.card_params(tomllib.loads(f.read_text()), __file__, doors), f.name)
+
+    def test_no_neutral_card_renders_a_proposal_tag(self):
+        # JP ruled neutral ↔ the Hearthlands (2026-09-27, 0039), so the frame is canon and the card says nothing else
+        neutral = [tomllib.loads(f.read_text()) for f in sorted((pc.REPO / "game/cards/set1").glob("*.toml"))]
+        neutral = [c for c in neutral if c["faction"] == "neutral"]
+        self.assertEqual(len(neutral), 2)   # Deep Breath, Mend
+        scene = self.dir / "art" / pc.slug(self.card["name"]) / "scene.png"
+        for c in neutral:
+            p = pc.card_params(c, scene, pc.doors())
+            self.assertNotIn("proposal", p, c["name"])
+            self.assertNotIn("PROPOSAL", " ".join(p.values()), c["name"])
+            self.assertEqual(p["type"], f"{c['type'].capitalize()} — Hearthlands", c["name"])
+        # and the rendered face: the template draws no tag even when handed one
+        dom = pc._chrome({**pc.card_params(neutral[0], scene, pc.doors()), "proposal": "PROPOSAL · x"},
+                         "--dump-dom").stdout
+        self.assertIn("TAPSTONE · SET 1", dom)
+        self.assertNotIn("PROPOSAL", dom)
 
     def test_every_faction_has_a_door(self):
         table = pc.doors()

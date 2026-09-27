@@ -94,7 +94,7 @@ test("every set 1 card a hand can hold has its 'touch a pad' clip (play.js lift(
   const dir = join(XR, '../../../../game/cards/set1');
   const names = readdirSync(dir).filter((f) => f.endsWith('.toml')).map((f) => readFileSync(join(dir, f), 'utf8'))
     .filter((s) => !/^type = "castle"/m.test(s)).map((s) => s.match(/^name = "(.*)"/m)[1]);
-  assert.equal(names.length, 12);
+  assert.equal(names.length, 18); // set 1 since #147: 18 playable designs, plus the two castles
   for (const n of names) assert.ok(index.clipFor(`${n}: touch a pad.`), n);
 });
 

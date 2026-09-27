@@ -60,8 +60,9 @@ test('the event → sound mapping', () => {
 test('the real desk match (seed 11) sounds every payoff, from one seat or the other', () => {
   const a = heard(0), b = heard(1);
   for (const s of PAYOFFS) assert.ok((a.get(s) ?? 0) + (b.get(s) ?? 0) > 0, `${s} never sounds in the desk match`);
-  assert.equal(a.get('win'), 1, 'seat 0 won the desk match, once');
-  assert.equal(b.get('lose'), 1, 'and seat 1 heard it lost');
+  // #147's decks: seat 1 (Tide) wins seed 11 (the fixture's own "winner": 1, view 86).
+  assert.equal(b.get('win'), 1, 'seat 1 won the desk match, once');
+  assert.equal(a.get('lose'), 1, 'and seat 0 heard it lost');
   // The same events sound from either seat; only the result's word differs.
   for (const s of PAYOFFS.filter((p) => p !== 'win' && p !== 'lose')) assert.equal(a.get(s), b.get(s), s);
 });

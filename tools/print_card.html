@@ -26,7 +26,6 @@ html,body{margin:0;background:#fff}
 .ability i{color:#4a3c26}
 .ability b .n{font-family:'EB Garamond',serif;font-weight:500;font-size:3.5mm}   /* Cinzel's 1 reads as I */
 .foot{display:flex;justify-content:space-between;align-items:flex-end;padding:1mm 14mm 0 2mm;font-size:1.9mm;white-space:nowrap;overflow:hidden;color:#cfc3a3;font-family:'IBM Plex Mono',monospace}
-.foot .prop{color:#1a140a;background:var(--glow);padding:0 .6mm;border-radius:.4mm;font-weight:700}
 .pt{position:absolute;right:1.2mm;bottom:.9mm;padding:.6mm 2.2mm;background:linear-gradient(180deg,var(--parch),var(--parch2));color:#1a140a;border:.35mm solid var(--glow);border-radius:1.2mm;font-family:'Cinzel',serif;font-weight:800;font-size:3.6mm;box-shadow:0 .4mm 0 rgba(0,0,0,.5)}
 .pt:empty{display:none}
 </style></head><body>
@@ -54,7 +53,7 @@ $('type').textContent = v('type');
 $('art').style.backgroundImage = `url("${v('art')}")`;
 $('ability').innerHTML = v('ability').split('|').map(s => s.replace(/\*\*(.+?)\*\*/g, (_, k) => '<b>' + k.replace(/(\d+)/g, '<span class="n">$1</span>') + '</b>').replace(/_(.+?)_/g, '<i>$1</i>')).join('<br>');
 $('left').textContent = v('left');
-$('right').innerHTML = v('proposal') ? `<span class="prop">${v('proposal')}</span>` : v('right');
+$('right').textContent = v('right');
 $('pt').textContent = v('pt');
 if (!v('pt')) document.querySelector('.foot').style.paddingRight = '2mm';   // no P/T box: the footer may use its corner
 for (let i = 0; i < +v('cost', '0'); i++) { const e = document.createElement('div'); e.className = 'pip'; $('cost').appendChild(e); }

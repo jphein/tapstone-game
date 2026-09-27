@@ -58,7 +58,7 @@ do, and nothing depends on a server off the table: the arena is on the table (00
 ## 4. The game (0007–0009, 0011–0013, 0015; rules v0 updated)
 - **Board:** three lanes, three cells a side (back, mid, front), castles of 20 behind, drawn on the arena (0028):
   a battlefield view for Duel, and lanes between adjacent castles on the ring for Skirmish.
-- **Decks:** 25 cards, one or two factions; opening hand 5 (6 for the second player, 0035); draw one a
+- **Decks:** 30 cards (0040; 25 until 2026-09-27), at most three copies of a design, one or two factions; opening hand 5 (6 for the second player, 0035); draw one a
   round. Set one: **Ember** (fast, burn, haste) and **Tide** (control, ranged, tricks) plus 10
   neutrals, 70 designs.
 - **Mana — charge the shrine:** once a round, tap one card face-down to make one permanent mana.

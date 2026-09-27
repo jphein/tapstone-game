@@ -14,7 +14,7 @@ filmstrip only; the device frames under it are exact).
 
 **Placeholder, and labelled so:** the commander's name, XP and loadout, the ledger's contents,
 and **all the pixel art** (hero, hooded silhouette, gear overlays, chest). **Real:** the castle life, mana charged/spent, hand count,
-round and sudden-death round, read from a real **mid-turn** engine state at seed = 21, round 3, after record 37 of 73 (`fx::mid_turn`: seat 0 to act, mana partly spent with some left, a unit in hand it cannot afford). The refusal on `s3-station-refused` is the one the engine returns for casting that unit (`fx::engine_refusal`). **The commander on the station is the engine's** (#49): attack, toughness, keyword, presence and the fall/return house rules are read from the seat, and the fixture game is played with the lobby commander's own claim (`fx::setup`), so the Haste the lobby shows is the Haste in play. The fall and the return (`motion-fall.png`, `motion-return.png`, `s3-station-fallen`) are **real engine transitions** from seed 11 (`fx::FALL_SEED`), where the commander dies in end-of-turn combat as the round turns — so the castle, hand/round and mana wells each settle on a frame of their own. The heal, the struck commander and the waiting (blocked) commander are **real engine records** too, found by `shrine-preview search-states` within seeds 0..2000 × both pickers × three pairings and pinned in `fx::HEAL_AT`, `STRUCK_AT` and `BLOCKED_AT`; a test re-runs the search. The exhausted deck is the one view override left among them: **no seed within that bound reaches it** (12,000 games, 0 replay errors), and a positive control on an 8-card deck shows the search can see one. The full-grid melt (`motion-lootfull.png`) is **unreachable in set 1**: a full grid needs twelve distinct designs and set 1 has six (duplicates melt), so its ledger repeats designs.
+round and sudden-death round, read from a real **mid-turn** engine state at seed = 21, round 3, after record 38 of 100 (`fx::mid_turn`: seat 0 to act, mana partly spent with some left, a unit in hand it cannot afford). The refusal on `s3-station-refused` is the one the engine returns for casting that unit (`fx::engine_refusal`). **The commander on the station is the engine's** (#49): attack, toughness, keyword, presence and the fall/return house rules are read from the seat, and the fixture game is played with the lobby commander's own claim (`fx::setup`), so the Haste the lobby shows is the Haste in play. The fall and the return (`motion-fall.png`, `motion-return.png`, `s3-station-fallen`) are **real engine transitions** from seed 0 (`fx::FALL_SEED`; seed 11 before #147's 30-card decks), where the commander dies in end-of-turn combat as the round turns — so the castle, hand/round and mana wells each settle on a frame of their own. The heal, the struck commander and the waiting (blocked) commander are **real engine records** too, found by `shrine-preview search-states` within seeds 0..2000 × both pickers × three pairings and pinned in `fx::HEAL_AT`, `STRUCK_AT` and `BLOCKED_AT`; a test re-runs the search. The exhausted deck is the one view override left among them: **no seed within that bound reaches it** (12,000 games, 0 replay errors), and a positive control on an 8-card deck shows the search can see one. The full-grid melt (`motion-lootfull.png`) is **unreachable in set 1**: a full grid needs twelve distinct designs and set 1 has six (duplicates melt), so its ledger repeats designs.
 
 | screen | what it shows |
 |---|---|
@@ -22,7 +22,7 @@ round and sudden-death round, read from a real **mid-turn** engine state at seed
 | `s2-lobby` | paperdoll, three sockets (trinket locked until level 7), 3×4 inventory, XP |
 | `s3-station`, `-target` | the station with a lane prompt (a unit) and a target prompt (a spell), quoting 0009's defaults |
 | `s3-station-refused` | the engine's own refusal, matching the mana well |
-| `s3-station-fallen`, `-waiting` | the engine's real fallen state (seed 11), and a real commander waiting on an occupied back cell (seed 404, `search-states`) |
+| `s3-station-fallen`, `-waiting` | the engine's real fallen state (seed 0), and a real commander waiting on an occupied back cell (seed 92, `search-states`) |
 | `s3-station-listening` | push-to-talk held (**optional**: voice answers are a stretch goal, 0033) |
 | `s4-result` | victory, XP, level-up to 7 (the trinket socket opens), loot in the first free cell; `motion-lootfull.png` is the full-grid melt |
 | `s5-dark-arena`, `s5-dark-battery` | the dark screen |
@@ -38,7 +38,7 @@ every row below from the code and fails naming the stale one.
 |---|---|---|---|---|---|
 | breath (idle) | 20 | 4 | 9,216 | 3.9 – 8.6 ms | 26 % |
 | breath | 20 | 4 | 9,216 | 3.9 – 8.6 ms | 26 % |
-| struck | 7 | 7 | 12,544 | 5.3 – 10.0 ms | 30 % |
+| struck | 4 | 4 | 12,544 | 5.3 – 10.0 ms | 30 % |
 | heal | 5 | 4 | 12,544 | 5.3 – 10.0 ms | 30 % |
 | fall | 10 | 10 | 16,464 | 7.0 – 11.6 ms | 35 % |
 | return | 9 | 9 | 16,464 | 7.0 – 11.6 ms | 35 % |
@@ -62,7 +62,7 @@ at once is either two windows or one window over most of the panel.
 per file. `motion-draw.png`, `motion-drawlast.png` and `motion-mulligan.png` are the filmstrips.
 **Every state is one the engine reached** (draw taps are real since #63): the owed count, the
 opening hand, the mulligan window, the hand, mana, round and castle, and the "draw first" refusal
-(the engine's own `DrawOwed`). The spell draw comes from seed 1 (`fx::SPELL_SEED`), since seed 21
+(the engine's own `DrawOwed`). The spell draw comes from seed 2 (`fx::SPELL_SEED`), since seed 21
 never casts one.
 
 | file | state |

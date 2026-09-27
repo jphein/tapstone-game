@@ -39,7 +39,7 @@ rodata. `version` is not in the engine table yet.
   an NDEF URL `https://tapstone.realm.watch/c/<uid>?k=<hmac12>` so a phone tap shows the card page —
   `<uid>` as 14 lowercase hex chars without separators, `k = HMAC-SHA256(secret, "copy:" + uid)[:12]`
   with the colon form of the UID; the static site carries `k` without verifying it (decision 0024).
-- The shrine carries a compiled UID→design map for the copies it should know (a deck's 25 plus the
+- The shrine carries a compiled UID→design map for the copies it should know (a deck's 30 plus the
   owner's collection), refreshed over keyed-CFG; an unknown UID is refused with "not registered".
 - Retail tier: replace `uid` trust with NTAG 424 DNA SUN verification (decision 0003); the record
   shape does not change.
@@ -49,10 +49,13 @@ rodata. `version` is not in the engine table yet.
 name = "Hearth March"
 owner = "jp"
 castle = "st1-001"
-cards = ["st1-042", "st1-042", "st1-007", ...]   # 25 design ids; copies are whatever the player taps
+cards = ["st1-042", "st1-042", "st1-007", ...]   # 30 design ids (deck_size); copies are whatever the player taps
 sigil = ""                                        # realm-sigil name from the sorted list, filled by tooling
 ```
 Decks are lists of designs. Which physical copy you tap does not matter, exactly as in Arena.
+**At most three copies of one design** (0040, 2026-09-27): the deck loader refuses a fourth
+(`tapstone-sim/src/deck.rs`, `COPY_LIMIT`), and the list's length must equal the house rules'
+`deck_size`.
 
 ## Effects table
 A closed list the engine implements; the grammar lives in the generator (`tools/compile_cards.py`),

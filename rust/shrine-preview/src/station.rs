@@ -155,9 +155,11 @@ pub fn mid_turn() -> game::Snapshot {
 }
 
 /// The seed whose game holds a real commander death and return for seat 0 under [`setup`].
-/// Seed 21's commander never dies; seed 11's dies in end-of-turn combat as the round turns, so
-/// its record also changes the round, hand and mana — the case a synthetic fall cannot show.
-pub const FALL_SEED: u64 = 11;
+/// Seed 0's commander dies in end-of-turn combat as the round turns, so its record also changes
+/// the round, hand and mana — the case a synthetic fall cannot show — and returns later. Seed 11
+/// was this seed on the 25-card lists; on #147's decks 0 is the smallest that does all of it (seed
+/// 21's commander dies too now, but not like this).
+pub const FALL_SEED: u64 = 0;
 
 /// The engine's station for seat 0 at `g`, with the band derived from its state.
 pub fn station_of_game(g: &Game) -> StationScreen<'static> {
@@ -315,22 +317,22 @@ fn station_of(s: Scene<'static>) -> StationScreen<'static> {
 /// seeds 0..2000 × both pickers × three pairings (`search::SEEDS`, `STYLES`, `DECKS`). Pinned
 /// here so fixtures do not re-search; a test re-runs the search and holds these to its answer.
 pub const HEAL_AT: crate::search::Found = crate::search::Found {
-    seed: 0,
+    seed: 3,
     style: tapstone_sim::Style::PlayOut,
     decks: tapstone_sim::Decks::Asymmetric,
-    record: 49,
+    record: 102,
 };
 pub const STRUCK_AT: crate::search::Found = crate::search::Found {
     seed: 0,
     style: tapstone_sim::Style::PlayOut,
     decks: tapstone_sim::Decks::Asymmetric,
-    record: 38,
+    record: 29,
 };
 pub const BLOCKED_AT: crate::search::Found = crate::search::Found {
-    seed: 404,
+    seed: 92,
     style: tapstone_sim::Style::PlayOut,
     decks: tapstone_sim::Decks::Asymmetric,
-    record: 76,
+    record: 72,
 };
 
 /// The engine states either side of a pinned find.
@@ -530,12 +532,12 @@ pub fn screens() -> Vec<Shot> {
         }),
         shot(
             "s3-station-fallen",
-            "3 station: fallen (engine, seed 11)",
+            "3 station: fallen (engine, seed 0)",
             |p| station::station(p, &fallen),
         ),
         shot(
             "s3-station-waiting",
-            "3 station: waiting (engine, seed 404)",
+            "3 station: waiting (engine, seed 92)",
             |p| station::station(p, &station_of_game(&found_states(BLOCKED_AT).1)),
         ),
         shot(
@@ -706,7 +708,8 @@ fn engine_where_in(seed: u64, pred: impl Fn(&Game) -> bool) -> Game {
 }
 
 /// The seed whose game casts a draw spell for seat 0 under [`setup`]: seed 21's never does.
-pub const SPELL_SEED: u64 = 1;
+/// (Seed 1 until #147's decks; 2 is the smallest seed that does on them.)
+pub const SPELL_SEED: u64 = 2;
 
 fn cmdr_for(seat: u8) -> Commander<'static> {
     if seat == 0 {

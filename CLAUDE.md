@@ -11,9 +11,10 @@ no cloud (0028). Working title chosen 2026-09-19; trademark search still owed.
 - `docs/superpowers/specs/2026-09-23-arena-service-design.md` and `docs/superpowers/plans/2026-09-23-arena-service-phase2.md` — the arena service (0028): spec and plan, with execution notes per task.
 - `rust/README.md` — how to build, gate and vendor the rules crate; the sim's goldens.
 - `docs/superpowers/specs/2026-09-25-tapstone-vr-design.md` (VR, contest Nov 18) and `2026-09-26-roblox-remote-seat-design.md` (Roblox remote seat, 0038).
-- `docs/decisions/` — one file per decision, dated, with the reason (0001–0039 as of 2026-09-26; 0028–0036 are the commander-station pivot; 0037 cross-play; 0038 the remote seat; 0039 the Nexus Teahouse).
+- `docs/decisions/` — one file per decision, dated, with the reason (0001–0040 as of 2026-09-27; 0028–0036 are the commander-station pivot; 0037 cross-play; 0038 the remote seat; 0039 the Nexus Teahouse; 0040 set 1's expansion to 30-card decks).
 - `docs/runbooks/` — `radio-match.md` (a whole match over the real radio, verified and stall-controlled) and `contest-freeze.md` (the immutable contest bundle; deploying is JP's step).
-- `docs/superpowers/specs/2026-09-27-ember-tide-imbalance-report.md` — why Ember beats Tide ~72% today (sim-backed; no rules changed), feeding #147.
+- `docs/superpowers/specs/2026-09-27-ember-tide-imbalance-report.md` — why Ember beat Tide ~72% on the 25-card decks (sim-backed), feeding #147.
+- `docs/superpowers/specs/2026-09-27-set1-expansion-proposal.md` — #147, approved and implemented as 0040: 30-card decks, three copies, six new designs.
 - `docs/research/prior-art.md` — what exists (Cards and Castles lineage, NFC CCGs, the scry platform).
 
 ## The platform this game runs on (already built, other repos)

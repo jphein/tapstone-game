@@ -5,7 +5,7 @@ Date: 2026-09-20 · Status: a minimal, playable draft to argue with. Assumes dec
 Q1 → charge-the-shrine mana (decision 0007), Q2-D (cards are tapped, not placed), Q5–Q7 proposals.
 
 ## Components
-Two shrines, paired. Two 25-card decks (one or two factions each). No mat needed for v0.
+Two shrines, paired. Two 30-card decks (one or two factions each; 25 until 0040). No mat needed for v0.
 
 ## Setup
 Each player taps their **castle card** to claim a seat; seat 0 always goes first, so whoever claims

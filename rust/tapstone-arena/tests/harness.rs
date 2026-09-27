@@ -130,9 +130,22 @@ impl Net {
     /// Shrine 0 claims first, so it is seat 0.
     pub fn new(seed: u64, loss: f64, dup: f64) -> Net {
         let (decks, book) = desk_decks(seed);
+        Net::with_decks(seed, loss, dup, HouseRules::default(), decks, book)
+    }
+
+    /// `new` on other lists and rules: a golden recorded before a card-set change replays on the
+    /// decks it was recorded with (`fingerprint.rs`, set 1's 25-card v0 lists).
+    pub fn with_decks(
+        seed: u64,
+        loss: f64,
+        dup: f64,
+        rules: HouseRules,
+        decks: [Vec<u16>; 2],
+        book: DeckBook,
+    ) -> Net {
         let cfg = CoreConfig {
             node: ARENA,
-            rules: HouseRules::default(),
+            rules,
             ruleset: 1,
             registry_id: 2,
             flat: false,

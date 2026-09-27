@@ -1,0 +1,8 @@
+id = "st1-017"
+name = "Magma Burst"
+faction = "ember"
+type = "spell"
+cost = 3
+effect = "damage:3:castle"
+rarity = "uncommon"
+version = 1

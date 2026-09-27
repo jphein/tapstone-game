@@ -9,7 +9,7 @@ use proptest::prelude::*;
 use proptest::test_runner::{Config, TestRunner};
 use tapstone_rules::cards::design;
 use tapstone_rules::state::Unit;
-use tapstone_rules::{Applied, CardKind, Commander, Game, HouseRules, Kind, Record, Refusal};
+use tapstone_rules::{Applied, CardKind, Commander, Game, HouseRules, Kind, Record, Refusal, SET1};
 use tapstone_sim::{Arbiter, CASTLES, Transcript, build_deck, claim, play_seeded, replay, tap};
 
 fn cases(default: u32) -> u32 {
@@ -168,7 +168,8 @@ fn random_taps_through_the_arbiter_replay_equivalently() {
     // spell effects resolve often enough to be asserted on; the other half stays uniform.
     let card = prop_oneof![
         prop::sample::select(vec![5u16, 9, 10, 11, 12, 13, 2, 3, 4, 6, 7, 8]),
-        0u16..20
+        // Six ids past the set, so Refusal::UnknownCard keeps firing however large SET1 grows.
+        0u16..SET1.len() as u16 + 6
     ];
     let target = prop_oneof![
         prop::sample::select(vec![0x00u8, 0x05, 0x0A, 0x10, 0x15, 0x1A, 0xFF]),

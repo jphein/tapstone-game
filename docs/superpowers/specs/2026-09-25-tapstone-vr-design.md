@@ -180,15 +180,17 @@ One new gesture per beat, each paid off within 3 s. No text panel; the voice tea
 pressure_from 4, stop_round 6, plus a scanned seed.
 - **Owed, and measured before it's adopted:** a harness run on familiar for the median match length
   (target 5–7 min at ~4 s per tap) and the bot's win rate against a play-out player.
-- **Measured 2026-09-27** on familiar by `cargo test --release -p tapstone-sim --test first_match --
-  --nocapture`, which also fails if this paragraph stops quoting its numbers (main f041562; picker
-  play-out on both seats, the desk bot's own picker; default decks, the person in seat 0 with Ember;
-  seeds 1–4000): median **54 taps** a match (30 the person's, p10–p90 25–38; 23
-  the bot's), 3.6 rounds, every match lethal, none reaching the stop round. The bot wins **4.0% ±0.6**.
-  `tapstone-sim balance --life 10 --from 4 --stop 6` agrees (96.0 / 4.0, 3.64 rounds). Two readings,
-  offered for checking rather than as findings: 54 taps at ~4 s is **about 3.6 min, under the 5–7 min
-  target**; and the 4% is mostly the deck, not the seat (swapped decks: bot 73.6%; mirror Ember:
-  35.5%; mirror Tide: 21.6%). Not adopted yet: the in-page table still plays the default rules.
+- **Measured 2026-09-27, re-measured the same day on #147's 30-card decks** on familiar by `cargo test
+  --release -p tapstone-sim --test first_match -- --nocapture`, which also fails if this paragraph stops
+  quoting its numbers (branch feat/set1-expansion off main 6603f52; picker play-out on both seats, the desk
+  bot's own picker; default decks, the person in seat 0 with Ember; seeds 1–4000): median **56 taps** a
+  match (29 the person's, p10–p90 23–35; 27 the bot's), 4.0 rounds, every match lethal, none reaching
+  the stop round. The bot wins **29.5% ±1.4**. `tapstone-sim balance --life 10 --from 4 --stop 6` agrees
+  (70.5 / 29.5, 4.02 rounds). Two readings, offered for checking rather than as findings: 56 taps at ~4 s
+  is **about 3.7 min, still under the 5–7 min target**; and the 29.5% is now mostly the seat, not the deck
+  (swapped decks: bot 52.8%; mirror Ember: 37.2%; mirror Tide: 32.2%). On the 25-card decks before #147
+  the same run gave 54 taps (30 / 23), 3.6 rounds and a bot at 4.0% ±0.6, mostly the deck (swapped
+  73.6%, mirrors 35.5% / 21.6%). Not adopted yet: the in-page table still plays the default rules.
   The beat script itself is `www/xr/src/logic/first-five.js`.
 
 ### 3.5 Coming back

@@ -5,7 +5,9 @@
 export const FACE = { w: 216, h: 344, art: { x: 10, y: 10, w: 196, h: 150 }, nameY: 200 };
 
 // Set 1's card ids (SET1 in the rules crate, from game/cards/set1/*.toml; a test holds them equal).
-export const SET1_IDS = Array.from({ length: 14 }, (_, i) => i);
+export const SET1_IDS = Array.from({ length: 20 }, (_, i) => i);
+// No painting yet for #147's six (game/cards/awaiting-art.toml; the test reads that file): their face
+// is the faction colour with the name, cost and stats drawn over it (hand.js).
 
 export const artFile = (card) => `cards/st1-${String(card).padStart(3, '0')}.webp`;
 export const artSize = () => ({ w: FACE.art.w * 2, h: FACE.art.h * 2 });

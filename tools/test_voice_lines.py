@@ -59,7 +59,7 @@ class Source(unittest.TestCase):
             card = tomllib.loads(p.read_text())
             if card["type"] != "castle":
                 names.append(card["name"])
-        self.assertEqual(len(names), 12)
+        self.assertEqual(len(names), 18)  # set 1 since #147: 18 playable designs, plus the two castles
         got = {l["text"] for l in self.lines if l["id"].startswith("card-")}
         self.assertEqual(got, {f"{n}: touch a pad." for n in names})
 

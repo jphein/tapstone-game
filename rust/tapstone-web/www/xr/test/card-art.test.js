@@ -2,7 +2,7 @@
 // Run: node --test test/card-art.test.js from rust/tapstone-web/www/xr (Node 20+).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { FACE, SET1_IDS, artFile, artSize } from '../src/logic/card-art.js';
@@ -44,10 +44,26 @@ test('the art window sits inside the face, above the name', () => {
   assert.ok(a.y + a.h < FACE.nameY - 26, 'the name line clears the art');
 });
 
-test('every card has its WebP: within 80 KB (80,000 bytes), at twice the art window', () => {
+// The cards with no painting yet (#147: the art waits for JP's OK), from the one list tools/card_art.py
+// also reads. Both directions fail closed: a listed card with a WebP, or an unlisted card without one.
+const AWAITING = (() => {
+  const text = readFileSync(join(here, '../../../../../game/cards/awaiting-art.toml'), 'utf8');
+  const list = /^set1 = \[([^\]]*)\]$/m.exec(text)[1];
+  return new Set([...list.matchAll(/"st1-(\d{3})"/g)].map((m) => Number(m[1])));
+})();
+
+test('awaiting-art.toml names set 1 cards, and exactly the ones without a WebP', () => {
+  assert.ok(AWAITING.size > 0, 'the list parsed');
+  for (const id of AWAITING) assert.ok(SET1_IDS.includes(id), `st1-${id} is not in set 1`);
+  for (const id of SET1_IDS) {
+    assert.equal(existsSync(join(PUBLIC, artFile(id))), !AWAITING.has(id), artFile(id));
+  }
+});
+
+test('every card not awaiting art has its WebP: within 80 KB (80,000 bytes), at twice the art window', () => {
   const want = artSize();
   assert.deepEqual(want, { w: FACE.art.w * 2, h: FACE.art.h * 2 });
-  for (const id of SET1_IDS) {
+  for (const id of SET1_IDS.filter((i) => !AWAITING.has(i))) {
     const p = join(PUBLIC, artFile(id));
     assert.ok(statSync(p).size <= 80_000, `${p} is ${statSync(p).size} B`);
     assert.deepEqual(webpSize(readFileSync(p)), want, p);

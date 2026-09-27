@@ -206,7 +206,7 @@ fn play_out_rarely_passes_with_resources() {
 // ---- decks as data ---------------------------------------------------------------------
 
 use tapstone_sim::DECK_SIZE;
-use tapstone_sim::deck::{load, load_named, slug};
+use tapstone_sim::deck::{COPY_LIMIT, load, load_named, slug};
 
 /// The shipped deck files must BE the compiled-in lists, card for card and in order. If they ever
 /// drift, a seedless run stops matching its own goldens — so this is the guard that let decks
@@ -253,10 +253,19 @@ fn write_tmp(stem: &str, body: &str) -> std::path::PathBuf {
 #[test]
 fn a_deck_is_rejected_for_each_reason_it_should_be() {
     let rules = HouseRules::default();
-    let good_cards = (0..25)
-        .map(|_| "\"st1-002\"".to_string())
-        .collect::<Vec<_>>()
-        .join(", ");
+    let n = usize::from(rules.deck_size);
+    // A legal list (the shipped Ember one), so each case below fails for its own reason only.
+    let ids = |k: usize| {
+        Decks::default()
+            .designs(0)
+            .iter()
+            .cycle()
+            .take(k)
+            .map(|d| format!("\"st1-{d:03}\""))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let good_cards = ids(n);
     let cases: Vec<(&str, String, &str)> = vec![
         (
             "unknown key",
@@ -275,10 +284,7 @@ fn a_deck_is_rejected_for_each_reason_it_should_be() {
             "castle as a card",
             format!(
                 "name=\"X\"\nowner=\"jp\"\ncastle=\"st1-000\"\ncards=[\"st1-000\", {}]\nsigil=\"\"\n",
-                (0..24)
-                    .map(|_| "\"st1-002\"".to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
+                ids(n - 1)
             ),
             "cannot be a deck card",
         ),
@@ -293,10 +299,7 @@ fn a_deck_is_rejected_for_each_reason_it_should_be() {
             "card not in the set",
             format!(
                 "name=\"X\"\nowner=\"jp\"\ncastle=\"st1-000\"\ncards=[\"st1-099\", {}]\nsigil=\"\"\n",
-                (0..24)
-                    .map(|_| "\"st1-002\"".to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
+                ids(n - 1)
             ),
             "not in the compiled set",
         ),
@@ -326,6 +329,67 @@ fn a_deck_is_rejected_for_each_reason_it_should_be() {
     );
     let e = load(&p, &rules).expect_err("stem mismatch should have been rejected");
     assert!(e.message.contains("file stem"), "{:?}", e.message);
+}
+
+/// #147: at most `COPY_LIMIT` copies of one design. The control is the same list at exactly the
+/// limit, so the rejection is the fourth copy's and nothing else's.
+#[test]
+fn a_fourth_copy_of_a_design_is_rejected_and_a_third_is_not() {
+    assert_eq!(COPY_LIMIT, 3);
+    let rules = HouseRules::default();
+    let designs = Decks::default().designs(0);
+    let at_limit: Vec<u16> = designs.iter().copied().cycle().take(DECK_SIZE).collect();
+    let body = |cards: &[u16]| {
+        let list = cards
+            .iter()
+            .map(|d| format!("\"st1-{d:03}\""))
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!(
+            "name=\"Copy Limit\"\nowner=\"jp\"\ncastle=\"st1-000\"\ncards=[{list}]\nsigil=\"\"\n"
+        )
+    };
+    let d = load(&write_tmp("copy-limit", &body(&at_limit)), &rules)
+        .unwrap_or_else(|e| panic!("three copies each must load: {e}"));
+    assert_eq!(d.most_copies(), COPY_LIMIT);
+
+    let mut over = at_limit.clone();
+    let last = over.len() - 1;
+    over[last] = designs[0]; // a fourth copy of the first design, in place of another's third
+    let e = load(&write_tmp("copy-limit", &body(&over)), &rules)
+        .expect_err("a fourth copy must be refused");
+    assert!(
+        e.message
+            .contains(&format!("4 copies of st1-{:03}", designs[0]))
+            && e.message.contains("3"),
+        "{:?}",
+        e.message
+    );
+}
+
+/// The shipped lists are #147's: 30 cards, ten designs, three of each, and every new design in
+/// its faction's list.
+#[test]
+fn the_shipped_decks_are_ten_designs_at_three_copies() {
+    let rules = HouseRules::default();
+    for (name, new) in [
+        ("ember-neutral", &[14u16, 15, 16, 17][..]),
+        ("tide-neutral", &[18, 19][..]),
+    ] {
+        let d = load_named(name, &rules).unwrap_or_else(|e| panic!("{e}"));
+        let t = d.copies();
+        assert_eq!(d.cards.len(), 30, "{name}");
+        assert_eq!(t.len(), 10, "{name}: {t:?}");
+        assert!(t.values().all(|&n| n == COPY_LIMIT), "{name}: {t:?}");
+        for c in new {
+            assert_eq!(t.get(c), Some(&COPY_LIMIT), "{name} lacks st1-{c:03}");
+        }
+    }
+    assert_eq!(
+        DECK_SIZE,
+        usize::from(rules.deck_size),
+        "the sim's size is the house rule's"
+    );
 }
 
 // ---- known-answer tests for the detectors ----------------------------------------------

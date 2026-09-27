@@ -7,11 +7,10 @@ use tapstone_rules::cards::{Keyword, design};
 use tapstone_rules::state::{CELLS, DECK_MAX, LANES};
 use tapstone_rules::{Applied, CardKind, Commander, Game, HouseRules, Kind, Phase, Record, Winner};
 use tapstone_sim::{
-    Arbiter, CASTLES, DECK_DESIGNS, ScriptedSeat, build_deck, claim, play_seeded, tap,
+    Arbiter, CASTLES, DECK_DESIGNS, DECK_SIZE, ScriptedSeat, build_deck, claim, play_seeded, tap,
 };
 
 const SEATS: usize = 2;
-const DECK_SIZE: usize = 25;
 
 fn deck_from(list: &[u16], seed: u64, seat: u8) -> Vec<u16> {
     let mut d: Vec<u16> = list
@@ -681,7 +680,7 @@ fn main() {
             }
         }
         println!(
-            "   {nm:<6} {} designs: {u} units (total attack {atk}), {s} spells, mean cost {:.2}; unit share of a 25-card deck {:.0}%",
+            "   {nm:<6} {} designs: {u} units (total attack {atk}), {s} spells, mean cost {:.2}; unit share of a {DECK_SIZE}-card deck {:.0}%",
             list.len(),
             cost as f64 / list.len() as f64,
             u as f64 / list.len() as f64 * 100.0

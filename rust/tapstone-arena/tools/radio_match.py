@@ -40,6 +40,10 @@ ap.add_argument("--shrine-deck", default="tide-neutral")
 ap.add_argument("--remote-deck", default="ember-neutral")
 ap.add_argument("--seed", type=int, default=11)
 ap.add_argument("--no-propose", action="store_true")
+ap.add_argument("--firmware-shrine", action="store_true",
+                help="seat B is smol's shrine station firmware on --shrine-mac (tapstone#132 c): no "
+                     "radio_shrine; its console is read, and its FINAL line is the shrine's head")
+ap.add_argument("--shrine-index", type=int, default=0, help="seat B's figurine/copy index (the image's TAPSTONE_INDEX)")
 ap.add_argument("--deadline", type=int, default=0, help="seconds (default 600, or 90 for the control)")
 args = ap.parse_args()
 DEADLINE_S = args.deadline or (90 if args.no_propose else 600)
@@ -63,7 +67,8 @@ os.makedirs(run)
 shrine_port = by_id(args.shrine_mac)
 by_id(args.arena_mac)  # present, or stop here
 with open(os.path.join(run, "registry.jsonl"), "w") as f:
-    subprocess.run([shrine_bin, "registry", "--deck", args.shrine_deck, "--index", "0"], stdout=f, check=True)
+    subprocess.run([shrine_bin, "registry", "--deck", args.shrine_deck, "--index", str(args.shrine_index)],
+                   stdout=f, check=True)
 with open(os.path.join(run, "arena.toml"), "w") as f:
     f.write(
         f'gateway_mac = "{args.arena_mac.lower()}"\n'
@@ -73,6 +78,28 @@ with open(os.path.join(run, "arena.toml"), "w") as f:
     )
 
 t_start = time.time()
+fw = {"lines": [], "stop": threading.Event()}
+
+
+def read_firmware_shrine():
+    import serial  # pyserial; only the firmware mode needs it
+    s = serial.Serial(shrine_port, 115200, timeout=0.2)
+    buf = b""
+    with open(os.path.join(run, "shrine.trace"), "w") as out:
+        while not fw["stop"].is_set():
+            buf += s.read(4096)
+            while b"\n" in buf:
+                line, buf = buf.split(b"\n", 1)
+                text = line.decode(errors="replace").rstrip("\r")
+                fw["lines"].append(text)
+                out.write(f"{int(time.time() * 1e6)} < {text}\n")
+                out.flush()
+
+
+if args.firmware_shrine:
+    # Opened before the arena starts, so its discovery finds the station's port busy.
+    threading.Thread(target=read_firmware_shrine, daemon=True).start()
+    time.sleep(1)
 env = dict(os.environ, TAPSTONE_SERIAL_TRACE=os.path.join(run, "arena.trace"))
 arena = subprocess.Popen(
     [arena_bin, "--config", os.path.join(run, "arena.toml"), "--remote", args.remote_deck,
@@ -112,7 +139,26 @@ shrine_cmd = [shrine_bin, "play", "--port", shrine_port, "--deck", args.shrine_d
 if args.no_propose:
     shrine_cmd.append("--no-propose")
 shrine_log = open(os.path.join(run, "shrine.log"), "w")
-shrine = subprocess.Popen(shrine_cmd, stdout=shrine_log, stderr=subprocess.STDOUT)
+
+
+class Firmware:
+    """The station stands in for `radio_shrine play`: it is always running, and exits 0."""
+    returncode = 0
+
+    def poll(self):
+        return None
+
+    def wait(self, timeout=None):
+        return 0
+
+    def terminate(self):
+        pass
+
+    def kill(self):
+        pass
+
+
+shrine = Firmware() if args.firmware_shrine else subprocess.Popen(shrine_cmd, stdout=shrine_log, stderr=subprocess.STDOUT)
 
 
 def call(method, path, token=None, body=None):
@@ -174,6 +220,21 @@ except subprocess.TimeoutExpired:
     shrine.terminate()
     shrine_rc = shrine.wait(timeout=5)
 elapsed = time.time() - t_start
+if args.firmware_shrine:
+    import re
+    time.sleep(3)  # the station's FINAL line follows the last commit by one service pass
+    fw["stop"].set()
+    fin, heard = None, set()
+    for ln in fw["lines"]:
+        m = re.search(r"\[station\] FINAL match ([0-9a-f]{8}) .*? head ([0-9a-f]{16})", ln)
+        fin = m or fin
+        m = re.search(r"\[station\] RESULT match ([0-9a-f]{8})", ln)
+        if m:
+            heard.add(m.group(1))
+    with open(os.path.join(run, "shrine.json"), "w") as f:
+        json.dump({} if fin is None else {"match_id": fin.group(1), "head": fin.group(2),
+                                          "heard_result": fin.group(1) in heard,
+                                          "proposed": "firmware"}, f)
 summary = {}
 try:
     summary = json.load(open(os.path.join(run, "shrine.json")))

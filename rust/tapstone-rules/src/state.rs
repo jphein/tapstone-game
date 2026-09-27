@@ -26,7 +26,8 @@ pub struct HouseRules {
 impl Default for HouseRules {
     fn default() -> Self {
         HouseRules {
-            deck_size: 25,
+            // 30 since #147 (2026-09-27, amending 0011's 25): ten designs at three copies each.
+            deck_size: 30,
             hand: 5,
             // 1 since decision 0035. 0026 set it to 0 because the extra card compounded seat 1's
             // edge. The commander (0029) moved the edge to seat 0, and 1 now has the best worst

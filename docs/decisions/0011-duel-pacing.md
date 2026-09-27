@@ -1,5 +1,5 @@
 # 0011 — Duel pacing: 25 cards, 5 in hand, pressure from round 8, hard stop at 12
-Date: 2026-09-20 · Brainstorm ruling (Q5)
+Date: 2026-09-20 · Brainstorm ruling (Q5) · **Deck size amended to 30 by 0040 (2026-09-27, #147).**
 
 Decks are 25 cards; opening hand 5 (second player 6, see rules v0); draw one per round. From round
 8 every castle takes 2 damage at the start of the round; at round 12 the higher castle wins, ties to

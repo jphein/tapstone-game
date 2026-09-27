@@ -503,6 +503,66 @@
    "format": "webm-24khz-16bit-mono-opus"
   },
   {
+   "id": "card-forge-runner",
+   "text": "Forge Runner: touch a pad.",
+   "text_sha256": "3396edf86056d37d69ad4bd912d9ccbc1f4b357f4932bbfbf6c849f49368cd97",
+   "audio_sha256": "e0bedf33bd54a74dbf0643eeb0e1d37269fcd4c6e6a97dd6baa25238569f8899",
+   "bytes": 12518,
+   "file": "card-forge-runner.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-bellows-raider",
+   "text": "Bellows Raider: touch a pad.",
+   "text_sha256": "fbd67e60de05342306a8a23697b1448f5f1623a2d5c828de3cd4343afbefa329",
+   "audio_sha256": "dc429ac769bef4faa8038c24928b517cda99a1e6a41684d67d8b2995f3bbdb53",
+   "bytes": 14679,
+   "file": "card-bellows-raider.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-slag-brute",
+   "text": "Slag Brute: touch a pad.",
+   "text_sha256": "ce007fe57502da2e4478f789791c87cd3e53be971f8c1a8a00ee63745faaa37c",
+   "audio_sha256": "3e8e17a6b957cf84f60bf340a09f9ca218a1e2460ea33efcacb6b614a1310bac",
+   "bytes": 17598,
+   "file": "card-slag-brute.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-magma-burst",
+   "text": "Magma Burst: touch a pad.",
+   "text_sha256": "82b0fcf7b11afa878258fa4001a60209cb1b1ae075c344889dc7d266475edf1b",
+   "audio_sha256": "0847fd4e259b63a1e25ee9f75d3cb88277810dfebc6a0bd341bb364554d32935",
+   "bytes": 13419,
+   "file": "card-magma-burst.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-brine-skimmer",
+   "text": "Brine Skimmer: touch a pad.",
+   "text_sha256": "aa4fd72bcfef15c47d53b29de123a694e7e20fca62bad5be788f11612fdd981e",
+   "audio_sha256": "e00235e4d25802f9cd52fdf14534fb7c010abfb40e7483c2b57494958d4a904d",
+   "bytes": 13168,
+   "file": "card-brine-skimmer.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
+   "id": "card-trench-leviathan",
+   "text": "Trench Leviathan: touch a pad.",
+   "text_sha256": "5f1f523cbe3fb705032c62b7fe9f4e29b9db357b3bf92e80e036c72b3c1c6fb7",
+   "audio_sha256": "a08fb02bda1317fb0cbba66b495512509e583b7d84bbab05352bdadb5e4d25ba",
+   "bytes": 15058,
+   "file": "card-trench-leviathan.webm",
+   "voice": "en-US-Ava:DragonHDLatestNeural",
+   "format": "webm-24khz-16bit-mono-opus"
+  },
+  {
    "id": "level-2",
    "text": "Level 2.",
    "text_sha256": "b1cafe357adc5a24901c4bbe0bb5284711230f3736a93707ecc7cb217976cb34",

@@ -19,10 +19,11 @@ in the printable area, with chop-cutter guide lines like ../photocards.py. What 
             leaves after room for the cut marks (Letter is 279.4 mm; three 88 mm cards plus gutters take 268).
 
 Frame colours: the card's realm door in roblox/src/shared/TeaHouseLayout.luau, read from that file rather than copied
-(Ember ↔ the Forge Peaks and Tide ↔ the Deep Tides are ruled, 0039; neutral ↔ the Hearthlands is a PROPOSAL and the
-card says so). Rules text is derived from the engine (rust/tapstone-rules/src/rules.rs): Rush enters the mid cell,
+(all three are JP's rulings, 0039: Ember ↔ the Forge Peaks and Tide ↔ the Deep Tides on 2026-09-26, neutral ↔ the
+Hearthlands on 2026-09-27). Rules text is derived from the engine (rust/tapstone-rules/src/rules.rs): Rush enters the mid cell,
 Haste may advance the round it enters, Shield 1 takes 1 less combat damage, Taunt draws the lane's attackers, Ranged
-hits the nearest enemy in the lane.
+hits the nearest enemy in the lane. Cards on game/cards/awaiting-art.toml have no painting yet
+and are skipped.
 """
 import sys
 
@@ -55,8 +56,8 @@ COLS, ROWS, GUTTER_MM = 3, 3, 2.0  # realm-cards
 MARK_MM = 1.0                      # cut-mark room kept at the top and bottom of the printable area
 SCALE = 8                          # Chrome device scale factor (realm-cards)
 
+AWAITING_ART = frozenset(tomllib.loads((REPO / "game/cards/awaiting-art.toml").read_text())["set1"])
 FACTION_DOOR = {"ember": "forgepeaks", "tide": "deeptides", "neutral": "hearthlands"}
-PROPOSAL = {"neutral": "PROPOSAL · Hearthlands frame"}
 KEYWORD_TEXT = {
     "haste": ("Haste", "may advance the round it enters."),
     "rush": ("Rush", "enters its lane's mid cell."),
@@ -117,8 +118,6 @@ def card_params(card, art, door_table):
         "left": f"{card['id']} · {card.get('rarity', 'common')}", "right": "TAPSTONE · SET 1",
         "pt": f"{card['attack']}/{card['toughness']}" if card["type"] == "unit" else "",
     }
-    if card["faction"] in PROPOSAL:
-        p["proposal"] = PROPOSAL[card["faction"]]
     return p
 
 
@@ -214,6 +213,14 @@ def main(argv=None):
     ap.add_argument("--sheet-name", default="set1-sheet")
     a = ap.parse_args(argv)
     cards, table = load_cards(a.set, a.ids), doors()
+    # A card on game/cards/awaiting-art.toml has no painting yet (#147): asked for by id it is refused,
+    # in a whole-set run it is skipped and named. Any other card without its scene still stops the run.
+    awaiting = [c for c in cards if c["id"] in AWAITING_ART]
+    if awaiting and a.ids:
+        raise SystemExit(f"!! awaiting art (game/cards/awaiting-art.toml): {', '.join(c['name'] for c in awaiting)}")
+    for c in awaiting:
+        print(f"  {c['id']} {c['name']:20s} skipped: awaiting art", file=sys.stderr)
+    cards = [c for c in cards if c["id"] not in AWAITING_ART]
     missing = [c["name"] for c in cards if not (Path(a.art) / slug(c["name"]) / "scene.png").is_file()]
     if missing:
         raise SystemExit(f"!! no scene.png for: {', '.join(missing)}")

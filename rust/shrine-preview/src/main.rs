@@ -626,7 +626,7 @@ fn station(out: &std::path::Path) -> Result<(), String> {
     let mut strips = Vec::new();
     for m in fx::motions() {
         let slug = m.name().replace([' ', '(', ')'], "").replace('-', "");
-        // Every station motion is now an engine record (fall and return from seed 11; struck and
+        // Every station motion is now an engine record (fall and return from `FALL_SEED`; struck and
         // heal found by `search-states`), so no filmstrip carries an override label.
         let first = "before";
         let mut frames = vec![(first.to_string(), fx::scene(&m.before()))];

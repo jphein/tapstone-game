@@ -31,7 +31,7 @@ end
 -- The Tea House and the Dueling Grounds (0039), which build the real place: tests/teahouse.luau.
 require("./teahouse")(test, eq)
 
--- Real views from a real desk match (79 lines: 77 playing, 1 over, 1 lobby with last_over).
+-- Real views from a real desk match (87 lines: 85 playing, 1 over, 1 lobby with last_over).
 local views: { Protocol.View } = {}
 local raw = fs.readFile(FIXTURE)
 for line in string.gmatch(raw, "[^\n]+") do
@@ -39,14 +39,14 @@ for line in string.gmatch(raw, "[^\n]+") do
 end
 
 test("the fixture is the real one", function()
-	eq(#views, 79, "views")
+	eq(#views, 87, "views")
 end)
 
--- Effects (the headset's effects.js, ported): tests/effects.luau, on the same 79 views.
+-- Effects (the headset's effects.js, ported): tests/effects.luau, on the same 87 views.
 require("./effects")(test, eq, views)
 
 -- The holes: every unit in the raw JSON must come out of Protocol.units, and no two may share a
--- grid slot, from either seat's side, on any of the 79 real boards.
+-- grid slot, from either seat's side, on any of the 87 real boards.
 test("units walks the null holes and never stacks two units", function()
 	local lines = {}
 	for line in string.gmatch(raw, "[^\n]+") do
@@ -130,7 +130,7 @@ end)
 
 test("band text matches the browser board's", function()
 	local s = views[2].seats[1]
-	eq(Protocol.bandText(s, views[2].round), "Ember Castle  ♥ 20   mana 0/0   hand 0   deck 25   drawing 5", "seat 0, round 1")
+	eq(Protocol.bandText(s, views[2].round), "Ember Castle  ♥ 20   mana 0/0   hand 0   deck 30   drawing 5", "seat 0, round 1")
 end)
 
 local MENU: { Protocol.MenuItem } = {

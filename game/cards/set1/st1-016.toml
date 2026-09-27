@@ -1,0 +1,10 @@
+id = "st1-016"
+name = "Slag Brute"
+faction = "ember"
+type = "unit"
+cost = 4
+attack = 4
+toughness = 3
+keywords = []
+rarity = "uncommon"
+version = 1

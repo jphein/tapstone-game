@@ -123,3 +123,52 @@ a->s = arena→shrine, s->a = shrine→arena; delivered/tx, then the air-lost co
 
 Every `txerr` burst coincides with a poisoned roster line, and the air itself lost at most 2 frames
 per leg per match. The protocol's 100 ms retransmit absorbed all of them.
+
+## Real shrines: smol's station firmware (tapstone#132 item c, 2026-09-27)
+
+The steps above have a desk-style process stand in for the shrine. Here both seats, or seat B
+alone, are **smol's shrine station firmware** (`--features tapstone-station`). Its seat is
+`tapstone_proto::shrine::Shrine`, the state machine the arena's tests run as `DeskShrine`, and it
+chooses its taps with `shrine::Autoplay` until a reader is wired. One image carries the
+`tapstone-gw` bridge too.
+
+- **Build** in smol `rust/clock`. Use the S3 recipe with `esp32s3,hw,tapstone-station,espnow,cast`
+  and **no `io`**, since P3 belongs to a reader. Bake the seat in at build time:
+  - `SMOL_NODE_ID`
+  - `TAPSTONE_DECK` (`ember-neutral` | `tide-neutral`)
+  - `TAPSTONE_INDEX` (the registry index)
+  - `TAPSTONE_STATION_NODE`, on the board whose USB holds the arena. The arena drops every frame
+    from its own gateway's node as an echo, so seat A there needs its own id (161).
+  - `TAPSTONE_NO_PROPOSE=1` for the stall control.
+- **Keys:** build the stations with the same `secrets.rs` as the gateway they talk through. A
+  station with another group key sees the arena's frames as `BadTag` and refuses them.
+- **Decks:** the arena binaries find `decks/` relative to the path they were built at. Build them
+  from a source tree at a path that exists on the board host too (tonight
+  `~/tapstone-radio-selene/src/tapstone`), and copy `decks/` there.
+
+```sh
+# (i) two real shrines: board 61 = the arena's radio + seat A (ember, index 0, station node 161),
+#     board 62 = seat B across the air (tide, index 1)
+python3 $B/radio_table.py --bin-dir $B --run-dir $R/run-t6 \
+  --arena-mac 14:C1:9F:D1:C6:38 --shrine-mac 14:C1:9F:D1:C0:88
+python3 $B/radio_verify.py $R/run-t6 $B/tapstone-sim       # shrine.json is board 62's head
+# (ii) a real shrine against the remote seat: board 61 runs plain tapstone-gw, board 62 the station
+python3 $B/radio_match.py --bin-dir $B --run-dir $R/run-r2 --arena-mac 14:C1:9F:D1:C6:38 \
+  --shrine-mac 14:C1:9F:D1:C0:88 --firmware-shrine --shrine-index 1 --shrine-deck tide-neutral
+```
+
+The station's head comes from its console. Every 2 s it prints a `[station] status …` line, then
+`[station] FINAL match <id> … head <h>` once its game is over and `[station] RESULT match <id>` when
+it hears `R`. `radio_table.py` writes each seat's `shrine-{a,b}.json` from those lines. Board A's
+lines arrive in the arena's serial trace.
+
+| run | seats | key | match | records | wall | verify | control |
+|---|---|---|---|---|---|---|---|
+| run-t4 | two stations | CI throwaway (both) | 57b95826 | 105 | 17.7 s | VERIFIED, both heads | run-t5: stuck at mseq 13, CONTROL OK |
+| run-t6 | two stations | fleet | 57b95b7d | 95 | 14.7 s | VERIFIED | — |
+| run-r2 | station vs /remote/* | fleet | 57b95acd | 83 | 6.3 s | VERIFIED | run-r3: remote 6 taps, CONTROL OK |
+
+Found while getting there (smol firmware): the arena heads its frames with its gateway's node, not
+200, so the station recognises the arena by what it sends. After a match the station holds the
+result for 10 s before claiming again; before that hold, its rematch claim put a second match in
+the scratch ledger.
