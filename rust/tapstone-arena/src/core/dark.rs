@@ -285,6 +285,18 @@ impl ArenaCore {
             .flatten()
             .map(|b| (b, None))
             .collect();
+        if records.is_empty() && d.stage == Stage::HandBack && !d.agreed {
+            // An empty tail verifies nothing, least of all the arena's head: the interim may hold
+            // exactly as many records as the journal and its own at the head's mseq (#167). Keep
+            // asking, and send the interim the head now rather than at the next re-broadcast: its
+            // ACK agrees it (and the arena asks again at once) or rewinds it (`rewind_unagreed`).
+            d.count = None;
+            let (id, node) = (m.id, m.nodes[0]);
+            if let Some(c) = m.log.last().map(commit_at) {
+                self.send(out, node, id, &Frame::Commit(c));
+            }
+            return;
+        }
         if self.absorb(records, now, out) {
             let Some(m) = self.running() else { return };
             let id = m.id;
@@ -517,6 +529,17 @@ impl ArenaCore {
         let Some(d) = m.dark.as_mut() else {
             return false;
         };
+        // #167: until a shrine has ACKed the head with the arena's hash, the head may be a commit
+        // the arena journaled and never got on the air, and the interim may hold its own record at
+        // that mseq. Broadcast, seat 1 (which may have missed the interim's) takes the arena's and
+        // is forked for good when the interim's ACK rewinds it. So it goes to the interim alone:
+        // it ACKs (agreeing or rewinding), NAKs its gap, or takes the record, which is then the
+        // interim's as well.
+        let head_to = if d.stage == Stage::HandBack && !d.agreed {
+            node
+        } else {
+            BROADCAST
+        };
         if let Some(t) = d
             .verified_at
             .filter(|&t| now.saturating_sub(t) > HANDOVER_BOUND_MS)
@@ -558,7 +581,7 @@ impl ArenaCore {
             self.send(out, node, id, &frame);
         }
         if let Some(c) = head {
-            self.send(out, BROADCAST, id, &Frame::Commit(c));
+            self.send(out, head_to, id, &Frame::Commit(c));
         }
         true
     }

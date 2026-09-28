@@ -13,8 +13,9 @@ use tapstone_rules::{Applied, Chain, Game, HouseRules, Record};
 use crate::decks::DeckBook;
 use crate::registry::Registry;
 
-pub use dark::{HANDOVER_BOUND_MS, RecoveredMatch};
+pub use dark::{HANDBACK_NAK_MS, HANDOVER_BOUND_MS, RecoveredMatch};
 pub use lobby::Claim;
+pub use play::HEAD_MS;
 
 pub struct CoreConfig {
     /// The arena's own node id (the gateway's, as seen on the mesh).

@@ -7,45 +7,11 @@ use harness::*;
 
 const GOLDEN: &str = include_str!("golden/fingerprint-30.txt");
 
-/// Set 1's lists before #147 (2026-09-27), at 25 cards: the decks the golden was recorded on. The
-/// evidence is that recording, so the replay pins its decks rather than re-recording on new ones.
-const V0_DESIGNS: [&[u16]; 2] = [&[2, 3, 4, 5, 11, 12], &[6, 7, 8, 9, 10, 13, 11, 12]];
-const V0_SIZE: u8 = 25;
-
-fn v0_net(seed: u64) -> Net {
-    use tapstone_arena::decks::DeckBook;
-    use tapstone_sim::deck::Deck;
-    let decks: [Vec<u16>; 2] = [0u8, 1].map(|s| {
-        let list = V0_DESIGNS[s as usize]
-            .iter()
-            .copied()
-            .cycle()
-            .take(V0_SIZE.into());
-        tapstone_sim::shuffle_for(seed, s, list.collect())
-    });
-    let book = DeckBook::new(
-        (0..2)
-            .map(|i| Deck {
-                name: format!("d{i}"),
-                owner: "t".into(),
-                castle: tapstone_sim::CASTLES[i],
-                cards: decks[i].clone(),
-                sigil: String::new(),
-            })
-            .collect(),
-    );
-    let rules = tapstone_rules::HouseRules {
-        deck_size: V0_SIZE,
-        ..Default::default()
-    };
-    Net::with_decks(seed, 0.10, 0.05, rules, decks, book)
-}
-
 /// One line per seed: round, reason, winner, chain head, follower lengths, every record.
 fn fingerprint(claim_retry_ms: u64) -> Vec<String> {
     (1..=30u64)
         .map(|seed| {
-            let mut net = v0_net(seed);
+            let mut net = Net::v0(seed, 0.10, 0.05);
             // The golden was recorded when one draw decided a broadcast for every receiver.
             net.per_receiver_loss = false;
             for s in &mut net.shrines {

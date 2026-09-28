@@ -6,6 +6,7 @@
 mod harness;
 use harness::*;
 use tapstone_arena::core::JournalOp;
+use tapstone_arena::core::{HANDBACK_NAK_MS, HEAD_MS};
 use tapstone_proto::frame::result_reason;
 
 const SEEDS: u64 = 40;
@@ -137,4 +138,149 @@ fn a_journaled_commit_no_shrine_heard_is_replaced_by_the_interims() {
 #[test]
 fn a_rewound_journal_recovers_the_interims_record() {
     check(true);
+}
+
+/// #167: the arena's unsent commit, and the interim arbitrates exactly one record of its own at
+/// that mseq before the arena revives. The interim then holds as many records as the journal, so
+/// its answer to the revived arena's `J` is an empty tail: a hand-back that verifies nothing, least
+/// of all the arena's head. With `seat1_missed`, seat 1 never heard the interim's record, so the
+/// only record it could take at that mseq is one the arena sends it.
+struct Short {
+    net: Net,
+    at: usize,
+    /// The interim held its own record at `at`, and nothing past it, when the arena revived.
+    one_own: bool,
+}
+
+fn short_run(seed: u64, seat1_missed: bool) -> Option<Short> {
+    let mut net = Net::new(seed, 0.0, 0.0);
+    while net.shrines[0].follower.records().len() < 20 && net.over.is_empty() {
+        net.step();
+    }
+    let mut tries = 0;
+    loop {
+        if !net.over.is_empty() || tries == 200 {
+            return None;
+        }
+        let held = net.shrines.iter().map(|s| s.follower.records().len()).max();
+        net.step_dropping(&[]);
+        if net.journaled() > held.unwrap_or(0) {
+            break;
+        }
+        net.drain();
+        tries += 1;
+    }
+    let at = net.journaled() - 1;
+    let journaled = net.journal_record(at);
+    net.go_dark();
+    // Dark only until the interim has committed one record of its own: it waits out its catch-up
+    // from seat 1 (`SYNC_BOUND_MS`) first when seat 1 cannot hear it.
+    let mut steps = 0;
+    while net.shrines[0].follower.records().len() <= at {
+        if steps == 1_000 || !net.over.is_empty() {
+            return None;
+        }
+        net.deaf[1] = seat1_missed;
+        net.step();
+        steps += 1;
+    }
+    net.deaf[1] = false;
+    let held = net.shrines[0].follower.records();
+    let one_own = held.len() == at + 1
+        && held[at][..24] != journaled[..]
+        && (!seat1_missed || net.shrines[1].follower.records().len() == at);
+    net.revive();
+    if seat1_missed {
+        // The interim hears nothing from the revived arena for longer than a head re-broadcast
+        // period (its `J` lost, as seed 1660 of #167's sweep): the re-broadcast is then the first
+        // arena frame on the air, and seat 1 hears it.
+        for _ in 0..(HEAD_MS / 10 + 20) {
+            net.step_dropping(&[NODES[0]]);
+        }
+    }
+    net.run(40_000);
+    Some(Short { net, at, one_own })
+}
+
+fn check_short(seat1_missed: bool) {
+    let (mut shaped, mut failed) = (0, Vec::new());
+    for seed in 1..=SEEDS {
+        let Some(run) = short_run(seed, seat1_missed) else {
+            continue;
+        };
+        if !run.one_own {
+            continue;
+        }
+        shaped += 1;
+        let interims = run.net.shrines[0].follower.records()[run.at][..24].to_vec();
+        if !converged(&run.net) || run.net.journal_record(run.at)[..] != interims[..] {
+            let reasons: Vec<u8> = run.net.over.iter().map(|o| o.result.reason).collect();
+            failed.push(format!("seed {seed} {reasons:?}"));
+        }
+    }
+    // The floor, counted from the condition itself: the interim held one record of its own at the
+    // unsent mseq and nothing past it.
+    assert!(shaped >= 30, "only {shaped} of {SEEDS} runs had the shape");
+    assert!(
+        failed.is_empty(),
+        "{} of {shaped} runs did not converge on the interim's record: {failed:?}",
+        failed.len()
+    );
+}
+
+/// #167: an empty hand-back is no evidence the arena's head was agreed. Before the fix round one
+/// completed on it, and the interim's ACK at that mseq ended the match DESYNC.
+#[test]
+fn an_empty_hand_back_does_not_agree_an_unsent_head() {
+    check_short(false);
+}
+
+/// #167: ...and seat 1, which missed the interim's record, must not be sent the arena's unagreed
+/// one. Before the fix the head re-broadcast (#98(a)) went to both shrines: seat 1 took the
+/// arena's record, the interim's ACK rewound it, and seat 1 was forked for good.
+#[test]
+fn an_unagreed_head_reaches_no_shrine_but_the_interim() {
+    check_short(true);
+}
+
+/// #167: an empty tail on a head the interim agrees (it committed nothing while the arena was
+/// dark) is taken as soon as its ACK agrees the head: the arena asks again at the next tick, not a
+/// whole `HANDBACK_NAK_MS` after its last `J`. Measured from the revival to round one verified.
+#[test]
+fn an_agreed_empty_tail_is_taken_within_one_nak_period() {
+    let (mut shaped, mut slow) = (0, Vec::new());
+    for seed in 1..=SEEDS {
+        let mut net = Net::new(seed, 0.0, 0.0);
+        while net.shrines[0].follower.records().len() < 20 && net.over.is_empty() {
+            net.step();
+        }
+        net.go_dark();
+        let held = net.shrines[0].follower.records().len();
+        if held != net.journaled() {
+            continue;
+        }
+        shaped += 1;
+        net.revive();
+        let t0 = net.now;
+        let verified = |net: &Net| {
+            net.logs
+                .iter()
+                .find(|(_, l)| l.starts_with("hand-back verified"))
+                .map(|&(t, _)| t - t0)
+        };
+        while verified(&net).is_none() && net.now - t0 < 10 * HANDBACK_NAK_MS {
+            net.step();
+        }
+        match verified(&net) {
+            Some(ms) if ms < HANDBACK_NAK_MS => {}
+            ms => slow.push(format!("seed {seed} {ms:?} ms")),
+        }
+    }
+    // The floor, counted from the condition itself: the interim held exactly the journal.
+    assert!(shaped >= 30, "only {shaped} of {SEEDS} runs had the shape");
+    assert!(
+        slow.is_empty(),
+        "{} of {shaped} runs took {HANDBACK_NAK_MS} ms or more to verify round one: {slow:?}",
+        slow.len()
+    );
 }

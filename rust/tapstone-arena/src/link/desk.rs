@@ -123,10 +123,6 @@ impl DerefMut for DeskShrine {
 // build holds them equal (play.rs is the arena's, the shrine's copy is for `no_std` firmware).
 const _: () = assert!(shrine::HEAD_MS == crate::core::play::HEAD_MS);
 
-fn frames(out: shrine::Out) -> Vec<(u8, Vec<u8>)> {
-    out.into_iter().map(|(d, b)| (d, b.to_vec())).collect()
-}
-
 impl DeskShrine {
     /// Shrine `i`, holding its own `deck` only.
     pub fn new(seed: u64, i: usize, deck: &[u16]) -> DeskShrine {
@@ -149,22 +145,30 @@ impl DeskShrine {
     /// `Shrine::act`, as `Vec`s.
     pub fn act(&mut self, now: u64, may_claim: bool, manual: bool) -> Vec<(u8, Vec<u8>)> {
         let before = self.inner.proposals;
-        let out = self.inner.act(now, may_claim, manual);
+        let mut out = Vec::new();
+        self.inner.act_to(now, may_claim, manual, &mut |d, b| {
+            out.push((d, b.to_vec()))
+        });
         self.note_proposal(before);
-        frames(out)
+        out
     }
 
     /// `Shrine::propose`, as `Vec`s: empty when nothing was sent.
     pub fn propose(&mut self, now: u64, tap: Record) -> Vec<(u8, Vec<u8>)> {
         let before = self.inner.proposals;
-        let out = self.inner.propose(now, tap);
+        let mut out = Vec::new();
+        self.inner
+            .propose_to(now, tap, &mut |d, b| out.push((d, b.to_vec())));
         self.note_proposal(before);
-        frames(out)
+        out
     }
 
     /// `Shrine::rx`, as `Vec`s.
     pub fn rx(&mut self, h: &Header, f: &Frame) -> Vec<(u8, Vec<u8>)> {
-        frames(self.inner.rx(h, f))
+        let mut out = Vec::new();
+        self.inner
+            .rx_to(h, f, &mut |d, b| out.push((d, b.to_vec())));
+        out
     }
 
     fn note_proposal(&mut self, before: u32) {

@@ -297,6 +297,11 @@ impl ArenaCore {
                 .as_mut()
                 .filter(|d| d.stage == super::dark::Stage::HandBack)
         {
+            if !d.agreed {
+                // #167: an empty tail waited on this; ask again at the next tick, not a whole
+                // HANDBACK_NAK_MS after the last J (`an_agreed_empty_tail_is_taken_within_...`).
+                d.last_nak = 0;
+            }
             d.agreed = true; // #98: the hand-back's starting point is agreed
         }
         if seat == 0

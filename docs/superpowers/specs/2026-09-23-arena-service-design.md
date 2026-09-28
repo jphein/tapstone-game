@@ -308,6 +308,7 @@ recover from its own disk. The hand-back is for the gap the arena never saw.
 1. **The arena goes dark** (process killed, gateway unplugged, laptop asleep). The shrines, by
    §4.5 and 0028/0029, promote the first-claimed seat's shrine to arbiter and keep committing.
    Each shrine holds the full record list (D3's follower does this).
+   **Detection (lead ruling 2026-09-27):** a shrine in a match goes dark after 3 s with no frame from the arena (three missed `HEAD_MS` head re-broadcasts, §4.5's `PEER_STALE` idiom); seat 0 becomes the interim, seat 1 re-addresses to seat 0's node from `B`'s seat map, and any arena commit ends it (step 5). `tapstone_proto::shrine::Dark` implements this and the interim role; `tests/dark_detect.rs` holds the 3 s edge.
 2. **The arena comes back.** It loads the in-flight match from its journal (rules, seats, records
    at mseqs `0..k`, i.e. `k` of them, and the head hash), rebuilds `Game` and `Chain` by replaying the records through the
    engine (the same path `tapstone-sim::replay` proves), and broadcasts `L` with bit3 and the match
@@ -340,6 +341,17 @@ recover from its own disk. The hand-back is for the gap the arena never saw.
    bit3), so a shrine cannot tell this re-broadcast from the handover commit: an interim that hears it stops
    arbitrating before the hand-back completes. That is safe, because a resuming arena commits nothing and the
    seats retransmit, but it is a consequence of this rule.
+
+   **The journaled head is not agreed until a shrine ACKs it with the arena's hash (2026-09-27, #160,
+   #167).** The arena can journal a commit and die before any shrine hears it; the interim then arbitrates
+   that mseq itself. A shrine's ACK there with another hash means the record was never agreed: the arena
+   drops it and everything after it and asks for the hand-back from that mseq (#160). Two more rules close
+   the paths that rewind missed (#167: 7 of 2,000 seeds on the loss 0.2 mesh). **An empty round-one
+   hand-back completes nothing** while the head is unagreed: an interim holding exactly as many records as
+   the journal, its own at the head's mseq, hands back an empty tail, which verifies nothing. The arena
+   sends that interim its head at once and asks again once the ACK agrees it (or rewinds it). **Until then
+   the head re-broadcast goes to the interim alone:** broadcast, seat 1, which may have missed the
+   interim's record, would take the arena's, and would stay forked once the rewind drops it.
 
    **The handover takes two rounds (2026-09-25, #98 b/c; for JP's decision).** The interim arbitrates until
    it hears an arena commit, and on a lossy mesh the arena may not overhear what it commits in that window.

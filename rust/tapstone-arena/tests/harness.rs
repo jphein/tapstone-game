@@ -63,6 +63,9 @@ pub struct Net {
     /// #98: before its first commit in a dark window, the interim asks seat 1 (`N`) for any record
     /// past its own head and adopts the `H` answer. Off: the interim arbitrates at once.
     pub interim_syncs: bool,
+    /// Let the shrines detect dark themselves (`DARK_MS` of the arena's silence) instead of the
+    /// harness declaring it (`go_dark`). Off by default: the dark tests pin god's-eye windows.
+    pub detect_dark: bool,
     /// The interim has caught up with seat 1 this dark window (or gave up waiting, `SYNC_BOUND_MS`).
     pub interim_synced: bool,
     /// When the interim first and last asked seat 1 to catch it up, this dark window.
@@ -123,6 +126,11 @@ pub struct Net {
     pub interim_acked_head: bool,
     /// Resumptions without that ACK (#98 b/c; Oracle on #100). The invariant is zero.
     pub no_ack_resumes: u32,
+    /// Every `Output::Log` line the arena wrote, with the time (an instrument for the dark tests).
+    pub logs: Vec<(u64, String)>,
+    /// Shrine `i` hears nothing while set; it still acts and sends (#167: seat 1 missing the
+    /// interim's commit while its own taps reach it).
+    pub deaf: [bool; 2],
 }
 
 impl Net {
@@ -188,6 +196,7 @@ impl Net {
             results_heard: [0; 2],
             interim_answers: true,
             interim_syncs: true,
+            detect_dark: false,
             interim_synced: false,
             sync_asked: None,
             sync_held: Vec::new(),
@@ -209,6 +218,8 @@ impl Net {
             handover_ms_seen: None,
             interim_acked_head: false,
             no_ack_resumes: 0,
+            logs: Vec::new(),
+            deaf: [false; 2],
         }
     }
 
@@ -217,6 +228,14 @@ impl Net {
     }
 
     pub fn put(&mut self, from: u8, to: u8, bytes: Vec<u8>) {
+        // The interim's commits, by mseq, as first sent (the arena's are noted in `run_core`).
+        if from == NODES[0]
+            && let Some((_, Frame::Commit(c))) = Frame::decode(&bytes)
+        {
+            self.committed
+                .entry(c.mseq)
+                .or_insert((c.record.seat, c.lseq));
+        }
         // A broadcast on a lossy mesh is lost per receiver, in `heard`. Everything else draws here
         // as it always did, so a lossless mesh replays unchanged.
         let per_receiver = to == BROADCAST && self.loss > 0.0 && self.per_receiver_loss;
@@ -293,7 +312,8 @@ impl Net {
                 }
                 Output::Journal(j) => self.journal.push(j),
                 Output::MatchOver(m) => self.over.push(*m),
-                Output::View(_) | Output::Log(_) => {}
+                Output::Log(l) => self.logs.push((now, l)),
+                Output::View(_) => {}
             }
         }
     }
@@ -324,6 +344,7 @@ impl Net {
                 if self.shrines[i].node != from
                     && (to == BROADCAST || to == self.shrines[i].node)
                     && self.heard(to)
+                    && !self.deaf[i]
                 {
                     got += 1;
                     self.shrine_rx(i, &bytes);
@@ -344,45 +365,18 @@ impl Net {
         let may_claim = i == first || self.core.seated().first() == Some(&self.shrines[first].node);
         let now = self.now;
         let node = self.shrines[i].node;
+        self.sync_knobs(i);
+        // The dark window's routing (the interim arbitrates its own taps in place; seat 1
+        // re-addresses to the interim) is the shrine's own now, `tapstone_proto::shrine::Dark`.
         for (dst, bytes) in self.shrines[i].act(now, may_claim, self.manual[i]) {
-            if self.dark && dst == ARENA {
-                // The arena is dark: seat 0's shrine arbitrates (its own taps in place), and seat
-                // 1 proposes to it instead (0029, spec §7).
-                let Some((_, f)) = Frame::decode(&bytes) else {
-                    continue;
-                };
-                if i == 0 {
-                    // Only a tap is the interim's to arbitrate. Anything else it addresses to the
-                    // arena (its `J` for a `B` it never received, #91) goes on the air to the
-                    // arena as ever: nobody hears it while the arena is dead, and the revived arena
-                    // does, before any shrine has heard its handover.
-                    match f {
-                        Frame::Tap(Tap::Propose { lseq, record }) => {
-                            self.interim_commit((lseq, record))
-                        }
-                        _ => {
-                            self.dark_to_arena += 1;
-                            self.put(node, dst, bytes);
-                        }
-                    }
-                } else {
-                    self.put(node, NODES[0], bytes);
-                }
-            } else {
-                self.put(node, dst, bytes);
-            }
+            self.put(node, dst, bytes);
         }
+        self.mirror();
     }
 
-    /// A shrine's reply: while the arena is dark, what seat 1 addresses to the arena goes to the
-    /// interim arbiter instead, as its taps do (0029).
+    /// A shrine's reply, as the shrine addressed it (its dark routing is its own).
     fn reply(&mut self, i: usize, dst: u8, bytes: Vec<u8>) {
         let node = self.shrines[i].node;
-        let dst = if self.dark && i == 1 && dst == ARENA {
-            NODES[0]
-        } else {
-            dst
-        };
         self.put(node, dst, bytes);
     }
 
@@ -410,117 +404,19 @@ impl Net {
             return;
         };
         self.shrines[i].resume_from_resync = self.resume_from_resync;
-        match f {
-            Frame::Commit(_) => {
-                // The first commit from the revived arena is the handover.
-                if self.dark && h.src == ARENA {
-                    self.dark = false;
-                }
-                for (dst, b) in self.shrines[i].rx(&h, &f) {
-                    self.reply(i, dst, b);
-                }
+        // The first commit from the revived arena is the handover: the harness's one dark flag
+        // ends for both shrines at once, as it always did.
+        if self.dark && h.src == ARENA && matches!(f, Frame::Commit(_)) {
+            self.dark = false;
+            for s in &mut self.shrines {
+                s.end_dark();
             }
-            // Seat 1's tap reaches the interim arbiter while the arena is dark.
-            Frame::Tap(Tap::Propose { lseq, record }) if i == 0 && self.dark => {
-                self.interim_commit((lseq, record));
-            }
-            // The revived arena asks for the gap: answer with every hand-back chunk.
-            Frame::Join(j) if i == 0 && j.role == join_role::ARENA => {
-                self.send_handback(j.have_mseq, u64::MAX, ARENA);
-            }
-            // It NAKs the chunks it is missing.
-            Frame::HandbackNak(k) if i == 0 => {
-                self.send_handback(k.from_mseq, k.bitmap, ARENA);
-            }
-            // #76: while the arena is dark, a seat's J (a reboot) or N (a gap) reaches the interim,
-            // which answers from its own record list: `B` rebuilt from its state for a J, then `H`
-            // chunks, the hand-back's shape, carrying each seat's last lseq.
-            Frame::Join(j)
-                if i == 0
-                    && self.dark
-                    && self.interim_answers
-                    && j.role == join_role::SEAT
-                    && self.interim_has_game() =>
-            {
-                // Counted before the B is built, so an answer attempted without a game shows in the
-                // count (and the test's own assert), not as a panic here.
-                self.interim_replies += 1;
-                let Some(mut b) = self.shrines[0].follower.begin_frame() else {
-                    return;
-                };
-                if self.corrupt_interim_begin {
-                    b.decks[1][0] ^= 0x0001;
-                }
-                let id = self.shrines[0].begin.map_or(0, |(id, _)| id);
-                let bytes = Self::encode(NODES[0], id, &Frame::Begin(b));
-                self.put(NODES[0], h.src, bytes);
-                self.send_handback(j.have_mseq, u64::MAX, h.src);
-            }
-            Frame::Nak(n)
-                if i == 0
-                    && self.dark
-                    && self.interim_answers
-                    && h.src != ARENA
-                    && self.interim_has_game() =>
-            {
-                self.interim_replies += 1;
-                self.send_handback(n.from, u64::MAX, h.src);
-            }
-            // #98: the interim's catch-up `N`, before its first commit: seat 1 answers with what it
-            // holds from `from` (one empty chunk when nothing).
-            Frame::Nak(n) if i == 1 && self.dark && h.src == NODES[0] => {
-                if self.shrines[1].follower.handback(n.from, 0).is_some() {
-                    self.send_handback_from(1, n.from, u64::MAX, NODES[0]);
-                } else if self.shrines[1].follower.begun().is_some() {
-                    // Seat 1 is behind the interim: nothing past `from`, said as one empty chunk.
-                    let hb = Handback {
-                        from_mseq: n.from,
-                        idx: 0,
-                        count: 1,
-                        n: 0,
-                        last_lseq: self.shrines[1].follower.last_lseq(),
-                        records: [[0; 32]; HANDBACK_RECORDS],
-                    };
-                    let id = self.shrines[1].begin.map_or(0, |(id, _)| id);
-                    let b = Self::encode(NODES[1], id, &Frame::Handback(hb));
-                    self.put(NODES[1], NODES[0], b);
-                }
-            }
-            // ...and the interim adopts the answer, then arbitrates from the common head.
-            Frame::Handback(hb)
-                if i == 0 && self.dark && h.src == NODES[1] && !self.interim_synced =>
-            {
-                let before = self.shrines[0].follower.next_mseq();
-                for (dst, b) in self.shrines[0].rx(&h, &f) {
-                    self.reply(0, dst, b);
-                }
-                let after = self.shrines[0].follower.next_mseq();
-                self.sync_adopted += u32::from(after - before);
-                let end =
-                    hb.from_mseq as usize + hb.idx as usize * HANDBACK_RECORDS + hb.n as usize;
-                if hb.idx + 1 == hb.count && after as usize >= end {
-                    self.interim_synced = true;
-                    for tap in std::mem::take(&mut self.sync_held) {
-                        self.interim_commit(tap);
-                    }
-                }
-            }
-            // #91: a gameless would-be interim has nothing to answer a seat's J or N from.
-            Frame::Join(_) | Frame::Nak(_)
-                if i == 0 && self.dark && h.src != ARENA && !self.interim_has_game() =>
-            {
-                self.gameless_asks += 1;
-            }
-            Frame::Tap(Tap::Reject { .. })
-            | Frame::Result(_)
-            | Frame::Begin(_)
-            | Frame::Handback(_) => {
-                for (dst, b) in self.shrines[i].rx(&h, &f) {
-                    self.reply(i, dst, b);
-                }
-            }
-            _ => {}
         }
+        self.sync_knobs(i);
+        for (dst, b) in self.shrines[i].rx(&h, &f) {
+            self.reply(i, dst, b);
+        }
+        self.mirror();
     }
 
     /// As `step`, but frames sent by `node` vanish (a shrine that lost power).
@@ -579,13 +475,11 @@ impl Net {
     pub fn go_dark(&mut self) {
         self.arena_up = false;
         self.dark = true;
-        self.interim_synced = false;
-        self.sync_asked = None;
-        self.sync_held.clear();
         self.wire.clear();
         for s in &mut self.shrines {
-            s.pending = None;
+            s.go_dark();
         }
+        self.mirror();
     }
 
     /// A new arena process, rebuilt from the journal the old one wrote.
@@ -625,8 +519,10 @@ impl Net {
         self.arena_up = true;
         self.interim_acked_head = false;
         for o in out {
-            if let Output::Send { dst, frame } = o {
-                self.put(ARENA, dst, frame);
+            match o {
+                Output::Send { dst, frame } => self.put(ARENA, dst, frame),
+                Output::Log(l) => self.logs.push((self.now, l)),
+                _ => {}
             }
         }
     }
@@ -675,6 +571,10 @@ impl Net {
         }
         s.rejoining = true;
         s.join = via_join;
+        // The harness declares the dark window (`go_dark`), so a shrine booting into one is told.
+        if self.dark {
+            s.go_dark();
+        }
         self.shrines[i] = s;
     }
 
@@ -758,126 +658,69 @@ impl Net {
         }
         twice
     }
-
-    /// Seat 0's shrine holds the match's `B`. Without it, it is no interim: it has no game to
-    /// arbitrate or to answer from, so while the arena is dark nobody arbitrates and the match
-    /// waits for the arena to revive (0028's "the arena is dark, the match waits"; #91).
-    fn interim_has_game(&self) -> bool {
-        self.shrines[0].begin.is_some()
-    }
-
-    fn interim_commit(&mut self, (lseq, r): (u16, Record)) {
-        if !self.interim_has_game() {
-            self.gameless_taps += 1;
-            return;
-        }
-        if !self.interim_caught_up() {
-            // Held, and arbitrated the moment seat 1's answer lands (the proposer's retransmit
-            // would otherwise cost 100 ms); a retransmit meanwhile replaces its seat's.
-            self.sync_held.retain(|(_, h)| h.seat != r.seat);
-            self.sync_held.push((lseq, r));
-            return;
-        }
-        let now = self.now as u32;
-        let seat = r.seat;
-        // An interim arbiter dedupes retransmits by (seat, lseq), exactly as the arena does, from
-        // every lseq it has seen committed: the ones it committed AND the ones it followed before
-        // the arena went dark (its follower's per-seat last). Deduping from the dark window alone
-        // let a rebooted seat's restarted counter through (found on #76).
-        let seen = self.shrines[0].follower.last_lseq()[(seat & 1) as usize];
-        if self.interim_lseq[seat as usize].max(seen) >= lseq {
-            return;
-        }
-        match self.shrines[0].follower.arbitrate(r, lseq, now) {
-            Ok(c) => {
-                self.interim_lseq[seat as usize] = lseq;
-                self.committed.entry(c.mseq).or_insert((seat, lseq));
-                // The interim's commits carry the match id, as the arena's do: a follower drops a
-                // commit from any other match (Oracle on #86).
-                let id = self.shrines[0].begin.map_or(0, |(id, _)| id);
-                let b = Self::encode(NODES[0], id, &Frame::Commit(c));
-                self.put(NODES[0], BROADCAST, b);
-                if seat == 0 {
-                    // The interim never hears its own commits back, so it notes its own taps here:
-                    // without it, a copy it drew while dark was drawn again after the revival, and
-                    // the arena refused it forever (COPY_DRAWN; found on #76).
-                    self.shrines[0].pending = None;
-                    self.shrines[0].note_own(&c.record);
-                }
-            }
-            Err(e) => {
-                let reject = Frame::Tap(Tap::Reject {
-                    lseq,
-                    reason: refusal_code(&e),
-                });
-                let b = Self::encode(NODES[0], 0, &reject);
-                if seat == 0 {
-                    self.shrines[0].pending = None;
-                    self.shrines[0].refused = self.shrines[0].refused.saturating_add(1);
-                } else {
-                    self.interim_rejects += 1;
-                    self.put(NODES[0], NODES[1], b);
-                }
-            }
-        }
-    }
 }
 
 impl Net {
-    fn send_handback(&mut self, from: u16, bitmap: u64, dst: u8) {
-        self.send_handback_from(0, from, bitmap, dst);
+    /// The harness's test controls, into the shrine's own dark state (the interim is seat 0's
+    /// shrine; the knobs are read by nobody else). Dark is the harness's to declare (`go_dark`),
+    /// so the shrine's own silence detector is off here; `tests/dark_detect.rs` tests it.
+    fn sync_knobs(&mut self, i: usize) {
+        let d = &mut self.shrines[i].dark;
+        d.detect = self.detect_dark;
+        d.answers = self.interim_answers;
+        d.syncs = self.interim_syncs;
+        d.corrupt_begin = self.corrupt_interim_begin;
+        d.zero_lseq = self.zero_interim_lseq;
+        d.corrupt_handback = self.corrupt_handback;
     }
 
-    /// `H` chunks of shrine `i`'s record list from `from`, to `dst`: the interim's (seat 0) as
-    /// ever, or seat 1's answering the interim's catch-up `N` (#98).
-    fn send_handback_from(&mut self, i: usize, from: u16, bitmap: u64, dst: u8) {
-        let Some(first) = self.shrines[i].follower.handback(from, 0) else {
-            return;
+    /// The interim's instruments, mirrored into the fields the tests have always read.
+    fn mirror(&mut self) {
+        let d = &self.shrines[0].dark;
+        self.interim_lseq = d.lseq;
+        self.interim_synced = d.synced;
+        self.sync_asked = d.sync_asked;
+        self.sync_held = d.sync_held.iter().copied().collect();
+        self.sync_adopted = d.sync_adopted;
+        self.interim_replies = d.replies;
+        self.interim_rejects = d.rejects;
+        self.gameless_taps = d.gameless_taps;
+        self.gameless_asks = d.gameless_asks;
+        self.dark_to_arena = d.to_arena;
+    }
+}
+
+/// Set 1's lists before #147 (2026-09-27), at 25 cards: the decks `fingerprint.rs`'s golden was
+/// recorded on, and the second deck set the dark recovery sweeps run (#167).
+const V0_DESIGNS: [&[u16]; 2] = [&[2, 3, 4, 5, 11, 12], &[6, 7, 8, 9, 10, 13, 11, 12]];
+const V0_SIZE: u8 = 25;
+
+impl Net {
+    /// `new` on set 1's 25-card v0 lists, shuffled for `seed` as the desk shuffles.
+    pub fn v0(seed: u64, loss: f64, dup: f64) -> Net {
+        let decks: [Vec<u16>; 2] = [0u8, 1].map(|s| {
+            let list = V0_DESIGNS[s as usize]
+                .iter()
+                .copied()
+                .cycle()
+                .take(V0_SIZE.into());
+            tapstone_sim::shuffle_for(seed, s, list.collect())
+        });
+        let book = DeckBook::new(
+            (0..2)
+                .map(|i| Deck {
+                    name: format!("d{i}"),
+                    owner: "t".into(),
+                    castle: CASTLES[i],
+                    cards: decks[i].clone(),
+                    sigil: String::new(),
+                })
+                .collect(),
+        );
+        let rules = HouseRules {
+            deck_size: V0_SIZE,
+            ..Default::default()
         };
-        for idx in 0..first.count {
-            if bitmap & (1 << idx) == 0 {
-                continue;
-            }
-            let mut hb = self.shrines[i].follower.handback(from, idx).unwrap();
-            if i == 0 && self.corrupt_handback && idx == first.count - 1 {
-                hb.records[0][30] ^= 0x01; // one byte of one carried hash
-            }
-            if i == 0 && self.zero_interim_lseq && dst != ARENA {
-                hb.last_lseq = [0; 2];
-            }
-            let id = self.shrines[i].begin.map_or(0, |(id, _)| id);
-            let b = Self::encode(NODES[i], id, &Frame::Handback(hb));
-            self.put(NODES[i], dst, b);
-        }
-    }
-
-    /// #98: whether the interim may arbitrate yet. The arena's last commits can reach seat 1 and
-    /// not seat 0 before it dies; an interim that arbitrated those mseqs itself forked the two
-    /// shrines, and seat 1 halted on its next commit. So before its first commit in a dark window
-    /// the interim sends seat 1 an `N` from its own next mseq, every 100 ms, and seat 1 answers
-    /// with `H` chunks of whatever it holds past that (none: one empty chunk). The interim adopts
-    /// them through its follower, checked record by record as any `H`, and arbitrates from the
-    /// common head. A seat 1 that never answers (unreachable, or holding no game) is waited for
-    /// `SYNC_BOUND_MS`, then the interim arbitrates as before. No new frame: the `N` and `H` of
-    /// #76, the other way round.
-    fn interim_caught_up(&mut self) -> bool {
-        if !self.interim_syncs || self.interim_synced {
-            return true;
-        }
-        let now = self.now;
-        let (first, last) = *self.sync_asked.get_or_insert((now, 0));
-        if now.saturating_sub(first) >= SYNC_BOUND_MS {
-            self.interim_synced = true;
-            return true;
-        }
-        if last == 0 || now.saturating_sub(last) >= 100 {
-            self.sync_asked = Some((first, now.max(1)));
-            let from = self.shrines[0].follower.next_mseq();
-            let id = self.shrines[0].begin.map_or(0, |(id, _)| id);
-            let n = Frame::Nak(Nak { from, to: from });
-            let b = Self::encode(NODES[0], id, &n);
-            self.put(NODES[0], NODES[1], b);
-        }
-        false
+        Net::with_decks(seed, loss, dup, rules, decks, book)
     }
 }
