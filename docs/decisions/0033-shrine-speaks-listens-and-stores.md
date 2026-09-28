@@ -76,3 +76,24 @@ not a playtest-one requirement.
 **The 22,050 Hz floor limits the codec, not the wire.** The shrine can capture at 22,050 Hz and
 send at a lower rate after downsampling on the device (or upsample on playback), so the figures
 above are upper bounds. The error overstates cost, which is the safe direction.
+
+## The voice pack, as built (2026-09-27)
+
+`tools/voice_pack.py` renders the `clip` rows of `game/voice/clips.tsv` with local Piper
+(`en_US-ryan-high`, a placeholder voice until JP picks one) into one directory per set,
+`/TAPSTONE/VOICE/SET1/` on the card; `shrine_render::pack` is the shrine's reader.
+
+- **IMA-ADPCM, 4-bit mono, 22,050 Hz WAV**, 256-byte blocks. 22,050 Hz is the codec's floor (L5)
+  and Piper's native rate, so nothing is resampled. It is half the bytes of 8-bit PCM and the same
+  format as streamed speech, so the shrine needs one decoder. The delta is the exact
+  `((2m+1)·step)>>3`, and ffmpeg's `adpcm_ima_wav` decodes the pack to the same samples as the
+  builder's reference decoder, which makes it an independent check.
+- **8.3 names** from the id's hash (FatFS without long names) and a tab-separated,
+  id-sorted `MANIFEST.TSV` (id, file, bytes, sha256, text_sha256, text) that a no-alloc line scan
+  can search.
+- **Measured on familiar 2026-09-27** (`voice_pack.py --check`, then the Rust reader's ignored
+  `real_pack` test on the same manifest): 280 clips, 6,250,656 B of audio, 554.3 s of speech
+  (15.5 chars/s). That is under the header's 14 chars/s *estimate* of ~6.8 MB. The budget is
+  derived: the pack's own text read at 10 chars/s, less 25% headroom (7.2 MB).
+- The rendered audio stays out of git, like the Veo clips. The text-only fallback in internal
+  flash is unchanged: a clip missing from the pack means the band shows the line and says nothing.

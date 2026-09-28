@@ -18,7 +18,8 @@ Seven crates, one workspace (`rust/Cargo.toml`, edition 2024, `rust-version = "1
 - **`tapstone-arena`** — `std`, the arena service (0028): a sans-IO core that arbitrates, the SQLite
   ledger and journal, the battlefield page over SSE, the `@TS1` gateway link, desk mode and the poster.
 - **`shrine-render`** / **`shrine-preview`** — the shrine's 320×240 screens (`no_std`, vendored like the rules
-  crate) and their host-only preview from real engine states.
+  crate) and their host-only preview from real engine states. `shrine_render::pack` reads the SD voice
+  pack's `MANIFEST.TSV` (0033), which `tools/voice_pack.py` renders from `game/voice/clips.tsv` with Piper.
 
 All commands run from this directory (`rust/`). Cargo lives at `~/.cargo/bin`.
 
@@ -67,6 +68,7 @@ Green on 2026-09-20. Use thumbv7em day to day and the Xtensa line before a vendo
 cargo run -p tapstone-arena -- --desk        # two scripted shrines in process, no radio; board at http://127.0.0.1:7790/
 cargo run -p tapstone-arena                  # the gateway on USB serial, config from ~/.config/tapstone-arena/arena.toml
 cargo run -p tapstone-arena -- --desk --record views.jsonl --once   # one real match as view JSON lines, then exit
+cargo run -p tapstone-arena -- --desk --remote tide-neutral --once --ledger ~/scratch/l.sqlite   # a journaled desk match (scratch ledger: a new file, credits nobody); the scry tap bridge's table
 cargo test -p tapstone-arena --test fixture -- --ignored regenerate_the_fixture   # the canvas fixture, deterministic
 ```
 
@@ -208,4 +210,13 @@ python3 tapstone-arena/tools/remote_smoke.py target/debug/tapstone-arena        
 python3 tapstone-arena/tools/remote_smoke.py target/debug/tapstone-arena --no-propose  # exit 1
 python3 tapstone-arena/tools/remote_smoke.py target/debug/tapstone-arena --two               # exit 0
 python3 tapstone-arena/tools/remote_smoke.py target/debug/tapstone-arena --two --no-propose  # exit 1
+```
+
+The scry tap bridge (real NFC taps at the scry station as the remote seat's taps; runbook
+`docs/runbooks/radio-match.md`, "Real card taps via scry") has unit tests, a replay that must end
+VERIFIED and its stall control, all in one suite (debug builds of the arena and the sim first; its
+run dirs must not be under /tmp):
+
+```sh
+SCRY_TEST_DIR=~/.cache/tapstone-scry-test python3 -m unittest tapstone-arena/tools/test_scry_bridge.py   # 14 tests OK
 ```

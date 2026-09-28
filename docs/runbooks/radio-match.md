@@ -172,3 +172,134 @@ Found while getting there (smol firmware): the arena heads its frames with its g
 200, so the station recognises the arena by what it sends. After a match the station holds the
 result for 10 s before claiming again; before that hold, its rematch claim put a second match in
 the scratch ledger.
+
+## The arena dies mid-match (arena spec §7, tapstone#132 c, 2026-09-27)
+
+`tools/radio_dark.py` runs two station boards as `radio_table.py` does, SIGKILLs the arena once
+its ledger holds `--kill-at` records, leaves it dead for `--dark-s` seconds and restarts it on the
+same ledger (it resumes from its journal). The stations detect dark themselves (3 s with no arena
+frame, `tapstone_proto::shrine::DARK_MS`); seat A on the arena's board arbitrates as the interim.
+While the arena is dead the script holds board A's port, so the interim's console is kept
+(`shrine-a-dark.trace`). `--control` expects no progress while dark, with both boards built
+`TAPSTONE_NO_INTERIM=1`.
+
+```sh
+python3 $B/radio_dark.py --bin-dir $B --run-dir $R/run-dark4 \
+  --arena-mac 14:C1:9F:D1:C6:38 --shrine-mac 14:C1:9F:D1:C0:88
+python3 $B/radio_verify.py $R/run-dark4 $B/tapstone-sim
+```
+
+| run | stations | while the arena was dead | after the restart |
+|---|---|---|---|
+| run-dark4 | interim (smol#558) | both dark, A interim, 17 → 110 records (the match finished) | VERIFIED 57b9dc22, 110 records |
+| run-dark5-control | `TAPSTONE_NO_INTERIM=1` | no dark, stuck at 16 | CONTROL OK, VERIFIED 57b9dc71 |
+
+## Real card taps via scry (tapstone#132, 2026-09-27)
+
+`rust/tapstone-arena/tools/scry_bridge.py` turns real NFC taps at the **scry station** into seat B's
+taps in a desk arena match. The station POSTs every tap to scry-glass on ubox0, and scry-glass's
+journald records each request. The bridge reads that journal over ssh
+(`journalctl -u scry-glass -f`) and scry's `uid-map.json`, both **read-only**. It never POSTs to
+scry and never writes scry's files. The station token (`k=`) is stripped on ubox0 before a line
+leaves it, and again when the line is parsed. No file the bridge writes carries the token, and the
+tests check every one of them.
+
+It starts `tapstone-arena --desk --remote tide-neutral --once --ledger <run>/ledger.sqlite`.
+Seat A is the desk bot and seat B is the remote seat (0038), which the bridge plays over
+`/remote/*` from the taps. `--ledger` is desk mode's scratch ledger. It refuses an existing file,
+and a desk ledger credits nobody, so `radio_verify.py` can check the match afterwards.
+
+### Tags to keep off the pad
+
+Tags already bound in scry's uid-map are refused (a bound tag triggers the station's own action),
+and the bridge logs them by UID only. Use unbound tags only.
+
+The bridge re-reads the map during the match, so a tag bound mid-match is refused too. Two more
+scry traps:
+
+- **Don't arm an imbue** (`realm scry imbue`) while playing. During an imbue window, scry binds the
+  next unbound tap to a host.
+- **Don't name a sticker from the QR** scry shows after an unbound tap. Naming it binds it, and the
+  bridge then refuses it.
+
+### What JP does
+
+1. **Build** the binaries on familiar:
+   `cargo build -p tapstone-arena --bin tapstone-arena -p tapstone-sim`.
+2. **Start the bridge** in a tmux session on familiar. The run dir must be new, and it must not be
+   under /tmp or /var/tmp (the ledger guard). `--registry` keeps the card bindings for the next match.
+   ```sh
+   python3 rust/tapstone-arena/tools/scry_bridge.py play --arena $T/debug/tapstone-arena \
+     --run-dir ~/tapstone-scry/run1 --registry ~/tapstone-scry/registry.jsonl
+   ```
+   The board is at `http://127.0.0.1:17890/` on familiar (`--port`; the remote seat is on the next
+   port up).
+3. **Register tags as you go.** Nothing needs doing first:
+   - The **first fresh tag** you tap becomes your **castle**.
+   - At each **DRAW** prompt, tap a fresh tag. It becomes the next card of the Tide list, and the
+     console names it (`registered … as Reef Archer (copy 0)`). Write the name on the tag.
+   - A tag you have already registered can be drawn too, if it hasn't been drawn this match.
+4. **Play as the console prompts** (0009's card-only grammar):
+   - **Cast:** tap a card in hand once, and it is cast after 3 s with the default choice. A unit
+     goes into the legal lane with the fewest of your units. A spell goes to the menu's first
+     useful target.
+   - **Charge:** tap the same card twice within 3 s.
+   - **Pass:** tap the castle.
+   - A tap that can't act is refused on the console with the reason, such as "not your move" or
+     "a draw is owed".
+5. **Verify** when it ends. The bridge exits 0 once the arena delivers the result.
+   ```sh
+   python3 rust/tapstone-arena/tools/radio_verify.py ~/tapstone-scry/run1 $T/debug/tapstone-sim   # VERIFIED
+   ```
+   `shrine.json` in the run dir is the remote seat's own view of the final head. It comes from the
+   arena's process, so unlike a radio shrine's head it isn't independent of the arena.
+
+**Tap count:** about 40 per match. The replay below makes 36 game taps: 1 castle registration,
+12 draws (7 opening draws plus turn-start draws), 5 charges (10 taps), 7 casts and 6 passes. It
+uses 13 fresh tags (the castle plus 12 cards).
+
+**Known gaps:** there's no card-only tap for *advance*, so seat B's units never advance a lane. No
+mulligan is offered (the castle always passes). Spell targeting reads "nearest legal target" as
+the menu's first useful target.
+
+### Tests and evidence (familiar, 2026-09-27)
+
+Build the binaries first. The run dirs must not be under /tmp:
+
+```sh
+cd rust && SCRY_TEST_DIR=~/.cache/tapstone-scry-test python3 -m unittest tapstone-arena/tools/test_scry_bridge.py
+```
+
+The suite is 14 tests: parsing, the token strip, the scratch registry's guard, the tap grammar, and
+two replays. The fixture `tools/fixtures/scry-replay.journal` is synthetic but in scry-glass's
+exact journald format, with fake UIDs and a fake `k=`. It was written once by
+`tools/scry_fixture.py`, and it must not be regenerated to make a test pass. It holds a 404, a 403
+tap, and two taps of a tag in the fake uid-map: one before the castle, one mid-match.
+
+- **Replay:** the whole journal makes a VERIFIED match (72 records). Four replays in a row made
+  the same 30 proposals as the recording, with the same refusals.
+- **Stall control:** the same journal cut at half its taps gives `STALLED` (exit 3), no finished
+  match in the ledger, and radio_verify NOT VERIFIED.
+
+Perturbations, each seen red and then green again after a fresh restore:
+
+| perturbation | tests that failed |
+|---|---|
+| the bound-UID refusal off | 3 (two grammar tests and the replay) |
+| the parser keeps `?k=…` in the UID | 2 |
+| the charge window at 0.5 s | 2 |
+| desk `--ledger` opened but not used | 2 (the replay, and the control's record floor) |
+| the older line shape unparsed | 1 |
+
+Two replay races were found and fixed on the way:
+
+- **Off-turn draws raced the bot.** Seat B owes its opening draws during the bot's turn, which runs
+  in real time. A replay therefore taps only on its own turn, once the menu has settled.
+- **The HTTP view lagged the menu.** The lane choice read `/remote/view`, which can arrive after the
+  menu it belongs to. It now reads the arena's `--record` file, which is written before the menus
+  refresh. Before these fixes, replays of one journal diverged.
+
+Checked against ubox0's real journal, read-only with the token stripped there: all 50 recorded tap
+lines parse. 39 of them are an older scry-glass line shape (`<ip> - "POST …"`, no date) that the
+first parser missed. Of the 47 taps with status 200, 43 are scry-bound tags. A live run with no
+taps opens the stream, and leaves no `journalctl` behind on ubox0.

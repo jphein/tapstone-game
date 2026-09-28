@@ -66,6 +66,9 @@ pub struct Net {
     /// Let the shrines detect dark themselves (`DARK_MS` of the arena's silence) instead of the
     /// harness declaring it (`go_dark`). Off by default: the dark tests pin god's-eye windows.
     pub detect_dark: bool,
+    /// smol#558: a seatless shrine whose `J` for a `B` goes unanswered for `DARK_MS` goes dark and
+    /// broadcasts it (the interim answers). Off: the `J` goes to the dead arena and the seat stalls.
+    pub seatless_discovers: bool,
     /// The interim has caught up with seat 1 this dark window (or gave up waiting, `SYNC_BOUND_MS`).
     pub interim_synced: bool,
     /// When the interim first and last asked seat 1 to catch it up, this dark window.
@@ -81,9 +84,12 @@ pub struct Net {
     pub zero_interim_lseq: bool,
     /// `J`/`N` answers the interim sent (a test instrument).
     pub interim_replies: u32,
-    /// Every commit's (seat, lseq), by mseq, as first sent by the arena or the interim: the
-    /// harness's own record, for "no tap is committed twice under one lseq".
-    pub committed: std::collections::BTreeMap<u16, (u8, u16)>,
+    /// Every commit the arena or the interim sent, as `(time, mseq, hash, seat, lseq)`: the
+    /// harness's own record, for "no tap is committed twice under one lseq". Judged against the
+    /// agreed chain (`agreed`), never as sent: #160's rewind drops a journaled commit that no shrine
+    /// holds, and the interim commits other records at those mseqs, so a first-send ledger counted
+    /// the dropped one as a second commit of a tap and its lseq as used (#173).
+    pub committed: Vec<(u64, u16, [u8; 8], u8, u16)>,
     /// Frames shrine 0 addressed to the arena while the harness dark flag is set (`go_dark` → the
     /// first revived-arena commit a shrine hears) that were not taps (its `J` for a `B` it never
     /// received, #91): no arbiter's business, they go on the air to the arena, which hears them
@@ -197,6 +203,7 @@ impl Net {
             interim_answers: true,
             interim_syncs: true,
             detect_dark: false,
+            seatless_discovers: true,
             interim_synced: false,
             sync_asked: None,
             sync_held: Vec::new(),
@@ -233,8 +240,7 @@ impl Net {
             && let Some((_, Frame::Commit(c))) = Frame::decode(&bytes)
         {
             self.committed
-                .entry(c.mseq)
-                .or_insert((c.record.seat, c.lseq));
+                .push((self.now, c.mseq, c.hash, c.record.seat, c.lseq));
         }
         // A broadcast on a lossy mesh is lost per receiver, in `heard`. Everything else draws here
         // as it always did, so a lossless mesh replays unchanged.
@@ -304,8 +310,7 @@ impl Net {
                 Output::Send { dst, frame } => {
                     if let Some((_, Frame::Commit(c))) = Frame::decode(&frame) {
                         self.committed
-                            .entry(c.mseq)
-                            .or_insert((c.record.seat, c.lseq));
+                            .push((self.now, c.mseq, c.hash, c.record.seat, c.lseq));
                         self.sent_commits.insert(c.mseq, frame.clone());
                     }
                     self.put(ARENA, dst, frame)
@@ -646,17 +651,72 @@ impl Net {
 }
 
 impl Net {
-    /// (seat, lseq) pairs committed under more than one mseq: a tap committed twice. Lobby claims
-    /// and hand-back re-sends (lseq 0) are not taps.
+    /// Whether a commit at `mseq` carrying `hash` is in the agreed chain: shrine 0's log, which
+    /// every test here checks both shrines and the arena's result agree on.
+    pub fn agreed(&self, mseq: u16, hash: &[u8; 8]) -> bool {
+        self.shrines[0]
+            .follower
+            .records()
+            .get(mseq as usize)
+            .is_some_and(|b| b[Record::LEN..] == hash[..])
+    }
+
+    /// (seat, lseq) pairs committed under more than one mseq of the agreed chain: a tap committed
+    /// twice. Lobby claims and hand-back re-sends (lseq 0) are not taps.
+    /// Fails closed: every mseq a play commit was sent at must hold an agreed one, or shrine 0's
+    /// log is not the chain (it lags, or holds no game) and the check would see nothing.
     pub fn lseqs_committed_twice(&self) -> Vec<(u8, u16)> {
+        let mut at = std::collections::BTreeMap::new();
+        let mut sent = std::collections::BTreeSet::new();
+        for &(_, mseq, hash, seat, lseq) in &self.committed {
+            if mseq >= 2 && lseq > 0 {
+                sent.insert(mseq);
+                if self.agreed(mseq, &hash) {
+                    at.insert(mseq, (seat, lseq));
+                }
+            }
+        }
+        let uncovered: Vec<u16> = sent
+            .iter()
+            .copied()
+            .filter(|m| !at.contains_key(m))
+            .collect();
+        assert!(
+            uncovered.is_empty(),
+            "the agreed chain (shrine 0's log, {} records) holds no commit sent at mseqs {uncovered:?}",
+            self.shrines[0].follower.records().len()
+        );
         let mut seen = std::collections::BTreeSet::new();
         let mut twice = Vec::new();
-        for (&mseq, &pair) in &self.committed {
-            if mseq >= 2 && pair.1 > 0 && !seen.insert(pair) {
+        for pair in at.into_values() {
+            if !seen.insert(pair) {
                 twice.push(pair);
             }
         }
         twice
+    }
+
+    /// Distinct play commits sent that are not in the agreed chain: what the rewind dropped (#160).
+    pub fn unagreed_commits(&self) -> usize {
+        let mut out = std::collections::BTreeSet::new();
+        for &(_, mseq, hash, _, lseq) in &self.committed {
+            if mseq >= 2 && lseq > 0 && !self.agreed(mseq, &hash) {
+                out.insert((mseq, hash));
+            }
+        }
+        out.len()
+    }
+
+    /// The highest lseq of `seat` in the agreed chain committed before `t`: what a shrine that
+    /// rebooted at `t` must propose above (ruled 2026-09-23). A commit the rewind dropped (#160)
+    /// is in no shrine and no journal, so it used nothing.
+    pub fn agreed_last_lseq(&self, seat: u8, t: u64) -> u16 {
+        self.committed
+            .iter()
+            .filter(|&&(at, mseq, hash, s, _)| at < t && s == seat && self.agreed(mseq, &hash))
+            .map(|&(.., lseq)| lseq)
+            .max()
+            .unwrap_or(0)
     }
 }
 
@@ -667,6 +727,7 @@ impl Net {
     fn sync_knobs(&mut self, i: usize) {
         let d = &mut self.shrines[i].dark;
         d.detect = self.detect_dark;
+        d.discovers = self.seatless_discovers;
         d.answers = self.interim_answers;
         d.syncs = self.interim_syncs;
         d.corrupt_begin = self.corrupt_interim_begin;

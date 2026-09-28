@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 
 use proptest::prelude::*;
-use proptest::test_runner::{Config, TestRunner};
+use proptest::test_runner::{Config, RngAlgorithm, TestRng, TestRunner};
 use tapstone_rules::cards::design;
 use tapstone_rules::state::Unit;
 use tapstone_rules::{Applied, CardKind, Commander, Game, HouseRules, Kind, Record, Refusal, SET1};
@@ -162,11 +162,54 @@ const EVERY_REFUSAL: [&str; 13] = [
     "LobbyClosed",
 ];
 
+/// The coverage floor's sample is FIXED. The asserts below ("every Refusal appeared", "a Shift and
+/// a Destroy succeeded") are claims about a SAMPLE, and on an unseeded runner a rare sample with no
+/// successful Destroy failed a debug run (selene, 2026-09-27; 12 debug and 6 release reruns were
+/// green). A floor that depends on luck is a flake, not a check. So the sample is a fixed ChaCha
+/// stream, and the margin is measured, not hoped for: see `COVERAGE_SEED`'s note.
+///
+/// `TAPSTONE_COVERAGE_SEED=<u64>` picks another fixed sample. `=random` explores with a seed taken
+/// from the clock and PRINTED, so any failure it finds can be replayed. The other properties in this
+/// file stay random.
+///
+/// The margin, measured 2026-09-27 (debug, 300 cases, after #166's 30-card decks), as successful
+/// casts and the thinnest Refusal:
+///
+/// |                          | Destroy | Shift | Heal | thinnest Refusal      |
+/// |--------------------------|---------|-------|------|-----------------------|
+/// | this seed                | 24      | 28    | 23   | 21 AlreadyAdvancedLane |
+/// | worst of seeds 1..=20    | 10      | 12    | 23   | 8 AlreadyAdvancedLane  |
+/// | unbiased cards, worst    | 3       | 1     | 7    | 12                    |
+///
+/// The last row is why the card strategy is biased (see `card` below). Controls: two cases make it
+/// red (`Refusal::NoMana never appeared`); not counting Destroy makes it red (`no successful Destroy`).
+const COVERAGE_SEED: u64 = 20_260_927;
+
+fn coverage_rng() -> (u64, TestRng) {
+    let seed = match std::env::var("TAPSTONE_COVERAGE_SEED").ok().as_deref() {
+        None | Some("") => COVERAGE_SEED,
+        Some("random") => std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(1, |d| d.as_nanos() as u64),
+        Some(s) => s
+            .parse()
+            .unwrap_or_else(|_| panic!("TAPSTONE_COVERAGE_SEED={s:?}: a u64 or \"random\"")),
+    };
+    let mut bytes = [0u8; 32];
+    bytes[..8].copy_from_slice(&seed.to_le_bytes());
+    (seed, TestRng::from_seed(RngAlgorithm::ChaCha, &bytes))
+}
+
 #[test]
 fn random_taps_through_the_arbiter_replay_equivalently() {
-    // Half the cards come from the armed hands and half the targets from the armed cells, so
-    // spell effects resolve often enough to be asserted on; the other half stays uniform.
+    // Most cards come from the armed hands and half the targets from the armed cells, so spell
+    // effects resolve often enough to be asserted on; the rest stays uniform.
+    // A third of the cards are Shift (10), Heal (12) or Destroy (13), the targeted spells whose
+    // successes the floor below counts. Unbiased, over 20 fixed seeds the thinnest sample held 1 Shift
+    // and 3 Destroys; biased toward Shift and Destroy alone, Heal fell to 3 (2026-09-27). See
+    // COVERAGE_SEED.
     let card = prop_oneof![
+        prop::sample::select(vec![10u16, 12, 13]),
         prop::sample::select(vec![5u16, 9, 10, 11, 12, 13, 2, 3, 4, 6, 7, 8]),
         // Six ids past the set, so Refusal::UnknownCard keeps firing however large SET1 grows.
         0u16..SET1.len() as u16 + 6
@@ -181,8 +224,12 @@ fn random_taps_through_the_arbiter_replay_equivalently() {
         start_strategy(),
         prop::collection::vec((0u8..=1, kind, card, -1i8..=3, target, 0u8..=1), 1..=300),
     );
-    let mut runner =
-        TestRunner::new(Config::with_cases(cases(300)).clone_with_source_file(file!()));
+    let (seed, rng) = coverage_rng();
+    println!("coverage seed: {seed} (TAPSTONE_COVERAGE_SEED)");
+    let mut runner = TestRunner::new_with_rng(
+        Config::with_cases(cases(300)).clone_with_source_file(file!()),
+        rng,
+    );
     runner
         .run(&strategy, |(mode, taps)| {
             let mut a = Arbiter::new(start(mode));

@@ -13,8 +13,8 @@ fn sorted(mut v: Vec<u16>) -> Vec<u16> {
 
 struct Run {
     net: Net,
-    /// Seat 1's last committed lseq before the reboot, from the harness's own record of what was
-    /// committed (never from the follower under test).
+    /// Seat 1's last lseq committed before the reboot, from the harness's own record of what was
+    /// committed (never from the follower under test), in the agreed chain (#173).
     last_before: u16,
     /// Seat 1 had rejoined (applied up to the interim's head and stopped rejoining) while dark.
     rejoined_dark: bool,
@@ -30,7 +30,12 @@ struct Run {
 /// plays out. `before = 0` reboots the instant the arena goes dark, so the interim has committed
 /// nothing for seat 1 and must dedupe from the lseqs it followed.
 fn run(seed: u64, before: usize, set: impl FnOnce(&mut Net)) -> Run {
-    let mut net = Net::new(seed, 0.0, 0.0);
+    run_on(seed, before, 0.0, set)
+}
+
+/// As [`run`], on a mesh losing `loss` of its frames (a broadcast per receiver).
+fn run_on(seed: u64, before: usize, loss: f64, set: impl FnOnce(&mut Net)) -> Run {
+    let mut net = Net::new(seed, loss, 0.0);
     set(&mut net);
     while net.shrines[0].follower.records().len() < 20 && net.over.is_empty() {
         net.step();
@@ -43,8 +48,8 @@ fn run(seed: u64, before: usize, set: impl FnOnce(&mut Net)) -> Run {
     for _ in 0..before {
         net.step();
     }
-    // The interim's own lseq ledger, as the arena would have had it.
-    let last_before = net.interim_lseq[1].max(net.shrines[1].follower.last_lseq()[1]);
+    // Judged after the match, against the agreed chain (#173): the reboot's time, here.
+    let reboot_t = net.now;
     net.reboot(1, true);
     let reboot_at = net.shrines[0].follower.records().len();
     let seat1_since = |net: &Net| {
@@ -71,6 +76,7 @@ fn run(seed: u64, before: usize, set: impl FnOnce(&mut Net)) -> Run {
     let ended_dark = net.shrines[0].follower.game.phase != tapstone_rules::Phase::Playing;
     net.revive();
     net.run(40_000);
+    let last_before = net.agreed_last_lseq(1, reboot_t);
     Run {
         net,
         last_before,
@@ -222,4 +228,72 @@ fn without_the_last_lseq_the_rebooted_seat_reuses_lseqs_and_the_dedupe_holds() {
     // The skip above once read the phase after the revival, when every match is over, and so
     // skipped all 40 cases: the control passed while checking nothing.
     assert!(checked >= 30, "only {checked} of 40 cases were checked");
+}
+
+/// #173: the same rejoin on a mesh losing a fifth of its frames, 40 seeds × {0, 5}. Every case
+/// that looked bad on main (13 of 80: 3 "twice", 12 "reused", all converging) was #160's rewind:
+/// the arena's last commits reached only seat 1, which then rebooted, so the interim arbitrated
+/// those mseqs itself and the revived arena dropped its copies. The ledger counted the dropped
+/// commits as used. Judged against the agreed chain, no tap commits twice and no lseq is reused;
+/// the floor keeps the rewind in the cases this sees.
+#[test]
+fn on_a_lossy_mesh_the_rejoined_seat_neither_reuses_nor_double_commits_an_lseq() {
+    let mut bad = Vec::new();
+    let (mut checked, mut rewound) = (0, 0);
+    for (seed, before) in (1..=40u64).flat_map(|s| [(s, 0), (s, 5)]) {
+        let r = run_on(seed, before, 0.2, |_| {});
+        let twice = r.net.lseqs_committed_twice();
+        let low: Vec<u16> = r.net.shrines[1]
+            .proposed
+            .iter()
+            .copied()
+            .filter(|&l| l <= r.last_before)
+            .collect();
+        if !twice.is_empty() || !low.is_empty() || !converged(&r.net) {
+            bad.push(format!(
+                "{seed}/{before}: twice {twice:?} reused {low:?} (last before {}) converged {}",
+                r.last_before,
+                converged(&r.net)
+            ));
+        }
+        checked += usize::from(!r.net.shrines[1].proposed.is_empty());
+        rewound += usize::from(r.net.unagreed_commits() > 0);
+    }
+    eprintln!(
+        "{checked} of 80 rebooted seats proposed; {rewound} rewound; {} bad",
+        bad.len()
+    );
+    assert!(rewound >= 5, "only {rewound} of 80 cases met the rewind");
+    assert!(bad.is_empty(), "{} of 80: {bad:#?}", bad.len());
+    assert!(
+        checked >= 60,
+        "only {checked} of 80 rebooted seats proposed anything"
+    );
+}
+
+/// #173's control on the same lossy mesh: with `H`'s last lseq zeroed, the rebooted seat does
+/// propose used lseqs, and the interim's dedupe still keeps every one from committing twice. This
+/// is where the lossy "twice" clause can see: the test above never proposes a used lseq.
+#[test]
+fn on_a_lossy_mesh_without_the_last_lseq_the_dedupe_holds() {
+    let mut reused = 0;
+    for (seed, before) in (1..=40u64).flat_map(|s| [(s, 0), (s, 5)]) {
+        let r = run_on(seed, before, 0.2, |n| n.zero_interim_lseq = true);
+        let twice = r.net.lseqs_committed_twice();
+        assert!(
+            twice.is_empty(),
+            "seed {seed}/{before}: committed twice under one lseq: {twice:?}"
+        );
+        reused += usize::from(
+            r.net.shrines[1]
+                .proposed
+                .iter()
+                .any(|&l| l <= r.last_before),
+        );
+    }
+    eprintln!("{reused} of 80 proposed a used lseq");
+    assert!(
+        reused >= 60,
+        "only {reused} of 80 proposed a used lseq: the control cannot see"
+    );
 }

@@ -146,6 +146,16 @@ purpose there.
     registration, so every later tool reports "no Studio registered", which is false. Kill the orphans
     by pid, and have every tool close its bridge in a `finally`.
 
+- **Judge a protocol invariant against the history that survived, not the frames that were sent**
+  (#173, 2026-09-27). A lossy dark-rejoin run reported one tap committed twice in 3 of 80 cases and
+  reused lseqs in 12, all while converging. Every one was #160's rewind: the arena's last commit
+  reached only a seat that then rebooted, the interim arbitrated that mseq itself, and the revived
+  arena dropped its copy. The harness's ledger kept the first commit sent at each mseq, so it
+  counted a record that no shrine and no journal held any more. A commit now counts only if its
+  hash is the agreed chain's at its mseq. The check **fails closed** when that chain does not cover
+  every mseq sent, since a lagging chain would otherwise make it see nothing. Removing the interim's
+  dedupe still turns it red, so it can still see a real double commit.
+
 ## Handing a belief to someone who will check it
 
 Offer a prediction *as a prediction*. Twice in one day a lane found the missing half of an argument

@@ -1,6 +1,7 @@
 //! `tapstone-arena` — run the arena for one table.
 //!   tapstone-arena                 # gateway on USB serial, config from ~/.config/tapstone-arena
 //!   tapstone-arena --desk          # two scripted shrines in process, no radio (spec §9)
+//!   tapstone-arena --desk --remote tide-neutral --ledger <new file>   # a desk match, journaled
 use std::path::PathBuf;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -34,9 +35,15 @@ use tokio::sync::Notify;
 struct Cli {
     #[arg(long)]
     config: Option<PathBuf>,
-    /// Two scripted shrines in process; no gateway, no ledger file.
+    /// Two scripted shrines in process; no gateway, and no ledger file unless `--ledger`.
     #[arg(long)]
     desk: bool,
+    /// Desk mode only: journal to a scratch ledger at this absolute path, which must not exist yet,
+    /// so a desk match can be checked afterwards like a radio one (`radio_verify.py`; the scry tap
+    /// bridge's replay, docs/runbooks/radio-match.md). Never a real ledger: gateway mode's is the
+    /// config's `ledger_path`.
+    #[arg(long)]
+    ledger: Option<PathBuf>,
     #[arg(long, default_value_t = 11)]
     desk_seed: u64,
     /// Append every view the board is sent to this file, one JSON line each (a canvas fixture).
@@ -128,6 +135,22 @@ fn desk_parts(seed: u64, remotes: &[Deck]) -> Parts {
         pending: vec![],
         remote_figurines,
     }
+}
+
+/// Desk mode's scratch ledger (`--ledger`): the same guard as gateway mode's (absolute, never under
+/// /tmp or /var/tmp), and a file that does not exist yet, so a desk run can never write into a real
+/// ledger's commanders.
+fn desk_ledger(path: &std::path::Path) -> Result<(Ledger, PathBuf), String> {
+    let path = ledger_path(Some(path.to_path_buf()))?;
+    if path.exists() {
+        return Err(format!(
+            "{}: a desk ledger is scratch, and this file exists",
+            path.display()
+        ));
+    }
+    let l = Ledger::open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    println!("desk ledger at {}", path.display());
+    Ok((l, path))
 }
 
 fn gateway_parts(path: PathBuf, remotes: &[Deck]) -> Result<Parts, String> {
@@ -278,7 +301,15 @@ async fn main() -> Result<(), String> {
         .collect::<Result<Vec<Deck>, String>>()?;
     let remote = !remote_decks.is_empty();
     let mut parts = if cli.desk {
-        desk_parts(cli.desk_seed, &remote_decks)
+        let mut p = desk_parts(cli.desk_seed, &remote_decks);
+        if let Some(path) = &cli.ledger {
+            p.ledger = Some(desk_ledger(path)?);
+        }
+        p
+    } else if cli.ledger.is_some() {
+        return Err(
+            "--ledger is for desk mode: gateway mode's ledger is the config's ledger_path".into(),
+        );
     } else {
         gateway_parts(cli.config.unwrap_or_else(default_path), &remote_decks)?
     };
@@ -390,7 +421,9 @@ async fn main() -> Result<(), String> {
             match &cmd {
                 DevCmd::Desk if cli.desk => {
                     desk_seed += 1;
+                    let ledger = parts.ledger.take();
                     parts = desk_parts(desk_seed, &remote_decks);
+                    parts.ledger = ledger;
                     if remote {
                         let mut h = hub.lock().unwrap();
                         h.new_match();
@@ -468,7 +501,13 @@ async fn main() -> Result<(), String> {
                                     m.figurines,
                                     m.winner,
                                     m.round,
-                                    credit(m.figurines, &parts.remote_figurines),
+                                    // A desk table's commanders are FixedStats, never ledger
+                                    // rows: its scratch ledger (`--ledger`) credits nobody.
+                                    if cli.desk {
+                                        [false; 2]
+                                    } else {
+                                        credit(m.figurines, &parts.remote_figurines)
+                                    },
                                 )
                                 .map_err(|e| e.to_string())?;
                             println!("ledger: {ev:?}");
