@@ -84,6 +84,9 @@ Tasks 1–7 code (`--rev` to pick the tree).
 
 ## Vendoring into smol
 
+**The genesis domain tag stays `tapstone:v0`** (lead ruling, 2026-09-27). The canonical image grew from 134 to 144 B with the commander, before any shrine shipped. Bumping the tag would move every chain hash, golden and piece of radio evidence for no safety gain. Bump it (with a re-vendor) before the first shipped shrine.
+
+
 The firmware does not depend on this repo at build time. Copy `rust/tapstone-rules` to
 `smol/rust/tapstone-rules` and add it as a path dependency with `default-features = false` — the
 same pattern as smol's vendored `rust/sigil-names` (a `VENDOR.sha256` beside it records what was

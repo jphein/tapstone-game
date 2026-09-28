@@ -5,7 +5,7 @@ members = ["tapstone-rules", "tapstone-proto", "tapstone-progression", "tapstone
 [workspace.package]
 edition = "2024"
 rust-version = "1.95"   # smol's floor: the crate must build on espup's Xtensa fork too
-license = "MIT"
+license = "AGPL-3.0-or-later"
 
 # The headset build: `cargo build -p tapstone-web --profile wasm --target wasm32-unknown-unknown`.
 # Its own profile, so no other crate's release build changes.

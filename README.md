@@ -29,3 +29,7 @@ battlefield view, desk mode) and the shrine station screens are built and tested
 - `docs/verification.md`: how claims get checked here.
 - `docs/runbooks/`: the radio match and the contest freeze, step by step.
 - `CLAUDE.md`: where the hardware, card production and identity layer live (sibling projects).
+
+## License
+- **Code** (everything under `rust/`, `roblox/`, `tools/`, the web and headset sources, and the protocol and design docs): **GNU AGPL-3.0-or-later**, in `LICENSE`. This matches smol, the shrine firmware, which vendors the engine crates.
+- **Card art, lore and the Tapstone name** are not covered by the AGPL: **all rights reserved**. That means the paintings and any image of a card, the card and realm text and world, the voice clips, and the name and marks. Play and read them; don't reuse them without permission.
