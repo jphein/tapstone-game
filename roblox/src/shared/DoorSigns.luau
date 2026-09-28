@@ -1,6 +1,8 @@
 --!strict
--- When a door in the Tea House stirs: a faction casts (a unit or a spell) or wins, read from the
--- arena's views, the same bodies the board draws. The door answers with a glow for a cast and a
+-- When a door in the Tea House stirs: a card is cast (a unit or a spell) or a seat wins, read from
+-- the arena's views, the same bodies the board draws. A cast stirs the door of the CARD's faction,
+-- so a neutral card stirs the Hearthlands door (lead decision 2026-09-28, under 0039); a win stirs
+-- the winning seat's. The headset's teahouse reads the same rules (xr/src/logic/doors.js). The door answers with a glow for a cast and a
 -- breath of its weather for a win (the client draws that). Spectacle only: a door never carries
 -- rules or offers a choice (0039), and nothing here holds game state beyond "what have I already
 -- shown".
@@ -18,9 +20,34 @@ local DoorSigns = {}
 export type State = { primed: boolean, match: string?, seq: number, won: boolean }
 export type Stir = { kind: string, faction: string, seat: number } -- kind: "cast" | "win"
 
-type LastEvent = { seq: number?, seat: number?, kind: string? }
+type LastEvent = { seq: number?, seat: number?, kind: string?, card: string? }
 
 DoorSigns.CASTS = { CastUnit = true, CastSpell = true } :: { [string]: boolean }
+
+-- Every set 1 card's faction, by the name the view's `last.card` carries. game/cards/set1/*.toml is
+-- the source: tests/teahouse.luau fails if a card is missing, extra or has another faction.
+DoorSigns.CARD_FACTION = {
+	["Ember Castle"] = "ember",
+	["Tide Castle"] = "tide",
+	["Cinder Whelp"] = "ember",
+	["Ashen Vanguard"] = "ember",
+	["Hearth Warden"] = "ember",
+	["Flare"] = "ember",
+	["Forge Runner"] = "ember",
+	["Bellows Raider"] = "ember",
+	["Slag Brute"] = "ember",
+	["Magma Burst"] = "ember",
+	["Reef Archer"] = "tide",
+	["Tidecaller"] = "tide",
+	["Pearl Shieldbearer"] = "tide",
+	["Tidal Lash"] = "tide",
+	["Undertow"] = "tide",
+	["Riptide"] = "tide",
+	["Brine Skimmer"] = "tide",
+	["Trench Leviathan"] = "tide",
+	["Deep Breath"] = "neutral",
+	["Mend"] = "neutral",
+} :: { [string]: string }
 
 function DoorSigns.new(): State
 	return { primed = false, match = nil, seq = -1, won = false }
@@ -56,7 +83,8 @@ function DoorSigns.step(state: State, v: Protocol.View): { Stir }
 	end
 	if last and seq ~= nil and seq > state.seq then
 		state.seq = seq
-		local faction = factionOf(b, last.seat)
+		-- The card's own faction; a card the list doesn't know falls back to the seat that cast it.
+		local faction = DoorSigns.CARD_FACTION[last.card or ""] or factionOf(b, last.seat)
 		if DoorSigns.CASTS[last.kind or ""] and faction then
 			table.insert(out, { kind = "cast", faction = faction, seat = last.seat :: number })
 		end

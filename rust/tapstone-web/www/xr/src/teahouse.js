@@ -5,13 +5,15 @@
 // Full VR ('immersive-vr'): a warm, lantern-lit interior with the board on a low table. Mixed
 // reality ('immersive-ar'): the player's own room is the teahouse, and only the doors appear, as
 // portals at the edge of view. Either way the doors live OUTSIDE the ±32° the layout keeps for play
-// (0039: "nothing essential ever sits in a door"), and they react to play: a faction's door glows
-// when its faction summons, and the winner's door opens wide.
+// (0039: "nothing essential ever sits in a door"), and they react to play (logic/doors.js, the same
+// rules as the Roblox tea house): a door glows when a card of its faction is cast, so a neutral
+// card glows the Hearthlands door, and the winner's door opens wide.
 import { BoxGeometry, createSystem, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, PointLight, AmbientLight } from '@iwsdk/core';
 import { EffectsSystem } from './effects-player.js';
 import { PlaySystem } from './play.js';
 import { label, FACTION } from './board.js';
-import { DOORS, doorCenter, PLACE } from './logic/layout.js';
+import { DOORS, DOOR_W, doorCenter, PLACE } from './logic/layout.js';
+import { doorSigns, doorStep } from './logic/doors.js';
 import { DOOR_LORE, TEAHOUSE_NAME } from './logic/lore.js';
 import { motion } from './logic/access.js';
 import { access } from './access.js';
@@ -25,6 +27,7 @@ export class TeahouseSystem extends createSystem({}) {
     this.room = new Group();
     this.doors = [];
     this.glow = new Map();
+    this.signs = doorSigns();
     this.built = false;
   }
 
@@ -69,7 +72,7 @@ export class TeahouseSystem extends createSystem({}) {
       // IWER probe caught a centred door 15 cm through the floor, and deeper at 1.15x).
       door.position.set(c.x, FLOOR_Y, c.z);
       door.rotation.y = Math.atan2(-c.x, PLACE.ahead - c.z); // facing the player's seat
-      const frame = new Mesh(new BoxGeometry(0.9, FRAME_H, 0.08), new MeshStandardMaterial({ color: DOOR_LORE[d.faction].look.frame }));
+      const frame = new Mesh(new BoxGeometry(DOOR_W, FRAME_H, 0.08), new MeshStandardMaterial({ color: DOOR_LORE[d.faction].look.frame }));
       frame.position.y = FRAME_H / 2;
       const portal = new Mesh(new PlaneGeometry(0.72, 1.7), new MeshBasicMaterial({ color: FACTION[d.faction], transparent: true, opacity: 0.35, side: DoubleSide }));
       portal.position.set(0, FRAME_H / 2, 0.05);
@@ -82,16 +85,16 @@ export class TeahouseSystem extends createSystem({}) {
       this.doors.push({ ...d, door, portal });
       this.glow.set(d.faction, 0);
     }
-    this.world.getSystem(EffectsSystem)?.onEffect((e) => this.react(e, play));
+    // Prime on the view already showing, so an old cast isn't replayed when the room is built.
+    if (play.view) doorStep(this.signs, play.view);
+    this.world.getSystem(EffectsSystem)?.onView((v) => this.react(v));
     this.built = true;
   }
 
   // A door reacts to play; it never carries rules or offers a choice (0039).
-  react(e, play) {
-    if (e.type === 'summon' && this.glow.has(e.faction)) this.glow.set(e.faction, 1);
-    if (e.type === 'result' && e.winner !== null && play.view && play.view.seats) {
-      const f = (play.view.last_over ?? play.view).seats?.[e.winner]?.faction;
-      if (this.glow.has(f)) this.glow.set(f, 3);
+  react(view) {
+    for (const s of doorStep(this.signs, view)) {
+      if (this.glow.has(s.faction)) this.glow.set(s.faction, s.kind === 'win' ? 3 : 1);
     }
   }
 

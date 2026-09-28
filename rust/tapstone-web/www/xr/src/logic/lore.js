@@ -7,8 +7,10 @@
 export const CANON_REALMS = ['The Hearthlands', 'The Deep Tides', 'The Forge Peaks', 'The Wandering Courts', 'The Star Fields', 'The Dreaming'];
 
 // The planes behind each faction's door, keyed by the engine's factions. RULED by JP (0039): Tide's
-// cards come from the Deep Tides, Ember's from the Forge Peaks. Where each door stands comes from
-// logic/layout.js (DOORS), which the FoV test checks. `frame` is the door's wood, drawn by teahouse.js.
+// cards come from the Deep Tides, Ember's from the Forge Peaks; neutral = the Hearthlands (JP,
+// 2026-09-27), whose door stirs for neutral casts (lead decision 2026-09-28). Where each door
+// stands comes from logic/layout.js (DOORS), which the FoV test checks. `frame` is the door's wood,
+// drawn by teahouse.js.
 export const DOOR_LORE = {
   // bible Part II: The Realms: a water world, floating islands and coral kingdoms. The door itself
   // is blue wood whose water motifs shift (bible Book 1 Ch 35, "The Tea House Grows a New Door").
@@ -16,6 +18,10 @@ export const DOOR_LORE = {
   // bible Part II: The Realms: volcanic mountains and crystalline caves, rich in ores. The bible
   // describes no door for it, so this look is a PROPOSAL: dark basalt with ember light in its cracks.
   ember: { name: 'The Forge Peaks', look: { text: 'PROPOSAL: dark basalt, ember light in the cracks', frame: 0x2e2624, proposal: true } },
+  // bible Part II: The Realms: the starting realm, gentle forests and mild weather. Neutral cards come
+  // from it (lead decision 2026-09-28, under 0039). The bible describes no door for it, so this look
+  // is a PROPOSAL, the Roblox tea house's warm oak: wood the colour of a hearth's glow.
+  neutral: { name: 'The Hearthlands', look: { text: 'PROPOSAL: warm oak, hearth-glow', frame: 0xb0703a, proposal: true } },
 };
 
 // The lintel: the bible's own name, the "Tea House" (bible Part II: The Tea House).

@@ -91,6 +91,13 @@ purpose there.
   not when the source diff is empty.** Here the diff was empty on both machines, and the binary still
   held the perturbation.
 
+  **Python's bytecode cache has the same blind spot** (#132, 2026-09-28). A perturbation swapped
+  `en_US-ryan-high` for `en_GB-cori-high` in `tools/voice_pack.py`, and a `cp` restored it within the
+  same second. The two names are the same length, so the file kept its size and its whole-second
+  mtime, and those are the two things a `.pyc` is checked against. The restored suite stayed red with
+  the perturbed name. Deleting `tools/__pycache__/voice_pack.*.pyc` turned it green. After restoring a
+  Python perturbation, run the baseline with `python3 -B` or clear the cache.
+
 - **Never share a cargo target dir between two source trees at different paths.** Any crate that
   bakes in `env!("CARGO_MANIFEST_DIR")` (this repo's `decks_dir()` does) gets a *path* compiled into
   its artefact, while cargo fingerprints by *content*. So a checkout at a new path whose content

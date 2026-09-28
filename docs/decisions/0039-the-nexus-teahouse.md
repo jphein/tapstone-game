@@ -30,6 +30,10 @@ exact than the first draft of this rule, so the rule follows it:
     Card art, door colours and door weather follow from this.
   - **Ruled by JP, 2026-09-27:** the neutral cards come from **the Hearthlands**. Their card art and print
     frames follow from this; a door's look stays a PROPOSAL wherever the bible is silent.
+  - **Neutral casts stir the Hearthlands door** (lead decision 2026-09-28 under JP's standing rule). A cast
+    stirs the door of its *card's* faction, so a neutral card cast from a Tide or Ember seat glows the
+    Hearthlands door; there is no neutral seat, so a win stirs the winning seat's door. The Roblox tea house
+    (`DoorSigns`) and the headset (`logic/doors.js`) read it the same way (#131).
   - **Ruled by JP, same night:** the lead fills the remaining `LORE:` slots (the keeper, the door looks, the
     Dueling Grounds) from the *Inner Authority* bible. Anything the bible doesn't state is marked PROPOSAL for
     JP, never landed as canon.

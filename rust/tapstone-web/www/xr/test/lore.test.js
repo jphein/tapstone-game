@@ -5,10 +5,11 @@ import { CANON_REALMS, DOOR_LORE, TEAHOUSE_KEEPER, TEAHOUSE_NAME } from '../src/
 import { DOORS } from '../src/logic/layout.js';
 
 test('lore: the canon names, the ruled pairing, and every non-canon look marked PROPOSAL', () => {
-  // bible Part II: The Realms, all six; 0039's ruling pairs Tide and Ember with two of them.
+  // bible Part II: The Realms, all six; 0039's ruling pairs Tide, Ember and neutral with three of them.
   assert.deepEqual(CANON_REALMS, ['The Hearthlands', 'The Deep Tides', 'The Forge Peaks', 'The Wandering Courts', 'The Star Fields', 'The Dreaming']);
   assert.equal(DOOR_LORE.tide.name, 'The Deep Tides');
   assert.equal(DOOR_LORE.ember.name, 'The Forge Peaks');
+  assert.equal(DOOR_LORE.neutral.name, 'The Hearthlands', 'neutral = the Hearthlands (JP, 2026-09-27)');
   assert.equal(TEAHOUSE_NAME, 'The Tea House');
   let proposals = 0;
   for (const d of DOORS) {
@@ -26,7 +27,8 @@ test('lore: the canon names, the ruled pairing, and every non-canon look marked 
   // The bible states the Deep Tides' door (blue, water motifs) but not the Forge Peaks' door.
   assert.equal(DOOR_LORE.tide.look.proposal, undefined, 'the Deep Tides door is canon');
   assert.equal(DOOR_LORE.ember.look.proposal, true, 'the Forge Peaks door is a proposal');
-  assert.equal(proposals, 1, 'proposals counted');
+  assert.equal(DOOR_LORE.neutral.look.proposal, true, 'the Hearthlands door is a proposal');
+  assert.equal(proposals, 2, 'proposals counted');
   // The keeper: the bible names none; the house's own awareness keeps it, and the lintel names no one.
   assert.equal(TEAHOUSE_KEEPER.named, null);
   assert.equal(TEAHOUSE_KEEPER.onLintel, false);

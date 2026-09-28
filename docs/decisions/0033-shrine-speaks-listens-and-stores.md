@@ -80,8 +80,19 @@ above are upper bounds. The error overstates cost, which is the safe direction.
 ## The voice pack, as built (2026-09-27)
 
 `tools/voice_pack.py` renders the `clip` rows of `game/voice/clips.tsv` with local Piper
-(`en_US-ryan-high`, a placeholder voice until JP picks one) into one directory per set,
-`/TAPSTONE/VOICE/SET1/` on the card; `shrine_render::pack` is the shrine's reader.
+(`en_US-ryan-high`, see below) into one directory per set, `/TAPSTONE/VOICE/SET1/` on the card;
+`shrine_render::pack` is the shrine's reader.
+
+**The shrine voice is `en_US-ryan-high`** (lead decision 2026-09-28 under JP's standing rule, #132).
+The criteria were clarity at 22,050 Hz through a small speaker, a warm narrator's tone for the shrine
+and 0032's commander station, English, and a high or medium model. Six of the nine Piper voices on
+familiar qualify; the three `low` ones speak at 16 kHz, and `en_US-jp-medium`'s config states no
+quality. Ryan puts 47.5% of its energy between 500 and 4,000 Hz, where a small speaker still plays,
+against 28–36% for the others, and only 20% below 300 Hz, where they have 33–61%. It is also the only
+high-quality male narrator among them. All of this was measured on five clips per voice, encoded as the
+pack encodes them. The other voices' ADPCM round trip is cleaner (24.5–28.7 dB against Ryan's 23.5), but
+every voice is above 20 dB. The samples are in `scratch/voice-samples/` on katana, not in git, so JP can
+overrule by ear: set `MODEL` in `tools/voice_pack.py` and re-render.
 
 - **IMA-ADPCM, 4-bit mono, 22,050 Hz WAV**, 256-byte blocks. 22,050 Hz is the codec's floor (L5)
   and Piper's native rate, so nothing is resampled. It is half the bytes of 8-bit PCM and the same
@@ -95,5 +106,9 @@ above are upper bounds. The error overstates cost, which is the safe direction.
   `real_pack` test on the same manifest): 280 clips, 6,250,656 B of audio, 554.3 s of speech
   (15.5 chars/s). That is under the header's 14 chars/s *estimate* of ~6.8 MB. The budget is
   derived: the pack's own text read at 10 chars/s, less 25% headroom (7.2 MB).
+- **Re-rendered on familiar 2026-09-28** in the decided voice, into an empty directory
+  (`voice_pack.py`, then `--check` with 0 problems, then `real_pack` on the same manifest): 280 clips,
+  6,226,080 B, 552.2 s of speech, summed from each file's sample count. `--check` reported a
+  9,630,271 B budget for today's text.
 - The rendered audio stays out of git, like the Veo clips. The text-only fallback in internal
   flash is unchanged: a clip missing from the pack means the band shows the line and says nothing.

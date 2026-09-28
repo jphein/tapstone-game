@@ -126,7 +126,9 @@ bundle goes to `/srv/tapstone.realm.watch/competition/v1/`.
 > `--exclude /competition/`. Without it, `--delete` would wipe the frozen build on the next card-page
 > deploy, because `site/` has no `competition/`. A local rsync showed both sides: with the exclude the
 > frozen `index.html` survives and a stale page is still removed; without it, `competition/` is gone.
-> Where `/competition/` is finally served from is still open (public hosting is on hold, JP 2026-09-27).
+> **Public hosting is decided (2026-09-28): Cloudflare Pages.** Deploy the verified bundle with
+> `tools/pages_deploy.py --bundle <dir> --deploy`; the one-time account step and the rest are in
+> `docs/runbooks/public-hosting.md`.
 
 One way, with the checks at both ends (JP runs it):
 

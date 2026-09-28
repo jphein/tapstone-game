@@ -47,6 +47,9 @@ REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO / "game" / "voice" / "clips.tsv"
 OUT = REPO / "scratch" / "voice-pack" / "SET1"
 PIPER = Path("/opt/wyoming-piper/venv/bin/piper")
+# The shrine voice (0033, lead decision 2026-09-28): the clearest through a small speaker of the
+# English high and medium voices installed, and a warm narrator. 0033 has the measurements, and
+# tools/test_voice_pack.py holds this default and 0033 to the same name.
 MODEL = Path("/opt/wyoming-piper/data/en_US-ryan-high.onnx")
 MANIFEST = "MANIFEST.TSV"
 VERSION = "# tapstone voice pack v1"

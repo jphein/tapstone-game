@@ -32,14 +32,18 @@ export const FAR_KEEP = { w: 0.12, d: 0.05, h: 0.12, z: -BOARD.d / 2 - 0.03 };
 export const HAND = { z: 0.5, y: 0.18, spread: 0.1 }; // the fan's centre and half-width
 export const PROMPT = { y: 0.08, z: ALTAR.z, w: 0.27, h: 0.06 }; // three tiles, each 9 x 6 cm
 
-// The teahouse's doors (0039): one per faction plane, this far from the table's centre and this far
-// round from the player's forward view. Outside the ±32° kept for play ("nothing essential ever sits
-// in a door"), inside a Quest's field of view so they're part of the room.
+// The teahouse's doors (0039): one per faction plane, this far from the head and this far round
+// from the player's forward view. Outside the ±32° kept for play ("nothing essential ever sits in a
+// door"), inside the room (|yaw| < 80°), and apart: a door is DOOR_W wide, so the test checks each
+// pair's edges from DOOR_W and DOOR_DISTANCE. Neutral cards come from the Hearthlands (0039, lead
+// decision 2026-09-28), whose door stands past Tide's on the right.
 export const DOORS = [
-  { faction: 'ember', yawDeg: -58 },
-  { faction: 'tide', yawDeg: 58 },
+  { faction: 'ember', yawDeg: -47 },
+  { faction: 'tide', yawDeg: 47 },
+  { faction: 'neutral', yawDeg: 76 },
 ];
 export const DOOR_DISTANCE = 1.8;
+export const DOOR_W = 0.9; // the frame's width; teahouse.js builds it
 
 export function doorCenter(d) {
   const yaw = (d.yawDeg * Math.PI) / 180;

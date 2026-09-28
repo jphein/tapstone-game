@@ -14,6 +14,9 @@ local L = require("../src/shared/TeaHouseLayout")
 type Point = { x: number, y: number, z: number }
 
 local FIXTURE = "../rust/tapstone-arena/web/fixtures/desk-seed11.jsonl"
+-- Seed 1: a match where Tide casts Mend, a neutral card (rust/tapstone-arena/tests/fixture.rs keeps it current).
+local NEUTRAL_FIXTURE = "../rust/tapstone-arena/web/fixtures/desk-seed1.jsonl"
+local SET1 = "../game/cards/set1"
 
 local function pt(v: any): Point
 	return { x = v.X, y = v.Y, z = v.Z }
@@ -91,6 +94,7 @@ return function(test: (string, () -> ()) -> (), eq: (any, any, string) -> ())
 		end
 		eq(L.FACTION_DOOR.tide, "deeptides", "RULED (0039): Tide ↔ Deep Tides")
 		eq(L.FACTION_DOOR.ember, "forgepeaks", "RULED (0039): Ember ↔ Forge Peaks")
+		eq(L.FACTION_DOOR.neutral, "hearthlands", "neutral ↔ the Hearthlands (JP 2026-09-27; its door stirs, lead 2026-09-28)")
 	end)
 
 	test("lore: the canon realm names, and every look the bible doesn't state marked PROPOSAL", function()
@@ -390,9 +394,23 @@ return function(test: (string, () -> ()) -> (), eq: (any, any, string) -> ())
 
 	-- ---- DoorSigns, on a real match -----------------------------------------------------------
 
-	local views = {}
-	for line in string.gmatch(fs.readFile(FIXTURE), "[^\n]+") do
-		table.insert(views, serde.decode("json", line))
+	local function load(path: string): { any }
+		local out = {}
+		for line in string.gmatch(fs.readFile(path), "[^\n]+") do
+			table.insert(out, serde.decode("json", line))
+		end
+		return out
+	end
+	local views = load(FIXTURE)
+	local neutralViews = load(NEUTRAL_FIXTURE)
+	-- game/cards/set1/*.toml, the one source of each card's faction.
+	local set1: { [string]: string } = {}
+	for _, f in fs.readDir(SET1) do
+		if string.match(f, "%.toml$") then
+			local t = fs.readFile(`{SET1}/{f}`)
+			set1[string.match(t, '\nname = "([^"]+)"') or string.match(t, '^name = "([^"]+)"') :: string] =
+				string.match(t, '\nfaction = "([^"]+)"') :: string
+		end
 	end
 	local DoorSigns = Place.new().require("shared/DoorSigns")
 
@@ -416,6 +434,39 @@ return function(test: (string, () -> ()) -> (), eq: (any, any, string) -> ())
 		eq(c["cast tide"], 6, "tide casts (units and spells)")
 		eq(c["win tide"], 1, "tide's win")
 		eq(c["win ember"], nil, "no ember win")
+	end)
+
+	test("door signs: every set 1 card has its TOML faction, and nothing else is listed", function()
+		local n = 0
+		for name, faction in set1 do
+			eq(DoorSigns.CARD_FACTION[name], faction, `{name}'s faction`)
+			n += 1
+		end
+		for name in DoorSigns.CARD_FACTION do
+			assert(set1[name] ~= nil, `{name} is not a set 1 card`)
+		end
+		eq(n >= 20, true, `set 1 read ({n} cards)`)
+	end)
+
+	test("door signs: Tide's Mend stirs the Hearthlands door (a cast stirs its card's faction); the win stays Ember's", function()
+		-- Neutral casts counted from the fixture's own records and the TOML, not through DoorSigns.
+		local want, seen = 0, {}
+		for _, v in neutralViews do
+			local b = if v.phase == "lobby" and #v.lobby == 0 and v.last_over then v.last_over else v
+			local l = b.last
+			if l and (l.kind == "CastUnit" or l.kind == "CastSpell") and set1[l.card] == "neutral" and not seen[l.seq] then
+				seen[l.seq] = true
+				want += 1
+			end
+		end
+		eq(want >= 1, true, `seed 1 has neutral casts to see ({want})`)
+		local c = play(DoorSigns.new(), neutralViews)
+		eq(c["cast neutral"], want, "neutral casts")
+		eq(c["cast ember"], 4, "ember casts")
+		eq(c["cast tide"], 5, "tide's own casts")
+		eq(c["win ember"], 1, "ember's win")
+		eq(c["win neutral"], nil, "there is no neutral seat")
+		eq(L.door(L.FACTION_DOOR.neutral) ~= nil, true, "the neutral door is built")
 	end)
 
 	test("door signs: a repeated view stirs nothing, and joining mid-match replays nothing", function()

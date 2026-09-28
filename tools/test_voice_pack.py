@@ -5,8 +5,10 @@ through a fake synthesiser that returns deterministic 16-bit PCM at the pack's r
 """
 import contextlib
 import io
+import json
 import math
 import random
+import re
 import shutil
 import struct
 import subprocess
@@ -275,6 +277,30 @@ class Pack(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.build(d)
             self.assertEqual((Path(d) / vp.MANIFEST).read_text(), fixture.read_text())
+
+
+class TheShrineVoice(unittest.TestCase):
+    """The default voice is the one 0033 records (lead decision 2026-09-28), on its stated criteria."""
+
+    DECISION = vp.REPO / "docs" / "decisions" / "0033-shrine-speaks-listens-and-stores.md"
+
+    def test_the_default_voice_is_the_one_0033_decided(self):
+        text = self.DECISION.read_text()
+        named = re.findall(r"\*\*The shrine voice is `([^`]+)`\*\*", text)
+        self.assertEqual(named, [vp.MODEL.stem], "0033 names exactly one shrine voice, the builder's default")
+        self.assertNotIn("placeholder voice", text, "0033 still calls the voice a placeholder")
+
+    def test_the_default_voice_meets_the_criteria(self):
+        # Piper names a voice <language>_<REGION>-<name>-<quality>: English, and a high or medium model.
+        lang, _, quality = vp.MODEL.stem.split("-")
+        self.assertTrue(lang.startswith("en_"), lang)
+        self.assertIn(quality, ("high", "medium"))
+        config = Path(f"{vp.MODEL}.json")
+        if not config.exists():
+            self.skipTest(f"{config} is on familiar only")
+        audio = json.loads(config.read_text())["audio"]
+        self.assertEqual(audio["sample_rate"], vp.RATE, "the pack never resamples")
+        self.assertEqual(audio["quality"], quality, "the model's own config agrees with its name")
 
 
 if __name__ == "__main__":

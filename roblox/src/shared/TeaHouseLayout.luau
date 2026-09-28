@@ -119,11 +119,14 @@ for _, d in TeaHouseLayout.DOORS do
 	end
 end
 
--- RULED by JP (0039): Tide's cards come from the Deep Tides, Ember's from the Forge Peaks. Only
--- these factions have a door that answers their play; any other faction's casts and wins stir nothing.
+-- RULED by JP (0039): Tide's cards come from the Deep Tides, Ember's from the Forge Peaks, and
+-- neutral cards from the Hearthlands (JP, 2026-09-27). A cast stirs its card's door (DoorSigns), so
+-- a neutral card stirs the Hearthlands door (lead decision 2026-09-28); a win stirs the winning
+-- seat's door, and no seat is neutral. The other three realm doors are scenery and stir for nothing.
 TeaHouseLayout.FACTION_DOOR = {
 	tide = "deeptides", -- RULED: Tide ↔ Deep Tides
 	ember = "forgepeaks", -- RULED: Ember ↔ Forge Peaks
+	neutral = "hearthlands", -- RULED: neutral ↔ the Hearthlands
 } :: { [string]: string }
 
 -- What a door's plate says: the realm's name, without its article ("Deep Tides").

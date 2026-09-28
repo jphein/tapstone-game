@@ -19,6 +19,7 @@ export class EffectsSystem extends createSystem({}) {
     this.spark = new Mesh(new SphereGeometry(0.012, 12, 8), new MeshBasicMaterial({ color: 0xfff3c4, transparent: true }));
     this.spark.visible = false;
     this.listeners = [];
+    this.viewListeners = [];
     this.bound = false;
     this.sfx = createSfx(); // each effect's sound starts with it (logic/sfx.js)
   }
@@ -28,12 +29,20 @@ export class EffectsSystem extends createSystem({}) {
     this.listeners.push(fn);
   }
 
+  // And every view as it arrives (a frame can bring several; the doors read each one's record).
+  onView(fn) {
+    this.viewListeners.push(fn);
+  }
+
   bind() {
     const play = this.world.getSystem(PlaySystem);
     if (!play || this.bound) return play;
     play.root.add(this.spark);
     play.sfxStats = this.sfx.stats;
-    play.onView = (prev, next, near) => this.queue.push(diffViews(prev, next, near));
+    play.onView = (prev, next, near) => {
+      this.queue.push(diffViews(prev, next, near));
+      for (const fn of this.viewListeners) fn(next);
+    };
     this.bound = true;
     return play;
   }

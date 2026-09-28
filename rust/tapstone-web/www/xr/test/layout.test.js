@@ -1,7 +1,7 @@
 // The layout's FoV budget, on the numbers the scene builds with (spec 2026-09-25 §3.1, 0039).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BOARD, PAD, PROMPT, LANE_W, essentials, offGaze, cellCenter, padCenter, ALTAR, PLACE, defaultHead, DOORS, doorCenter } from '../src/logic/layout.js';
+import { BOARD, PAD, PROMPT, LANE_W, essentials, offGaze, cellCenter, padCenter, ALTAR, PLACE, defaultHead, DOORS, doorCenter, DOOR_W, DOOR_DISTANCE } from '../src/logic/layout.js';
 
 test('0039: the board stays within the lower-central ~50° (±26° yaw at the default placement)', () => {
   for (const [name, p] of Object.entries(essentials()).filter(([n]) => n.startsWith('board'))) {
@@ -45,6 +45,13 @@ test('0039: each door stands outside the play budget (|yaw| > 32°) but in the r
     const a = offGaze(doorCenter(d));
     assert.ok(Math.abs(a.yaw) > 32 && Math.abs(a.yaw) < 80, `${d.faction} door at yaw ${a.yaw.toFixed(1)}`);
   }
+});
+
+test('0039: no two doors overlap, edge to edge, as the player turns to them', () => {
+  const half = (Math.atan(DOOR_W / 2 / DOOR_DISTANCE) * 180) / Math.PI; // a door's half-width, in yaw
+  const yaws = DOORS.map((d) => offGaze(doorCenter(d)).yaw).sort((a, b) => a - b);
+  assert.equal(yaws.length, 3, 'three doors: Ember, Tide and the Hearthlands');
+  for (let i = 1; i < yaws.length; i++) assert.ok(yaws[i] - yaws[i - 1] > 2 * half, `doors at ${yaws[i - 1].toFixed(1)}° and ${yaws[i].toFixed(1)}° overlap (each ±${half.toFixed(1)}°)`);
 });
 
 test('every touch target is at least 6 cm (spec §3.2, after the spike: sized for a fingertip)', () => {
