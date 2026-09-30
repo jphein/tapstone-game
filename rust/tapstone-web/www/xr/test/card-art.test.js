@@ -48,12 +48,16 @@ test('the art window sits inside the face, above the name', () => {
 // also reads. Both directions fail closed: a listed card with a WebP, or an unlisted card without one.
 const AWAITING = (() => {
   const text = readFileSync(join(here, '../../../../../game/cards/awaiting-art.toml'), 'utf8');
-  const list = /^set1 = \[([^\]]*)\]$/m.exec(text)[1];
-  return new Set([...list.matchAll(/"st1-(\d{3})"/g)].map((m) => Number(m[1])));
+  const m = /^set1 = \[([^\]]*)\]$/m.exec(text);
+  if (!m) throw new Error('awaiting-art.toml has no set1 = [...] line'); // unparsed fails closed
+  const ids = new Set([...m[1].matchAll(/"st1-(\d{3})"/g)].map((x) => Number(x[1])));
+  // Every quoted entry is an st1 id: a malformed entry can't silently drop out of the set.
+  if ((m[1].match(/"/g) ?? []).length !== ids.size * 2) throw new Error(`awaiting-art.toml set1 has a malformed entry: ${m[1]}`);
+  return ids;
 })();
 
 test('awaiting-art.toml names set 1 cards, and exactly the ones without a WebP', () => {
-  assert.ok(AWAITING.size > 0, 'the list parsed');
+  // An empty list is the end state: every card has its painting (the six from #166 landed 2026-09-28).
   for (const id of AWAITING) assert.ok(SET1_IDS.includes(id), `st1-${id} is not in set 1`);
   for (const id of SET1_IDS) {
     assert.equal(existsSync(join(PUBLIC, artFile(id))), !AWAITING.has(id), artFile(id));

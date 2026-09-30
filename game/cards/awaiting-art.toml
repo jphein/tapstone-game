@@ -5,4 +5,4 @@
 # Both directions fail closed: a card listed here that has art, or a card missing art that is not
 # listed, fails tools/test_card_art.py and www/xr/test/card-art.test.js. When the art lands, run
 # `tools/card_art.py build`, then empty this list.
-set1 = ["st1-014", "st1-015", "st1-016", "st1-017", "st1-018", "st1-019"]
+set1 = []

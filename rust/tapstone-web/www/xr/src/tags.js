@@ -6,6 +6,9 @@ import { createComponent, Types } from '@iwsdk/core';
 export const Pad = createComponent('Pad', { lane: { type: Types.Int8, default: 0 } });
 // A card in the person's hand: `slot` indexes the hand array from table.hand().
 export const HandCard = createComponent('HandCard', { slot: { type: Types.Int16, default: -1 } });
+// The grip under the fan of cards: pinch it to move the whole hand (JP: "place your hand wherever is
+// best for you"; hand.js, logic/hand-place.js).
+export const HandGrip = createComponent('HandGrip', {});
 // The deck's top card (draw: touch it to any pad).
 export const DeckTop = createComponent('DeckTop', {});
 // The person's castle card (pass; twice within 3 s in the mulligan window = mulligan).
@@ -14,3 +17,5 @@ export const CastleCard = createComponent('CastleCard', {});
 export const PromptTile = createComponent('PromptTile', { option: { type: Types.Int16, default: -1 } });
 // A unit on the board that a spell may target: the raw target byte (seat << 4 | lane << 2 | cell).
 export const TargetUnit = createComponent('TargetUnit', { target: { type: Types.Int16, default: -1 } });
+// A tile of the accessibility panel or the first-run offer (assist.js): `key` indexes its TILES.
+export const AssistTile = createComponent('AssistTile', { key: { type: Types.Int16, default: -1 } });

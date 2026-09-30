@@ -69,7 +69,7 @@ test('an empty line clears, so the next line is spoken', () => {
 
 // Every sentence-shaped string literal in the files the headset speaks from. Template literals
 // (`${card.name}: …`, `Draw ${n}: …`) are expanded below from their own sources instead.
-const SPOKEN_FROM = ['src/play.js', 'src/guard.js', 'src/logic/menu.js', 'src/logic/first-five.js'];
+const SPOKEN_FROM = ['src/play.js', 'src/guard.js', 'src/logic/menu.js', 'src/logic/first-five.js', 'src/guide/lesson.js'];
 function sentences(file) {
   const src = readFileSync(join(XR, file), 'utf8').split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
   const out = [];

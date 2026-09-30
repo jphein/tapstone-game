@@ -164,6 +164,7 @@ The contest build (VR spec 2026-09-25) is a Vite + IWSDK page over the `tapstone
 cargo build -p tapstone-web --profile wasm --target wasm32-unknown-unknown
 cp target/wasm32-unknown-unknown/wasm/tapstone_web.wasm tapstone-web/www/xr/public/   # not committed
 cd tapstone-web/www/xr && npm ci
+node tools/fetch_kws.mjs                    # the voice spotter into public/kws: fetched, its encoder built (needs CPython 3.12, Linux x86_64), all sha256-pinned, not committed; --save/--from for offline
 node --test test/*.test.js src/*.test.js    # beats, voice, card art, layout, guard (a bare directory errors on Node 24)
 npx vite build                              # needs Node >= 20.19 (familiar's default node is 18: use /var/tmp/ftarget/node20)
 ```
@@ -176,6 +177,12 @@ npx vite build                              # needs Node >= 20.19 (familiar's de
 - **Voice lines:** `game/voice/headset.toml` → `python3 ../../../../tools/voice_lines.py` (Azure Speech; renders only
   changed lines; `--check`, `--dry-run`). Any sentence the headset says must be listed there, character for
   character: `test/voice.test.js` scans the files in `SPOKEN_FROM`, so add a new speaking file to that list.
+- **Accessibility** (head gaze, voice, high contrast; `docs/contest/accessibility.md`): `node tools/iwer-assist.mjs
+  --wav <16 kHz WAV of spoken commands> --shots <dir>` against a `dev up --headless --no-open` server plays with no
+  hand input at all (the offer and moves by head-gaze dwell, the fake mic through the real audio path, the rest by
+  voice). `node tools/voice_eval.mjs <index>` scores the shipped spotter on a recorded corpus;
+  `tools/voice_keywords.py` rewrites `public/kws/keywords.txt` from the grammar (`src/logic/voice-commands.js`).
+  Their lines are text only for now (not in `SPOKEN_FROM`): the band is the source of truth (0033).
 - **Card art:** `tools/card_art.py` → `public/cards/st1-NNN.webp` (≤ 80 KB each).
 - **The contest bundle:** `tools/freeze_contest.py` (see `docs/runbooks/contest-freeze.md`); set
   `TAPSTONE_FREEZE_FULL=1` to run its two real reproducibility builds.

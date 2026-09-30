@@ -166,3 +166,35 @@ test('the queue plays one effect at a time and compresses a backlog, keeping the
   assert.equal(q.next(300).type, 'chargeGem');
   assert.equal(q.next(600).type, 'result');
 });
+
+// Refusals that say why (guide v2, JP's Quest 2 run): the engine's costs and mana (charged - spent).
+
+const warden = { card: 7, name: 'Hearth Warden', cost: 2, kind: 'unit' };
+const seat = (charged, spent, owed = 0) => ({ phase: 'playing', active: 0, seats: [{ charged, spent, owed_draws: owed }, {}] });
+
+test('a card you cannot afford names its cost, your mana, and how to charge', () => {
+  const menu = [{ kind: 'Charge', card: 7 }, { kind: 'Pass' }];
+  const g = { source: 'hand', card: 7, face: 'up', pad: 1 };
+  assert.equal(matchGesture(menu, g, { hand: [warden], view: seat(0, 0) }).refused, 'Hearth Warden needs 2 mana — you have 0. Charge a card: flip it face down and touch it to the stone.');
+  assert.equal(matchGesture(menu, g, { hand: [warden], view: seat(3, 2) }).refused, 'Hearth Warden needs 2 mana — you have 1. Charge a card: flip it face down and touch it to the stone.');
+  assert.equal(matchGesture([{ kind: 'Pass' }], g, { hand: [warden], view: seat(1, 1) }).refused, 'Hearth Warden needs 2 mana — you have 0. You can charge a card again next round.', 'no charge on offer: say when it comes back');
+  assert.equal(matchGesture(menu, g).refused, "You can't play that card now.", 'no context: the old answer, unchanged');
+});
+
+test('the other refusals say why too', () => {
+  const ctx = { hand: [warden], view: seat(0, 0, 3) };
+  assert.equal(matchGesture([{ kind: 'Draw' }], { source: 'lane', pad: 1 }, ctx).refused, 'Draw 3 cards first: touch the top card of your deck to the stone.');
+  assert.equal(matchGesture([{ kind: 'Pass' }], { source: 'deck' }, { view: seat(0, 0) }).refused, 'No draw is owed.', 'plain and voiced: nothing to add');
+  assert.equal(matchGesture([{ kind: 'Pass' }, { kind: 'Advance', lane: 0 }], { source: 'lane', pad: 2 }, { view: seat(0, 0) }).refused, 'The right lane has already advanced this turn.');
+  assert.equal(matchGesture([{ kind: 'Pass' }], { source: 'hand', card: 7, face: 'down' }, { hand: [warden], view: seat(1, 0) }).refused, "Hearth Warden stays in your hand: you've charged a card this round already, so charge again next round.");
+  assert.equal(matchGesture([], { source: 'deck' }, { view: seat(0, 0) }).refused, "It isn't your move.", 'plain and voiced');
+  assert.equal(matchGesture([], { source: 'deck' }, { view: { phase: 'over', seats: [] } }).refused, 'The match is over.');
+  assert.equal(matchGesture([{ kind: 'Pass' }, { kind: 'CastUnit', card: 7, lane: 0 }], { source: 'hand', card: 7, face: 'up', pad: 2 }, { hand: [warden], view: seat(2, 0) }).refused, "That lane's entry cell is taken.", 'a lane-specific answer is already precise');
+});
+
+test("a refusal's way to charge is the mode's own: a phrase by voice, the dwells by head gaze", () => {
+  const menu = [{ kind: 'Charge', card: 7 }, { kind: 'Pass' }];
+  const g = { source: 'hand', card: 7, face: 'up', pad: 1 };
+  assert.equal(matchGesture(menu, g, { hand: [warden], view: seat(0, 0), mode: 'voice' }).refused, 'Hearth Warden needs 2 mana — you have 0. Charge a card: say “charge Hearth Warden”.');
+  assert.equal(matchGesture(menu, g, { hand: [warden], view: seat(0, 0), mode: 'gaze' }).refused, 'Hearth Warden needs 2 mana — you have 0. Charge a card: look at it twice, then at a pad.');
+});

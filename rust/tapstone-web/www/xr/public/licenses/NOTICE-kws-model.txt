@@ -1,0 +1,19 @@
+NOTICE: the voice-command model in kws/ (encoder.int8.onnx, decoder.int8.onnx, joiner.int8.onnx,
+tokens.txt)
+
+Original work: sherpa-onnx-streaming-zipformer-en-20M-2023-02-17
+  https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17
+  (revision d42f2d9f7ca24806fb667456a18a9f1b60f70d16; model card: "license: apache-2.0"), exported from
+  https://huggingface.co/desh2608/icefall-asr-librispeech-pruned-transducer-stateless7-streaming-small
+  (revision be162ecc09bade73063a671fad9d18220149d25b; model card: "license: apache-2.0"), an icefall
+  (k2-fsa) pruned_transducer_stateless7_streaming model trained on LibriSpeech (CC BY 4.0) with MUSAN
+  noise (CC BY 4.0). Licensed under the Apache License, Version 2.0 (LICENSE-Apache-2.0.txt).
+
+MODIFIED by Tapstone (Apache-2.0 section 4(b)), 2026-09-29:
+  encoder.int8.onnx is not the upstream int8 file. It is built from the upstream fp32 export
+  (encoder-epoch-99-avg-1.onnx, sha256 f77a22f4ff94604e1afb2aeb13504d7699363528c047c97d3436087c95c9b659)
+  by tools/kws_quantize.py, recipe "matmul-table": onnxruntime 1.23.2 quantize_dynamic (MatMul, int8
+  weights), then the relative-position table stored as int8 behind one DequantizeLinear. Result sha256
+  590ed62cda38c174dc58ac7f67d654e458bd50e47e34883746dc88e946327557. Its ONNX producer_name says
+  "tapstone tools/kws_quantize.py".
+  decoder.int8.onnx, joiner.int8.onnx and tokens.txt are the upstream files, unmodified.

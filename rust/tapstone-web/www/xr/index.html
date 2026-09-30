@@ -21,16 +21,62 @@
       #access legend { font-weight: 700; padding: 0 4px; }
       #access label { display: block; padding: 6px 0; min-height: 24px; cursor: pointer; }
       #access input { width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; }
+      #entry {
+        position: fixed; left: 50%; top: 24px; transform: translateX(-50%); z-index: 10;
+        display: flex; gap: 12px; font: 500 16px system-ui, sans-serif;
+      }
+      #entry[hidden] { display: none; }
+      #entry button, #entry p {
+        margin: 0; padding: 14px 20px; min-width: 220px; min-height: 64px; text-align: left; cursor: pointer;
+        background: var(--panel-bg); color: var(--panel-fg); border: 1px solid var(--panel-edge);
+        border-radius: 10px; font: inherit;
+      }
+      #entry button.primary { border-width: 3px; }
+      #entry strong { display: block; font-size: 20px; }
+      #entry span { display: block; opacity: 0.8; }
+      #first-run {
+        position: fixed; left: 50%; top: 120px; transform: translateX(-50%); z-index: 11; max-width: 720px;
+        padding: 16px 20px; background: var(--panel-bg); color: var(--panel-fg); border: 2px solid var(--panel-edge);
+        border-radius: 12px; font: 500 18px system-ui, sans-serif;
+      }
+      #first-run[hidden] { display: none; }
+      #first-run h2 { margin: 0 0 8px; font-size: 22px; }
+      #first-run div { display: flex; gap: 12px; flex-wrap: wrap; }
+      #first-run button {
+        min-width: 200px; min-height: 64px; padding: 10px 16px; font: 600 18px system-ui, sans-serif; cursor: pointer;
+        background: var(--panel-bg); color: var(--panel-fg); border: 2px solid var(--panel-edge); border-radius: 10px;
+      }
+      #first-run button:focus-visible, #access input:focus-visible, #access select:focus-visible { outline: 3px solid #ffd400; outline-offset: 2px; }
+      #first-run .why { margin: 8px 0 0; font-size: 15px; opacity: 0.85; }
+      #access select { font: inherit; margin-left: 8px; }
     </style>
   </head>
   <body style="margin: 0">
     <div id="scene-container"></div>
+    <!-- The two ways in (0039, logic/entry.js): filled by entry.js from what the browser supports. -->
+    <nav id="entry" aria-label="Enter the Tea House"></nav>
+    <!-- The first-run offer (access.js firstRunOffer): how to play, asked before anything else. -->
+    <section id="first-run" aria-labelledby="first-run-title" hidden>
+      <h2 id="first-run-title">How would you like to play?</h2>
+      <div>
+        <button data-way="hands">✋ With my hands</button>
+        <button data-way="gaze">👁 By looking (head gaze)</button>
+        <button data-way="voice">🎙 By voice</button>
+      </div>
+      <p class="why">Every move works each way, and captions are always on. Voice is heard on this device only; nothing is sent anywhere.</p>
+    </section>
     <!-- Accessibility (logic/access.js). Captions are not here: the voice band is always shown. -->
     <fieldset id="access">
-      <legend>Comfort</legend>
+      <legend>Accessibility</legend>
+      <label><input type="checkbox" name="gaze" />Head gaze: look at a thing and hold to select it</label>
+      <label>Dwell time<select name="dwellMs" aria-label="Dwell time"><option value="800">0.8 s</option><option value="1000">1 s</option><option value="1500">1.5 s</option><option value="2000">2 s</option></select></label>
+      <label><input type="checkbox" name="voice" />Voice commands (heard on this device only)</label>
+      <label><input type="checkbox" name="highContrast" />High contrast</label>
+      <label><input type="checkbox" name="largeText" />Large captions</label>
       <label><input type="checkbox" name="seated" />Seated: the table follows my head height</label>
       <label><input type="checkbox" name="leftHanded" />Left-handed: the deck on my left</label>
       <label><input type="checkbox" name="reducedMotion" />Reduced motion: no travelling effects</label>
+      <label>Ambient sound<select name="ambience" aria-label="Ambient sound"><option value="0">Off</option><option value="0.35">Low</option><option value="0.7">Medium</option><option value="1">High</option></select></label>
     </fieldset>
     <script type="module" src="/src/index.js"></script>
   </body>

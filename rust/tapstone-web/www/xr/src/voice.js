@@ -31,13 +31,19 @@ export async function preloadVoice(base) {
   console.log(`[voice] ${index.size}/${manifest?.lines?.length ?? 0} clips preloaded`);
   const line = new VoiceLine(index);
   const audio = typeof Audio === 'function' ? new Audio() : null;
-  return {
+  // The guide's line queue (guide/lines.js) waits for a clip to end before the next line starts.
+  audio?.addEventListener('ended', () => api.onEnded?.());
+  const api = {
     stats,
+    onEnded: null,
+    onBlocked: null,
+    // Returns true when a clip started (its end will be reported through onEnded), false for a line
+    // that is drawn only (no clip, or the same line again).
     say(text, opts) {
       const file = line.next(text, opts);
       if (!file || !audio) {
         if (text && !index.clipFor(text)) stats.silent++;
-        return;
+        return false;
       }
       // Newest wins, as on the voice band: a new line cuts the one still playing.
       audio.pause();
@@ -51,8 +57,11 @@ export async function preloadVoice(base) {
         // before any gesture, and the text is on the band regardless.
         if (err?.name === 'AbortError') return void stats.cut++;
         stats.blocked++;
+        api.onBlocked?.(text);
         console.warn(`[voice] ${file} not played: ${err?.name ?? err}`);
       });
+      return true;
     },
   };
+  return api;
 }

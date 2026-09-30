@@ -1,5 +1,5 @@
 // iwer-handback.mjs: an unanswered first-five beat hands the voice back (logic/first-five.js
-// holding()), in IWSDK's managed Chromium. On a fresh page (browser reload, xr enter, hand mode): it
+// holding()), in IWSDK's managed Chromium. On a fresh page (tools/iwer-forget.mjs, browser reload, xr enter, hand mode): it
 // answers nothing, so the claim beat waits; inside the beat's window the band shows the beat's
 // sentence, and once the window ends it shows the line the beat held (voiceFor the current view).
 //   npx @iwsdk/cli browser run tools/iwer-handback.mjs --timeout 105000

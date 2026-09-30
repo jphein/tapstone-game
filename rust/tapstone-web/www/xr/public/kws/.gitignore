@@ -1,0 +1,10 @@
+# Fetched by tools/fetch_kws.mjs (sha256-pinned; too big for git history). Committed here: the
+# worker, the keyword list (tools/voice_keywords.py) and the model's token list.
+kws.wasm
+kws-glue.js
+kws-api.js
+encoder.int8.onnx
+decoder.int8.onnx
+joiner.int8.onnx
+# The install stamp (fetch_kws.mjs): which install these files came from.
+.install

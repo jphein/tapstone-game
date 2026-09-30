@@ -30,3 +30,9 @@ export const TEAHOUSE_NAME = 'The Tea House';
 // The keeper: the bible names none. The house has an intelligence of its own, a benevolent awareness
 // that offers and never forces (bible Part II: The Tea House), so the lintel names no one.
 export const TEAHOUSE_KEEPER = { named: null, onLintel: false, source: 'bible Part II: The Tea House' };
+
+// The red door and where it leads: "stepping onto the dueling grounds teleports your entire Deck … to a
+// pocket dimension battlefield", through the red door (bible Book 1 Ch 22, per 0039). The name and the
+// door's colour are canon; the view through it (a starlit plain ruled in gilt) is a PROPOSAL.
+export const DUELING_GROUNDS = 'The Dueling Grounds';
+export const RED_DOOR_LORE = { name: DUELING_GROUNDS, source: 'bible Book 1 Ch 22', view: { text: 'PROPOSAL: a starlit plain ruled in gilt', proposal: true } };

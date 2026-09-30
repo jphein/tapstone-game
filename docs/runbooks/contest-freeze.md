@@ -62,6 +62,36 @@ Two freezes of one commit on one machine give **the same manifest and the same t
   `BUILDINFO.json` records `rustc -vV`; to rebuild the frozen bytes, install that exact version
   (`rustup toolchain install 1.97.1`) and run with `RUSTUP_TOOLCHAIN=1.97.1`. Node, npm and vite are
   recorded too. The npm tree comes from `package-lock.json` via `npm ci`.
+- **The voice spotter's binaries are downloaded, and its encoder is built, not in git** (#200;
+  the model changed in #202; the build and the offline path in feat/xr-kws-slim). `tools/fetch_kws.mjs`:
+  - fetches npm `sherpa-onnx@1.13.8` and, from Hugging Face at fixed revisions, the LibriSpeech-trained
+    `sherpa-onnx-streaming-zipformer-en-20M-2023-02-17` (the fp32 encoder, the int8 decoder and joiner,
+    and tokens; revision d42f2d9) and its BPE model (desh2608's repo, revision be162ec);
+  - **builds our int8 encoder** with `tools/kws_quantize.py` (recipe `matmul-table`). The quantizer is
+    installed from `tools/kws-quantize-requirements.txt` (exact versions and wheel hashes) into a
+    throwaway venv, and **needs CPython 3.12 on Linux x86_64** (familiar and katana both qualify).
+    Set `KWS_PYTHON` if `python3` isn't 3.12.
+  - pins every source and the built encoder by sha256, times out every request
+    (`KWS_FETCH_TIMEOUT_MS`, default 120 s), and installs atomically: a new `public/kws` is assembled
+    and checked beside the old one, then renamed in.
+  - Any failure, a changed upstream byte, a timeout or a full disk, leaves the installed files as they
+    were.
+  - The quantizer runs isolated: `python -I`, no `PYTHON*` or `PIP_*` variables (the freeze strips them
+    too, `kws_env`), `PIP_CONFIG_FILE=/dev/null`, pip `--only-binary :all:`. Every step has a timeout
+    (`KWS_BUILD_TIMEOUT_MS`, default 4 × `KWS_FETCH_TIMEOUT_MS`).
+  - The two renames (`tools/.kws`, then `public/kws`) aren't crash-atomic together. A crash between
+    them leaves a missing or mixed install, which `--check` and `vite build` refuse; re-running the fetch
+    repairs it. Staging lives in `xr/.kws-staging/`, outside `public/`, so an interrupted install can't
+    ship.
+- **Offline rebuild.**
+  - **On freeze day, run `node tools/fetch_kws.mjs --save ~/freeze/kws-sources`** (in the xr
+    directory). That keeps every source archive and every quantizer wheel, about 150 MB.
+  - A later freeze can rebuild from that copy with no network:
+    `tools/freeze_contest.py <tag> --out <dir> --kws-from ~/freeze/kws-sources`. It passes the copy to
+    `fetch_kws.mjs --from`, which checks the same source pins, installs the wheels with
+    `--no-index --require-hashes`, and checks the built encoder's pin.
+  - This is a rebuild path, not just evidence: the Oracle's #202 finding, which #203 recorded as queued.
+  - The npm tree, from `npm ci`, and realm-sigil still need their own copies for a fully offline freeze.
 - **The tarball's bytes also depend on the zlib build** (gzip level 9). The manifest is the contract.
   The tarball is reproducible on one machine, and a different zlib may compress differently.
 

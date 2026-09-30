@@ -51,7 +51,7 @@ test('captions are the band: the only place a line is spoken draws it first', ()
   const altar = src('src/altar.js');
   const say = altar.match(/\n {2}say\(text, opts\) \{\n([\s\S]*?)\n {2}\}/);
   assert.ok(say, 'Altar.say found');
-  const draw = say[1].indexOf('this.voice.draw(text)'), speak = say[1].indexOf('this.speaker?.say(text');
+  const draw = say[1].indexOf('this.voice.draw(text'), speak = say[1].indexOf('this.speaker?.say(text');
   assert.ok(draw >= 0 && speak > draw, 'Altar.say draws the band, then speaks');
   assert.equal((altar.match(/speaker\??\.say\(/g) ?? []).length, 2, 'say() and attach() are the only speakers');
   assert.ok(/attach\(speaker\) \{[\s\S]*?if \(this\.line\) speaker\.say\(this\.line\)/.test(altar), 'attach() speaks only the line on the band');
@@ -124,4 +124,25 @@ test('reduced motion: an effect shows where it lands and fades, with no travel a
   assert.ok(motion('summon', 0.5, off).k > 0 && motion('summon', 0.5, off).k < 1, 'and travels');
   assert.ok(motion('summon', 0, off).swell > 0, 'the doors swell');
   assert.equal(motion('damage', 0.5, off).lift, 0, 'only the summon arcs');
+});
+
+// ---- 2026-09-28: gaze, voice, high contrast, large text, dwell time, the first-run offer ----------
+import { validSetting } from '../src/logic/access.js';
+
+test('the new settings default off (dwell 1 s), and the URL turns each on', () => {
+  const d = readAccess({});
+  assert.deepEqual([d.gaze, d.voice, d.highContrast, d.largeText, d.offered, d.dwellMs], [false, false, false, false, false, 1000]);
+  const u = readAccess({ search: '?gaze=1&voice=1&contrast=high&text=large&dwell=1500' });
+  assert.deepEqual([u.gaze, u.voice, u.highContrast, u.largeText, u.dwellMs], [true, true, true, true, 1500]);
+});
+
+test('a stored dwell time is read only if it is one of the choices; other settings only as booleans', () => {
+  assert.equal(readAccess({ stored: JSON.stringify({ dwellMs: 2000 }) }).dwellMs, 2000);
+  assert.equal(readAccess({ stored: JSON.stringify({ dwellMs: 5 }) }).dwellMs, 1000, 'a dwell nobody offered is ignored');
+  assert.equal(readAccess({ stored: JSON.stringify({ dwellMs: '2000' }) }).dwellMs, 1000);
+  assert.equal(readAccess({ search: '?dwell=3' }).dwellMs, 1000);
+  assert.equal(readAccess({ stored: JSON.stringify({ gaze: 1 }) }).gaze, false);
+  assert.equal(validSetting('dwellMs', 800), true);
+  assert.equal(validSetting('highContrast', 'yes'), false);
+  assert.equal(validSetting('captions', false), false, 'captions are not a setting');
 });

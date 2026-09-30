@@ -11,15 +11,40 @@
 //                 to the system's prefers-reduced-motion.
 //   captions      always on, and not a setting: the voice band IS the caption (0033: the band is the
 //                 source of truth, the game is playable muted), so nothing can turn it off.
+//
+// Added 2026-09-28 (design note 2026-09-28-xr-accessibility-design.md):
+//   gaze          head-gaze dwell plays every move with no hand (logic/gaze.js, src/assist.js).
+//   dwellMs       how long a look takes to select: one of DWELL_CHOICES (default 1 s).
+//   voice         spoken commands (logic/voice-commands.js). The preference only: the mic opens on an
+//                 explicit opt-in (a button, a dwell, a pinch), and whenever it is open the listening
+//                 indicator shows.
+//   highContrast  the contrast theme (logic/theme.js): near-black surfaces, white text, yellow pads.
+//   largeText     the caption band and the settings tiles drawn half as large again.
+//   offered       the first-run offer (hands, head gaze or voice) was answered: it isn't shown again.
+//
+// Added 2026-09-29 (design note 2026-09-29-xr-atmosphere-design.md):
+//   ambience      the ambient bed's volume: one of AMBIENCE_LEVELS (off, low, medium, high).
 import { DECK, defaultHead, essentials, offGaze, padCenter } from './layout.js';
+import { DWELL_CHOICES, DWELL_DEFAULT } from './gaze.js';
+import { AMBIENCE_DEFAULT, AMBIENCE_LEVELS } from './atmosphere.js';
 
-export const ACCESS_DEFAULTS = { seated: false, leftHanded: false, reducedMotion: false };
+export const ACCESS_DEFAULTS = {
+  seated: false, leftHanded: false, reducedMotion: false,
+  gaze: false, dwellMs: DWELL_DEFAULT, voice: false, highContrast: false, largeText: false, offered: false,
+  ambience: AMBIENCE_DEFAULT,
+};
+
+// Whether a value is one the setting `key` can take.
+export function validSetting(key, v) {
+  if (!(key in ACCESS_DEFAULTS)) return false;
+  if (key === 'dwellMs') return DWELL_CHOICES.includes(v);
+  if (key === 'ambience') return AMBIENCE_LEVELS.includes(v);
+  return typeof v === 'boolean';
+}
 
 // The layout's budgets (test/layout.test.js): every essential within ±32° yaw and ±30° pitch, and
 // every pad within the reach the spike's touches worked at.
 const BUDGET = { yaw: 32, pitch: 30, reach: 0.51 };
-
-const bool = (v) => (typeof v === 'boolean' ? v : undefined);
 
 // `search` (location.search) beats `stored` (localStorage JSON), which beats the system preference,
 // which beats the defaults. A corrupt store is ignored.
@@ -31,11 +56,17 @@ export function readAccess({ search = '', stored = null, prefersReducedMotion = 
   } catch {
     s = null;
   }
-  for (const k of Object.keys(ACCESS_DEFAULTS)) if (s && bool(s[k]) !== undefined) out[k] = s[k];
+  for (const k of Object.keys(ACCESS_DEFAULTS)) if (s && validSetting(k, s[k])) out[k] = s[k];
   const q = new URLSearchParams(search);
   if (q.has('seated')) out.seated = q.get('seated') === '1';
   if (q.has('hand')) out.leftHanded = q.get('hand') === 'left';
   if (q.has('motion')) out.reducedMotion = q.get('motion') === 'reduce';
+  if (q.has('gaze')) out.gaze = q.get('gaze') === '1';
+  if (q.has('voice')) out.voice = q.get('voice') === '1';
+  if (q.has('contrast')) out.highContrast = q.get('contrast') === 'high';
+  if (q.has('text')) out.largeText = q.get('text') === 'large';
+  if (q.has('dwell') && validSetting('dwellMs', Number(q.get('dwell')))) out.dwellMs = Number(q.get('dwell'));
+  if (q.has('ambience') && validSetting('ambience', Number(q.get('ambience')))) out.ambience = Number(q.get('ambience'));
   out.captions = true;
   return out;
 }

@@ -33,6 +33,14 @@ in its meta tag only:
 rm version.json
 ```
 
-Its art (`site/promo/art/*.svg`) comes from the promo-art branch. A missing picture shows its alt
+Its art (`site/promo/art/*.svg`) comes from the promo-art branch.
+
+**The promo video** (`site/media/promo.mp4`, `promo-720.mp4`, `promo-poster.jpg`) is gitignored like the
+card clips. It lives on katana, with its SHA256SUMS, cut script and shot list, in
+`scratch/contest-video/promo/` (`PROMO-NOTES.md` beside it). Copy the three files to `site/media/` before the
+rsync, then check them with `sha256sum -c`. Every gameplay frame is a real IWER capture of the headset build,
+and there is no AI-generated video. The captions (`site/promo/promo.vtt`) are committed. Without the media, the
+page shows the video's description in the missing-picture panel (`promo.js`). `node tools/promo_page_check.mjs
+<media dir>` checks the block in a browser, and `python3 -m unittest tools/test_promo_page.py` checks the markup. A missing picture shows its alt
 text in a framed panel (`promo.js`), so the page still reads before the art lands.
 

@@ -1,7 +1,7 @@
 // lore.test.js: the Tea House's names come from JP's canon, and nothing else passes as canon (0039).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CANON_REALMS, DOOR_LORE, TEAHOUSE_KEEPER, TEAHOUSE_NAME } from '../src/logic/lore.js';
+import { CANON_REALMS, DOOR_LORE, DUELING_GROUNDS, RED_DOOR_LORE, TEAHOUSE_KEEPER, TEAHOUSE_NAME } from '../src/logic/lore.js';
 import { DOORS } from '../src/logic/layout.js';
 
 test('lore: the canon names, the ruled pairing, and every non-canon look marked PROPOSAL', () => {
@@ -33,4 +33,12 @@ test('lore: the canon names, the ruled pairing, and every non-canon look marked 
   assert.equal(TEAHOUSE_KEEPER.named, null);
   assert.equal(TEAHOUSE_KEEPER.onLintel, false);
   assert.match(TEAHOUSE_KEEPER.source, /^bible /);
+});
+
+test('lore: the red door leads to the Dueling Grounds (canon), and its view is a PROPOSAL', () => {
+  assert.equal(DUELING_GROUNDS, 'The Dueling Grounds');
+  assert.equal(RED_DOOR_LORE.name, DUELING_GROUNDS);
+  assert.match(RED_DOOR_LORE.source, /^bible /);
+  assert.equal(RED_DOOR_LORE.view.proposal, true);
+  assert.match(RED_DOOR_LORE.view.text, /^PROPOSAL/);
 });

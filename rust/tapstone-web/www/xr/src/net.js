@@ -2,6 +2,9 @@
 // PerformanceObserver sees fetch, XHR, images, fonts, scripts and wasm alike.
 const state = { loadedAt: null, after: [], total: 0 };
 export function netWatch() {
+  // The timeline keeps 250 entries by default and a dev load makes ~350: without this, the cold-start
+  // report (tools/iwer-coldstart.mjs) silently lost every late fetch (wasm, art, voice).
+  performance.setResourceTimingBufferSize?.(2000);
   try {
     new PerformanceObserver((list) => {
       for (const e of list.getEntries()) {

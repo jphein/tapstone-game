@@ -118,6 +118,29 @@ within about **50°**, lower-central, and the move menu is pulled in from the bo
 `@iwsdk/*` finds only WebXR's `inlineVerticalFieldOfView`). Measure the span geometrically from the
 head pose instead, as the spike's `stats().boardSpanDeg` does, until IWSDK ships the mask.
 
+**Entry: both ways in (0039, built 2026-09-28).**
+- **Mixed reality is the default,** because judges score "passthrough should be purposeful". The page
+  offers two buttons, primary first. It also sets the browser's own offer (IWSDK's
+  `navigator.xr.offerSession` flow) to mixed reality.
+  - *Mixed reality* (`immersive-ar`): the player's room is the Tea House, and only the doors appear.
+  - *Full VR* (`immersive-vr`): the lantern-lit interior. Each button calls
+    `world.launchXR({ sessionMode })`.
+- The buttons are plain page buttons, so a pinch or a poke presses them, seated or standing.
+  `iwsdk.config.json` keeps `mode: 'ar'` as the configured default.
+- **A device with one mode gets that mode alone**, both as the offer and as the only button.
+  `logic/entry.js` asks `isSessionSupported` for each mode.
+- **The room follows the session, not the page.** The interior shows only while the session is
+  `opaque`, so mixed reality, then full VR, then mixed reality again on one page each get their own
+  room. The interior is built hidden at init. The prewarm compiles the scene with it shown and then
+  hidden, because its two lights change every lit material's program.
+- **Proof** (`tools/iwer-enter-vr.mjs`, `iwer-room.mjs`, `iwer-lacks.mjs`):
+  - Both modes finish a match with nothing fetched after load.
+  - The #185 pause and reload checks pass in full VR.
+  - A button forced back to `immersive-ar` fails the VR run.
+- **Draw cost, desktop only** (IWER, three's `renderer.info` for one frame, at match start): mixed
+  reality 102 draw calls and 18,900 triangles; full VR 120 and 19,140 (144 and 19,268 at match end).
+  That is a frame-budget signal. The 60 fps floor can only be measured on a Quest.
+
 **Placement.**
 - One table hit-test, with the board facing the player, plus a persistent anchor.
 - Quest 2 fallback, since it has no depth: a flat palm sets the height, then pinch-drag.
@@ -197,6 +220,25 @@ pressure_from 4, stop_round 6, plus a scanned seed.
 - An on-device ledger in browser storage, following the 0030 shape.
 - A result beat: XP, a level, and a loot chest on the altar.
 - Breadth, not power (0034).
+
+**Built 2026-09-28 (#129), the pause and the ledger's journal half** (`www/xr/src/logic/pause.js`,
+`logic/journal.js`, `table.js`; the result beat is still owed):
+- *Pause.* The match pauses when the tab is hidden, the XR session is hidden or blurred, or the session
+  ends. A pause counts as zero time: the table doesn't advance, the timers see a frozen clock, and a
+  gesture made while paused is held and played on return. Checked by `test/pause.test.js` (eight pauses
+  in one match, 20 s to 2.5 min each, give the same taps and final head as the unpaused run) and by
+  `tools/iwer-pause.mjs` (a real `session.end()` mid-match, then re-entry).
+- *Journal.* localStorage holds `{seed, human (the seat), taps: [{at, menuAt, i, key}], clock, match_id, seq, head,
+  final}`. It is saved on every tap and every view. On load it is replayed through the wasm, and it
+  resumes only if every tap's key matches the menu and the replay reproduces its head. Anything else
+  is discarded (`test/journal.test.js`, `tools/iwer-reload.mjs`). Chain heads depend on tap timing
+  (the same taps at 16 ms and at 33 ms frames give different heads), so a journal stores play-clock
+  times, not only moves.
+- *Cold start,* measured by `tools/iwer-coldstart.mjs` in IWER's headless Chromium: the production build
+  (`vite preview`) reaches its first interactive frame in a median of **1.9 s**, against 2.4–3.3 s on
+  the dev server. On the dev server, IWSDK's editor runtime costs about 1 s per load; it is not in the
+  build. The voice clips no longer delay the first frame. This is a desktop software-GL figure, not
+  a Quest one.
 
 ## 4. (B) The real table (`table-mr.svg`, `crossplay.svg`)
 

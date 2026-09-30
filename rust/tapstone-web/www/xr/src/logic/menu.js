@@ -15,6 +15,10 @@
 //   { source: 'hand', card, face: 'up', target?, aux? }     a spell; `target` is the raw target byte
 //                                                           (seat << 4 | lane << 2 | cell, or 0xFF = castle)
 // Answers: { index } | { need: 'target', options: [{ index, target, aux, label }] } | { refused: text }
+//
+// With `ctx` ({ hand, view, near }: table.hand() and the latest view), a refusal says why and what to
+// do, from the engine's own numbers (explainRefusal). JP's Quest 2 run, 2026-09-28: with 0 mana every
+// card answered "You can't play that card now.", and he never learned to charge.
 
 export const CASTLE_TARGET = 0xff;
 
@@ -23,7 +27,49 @@ export function targetOf(seat, lane, cell) {
   return (seat << 4) | (lane << 2) | cell;
 }
 
-export function matchGesture(menu, g) {
+export function matchGesture(menu, g, ctx) {
+  const r = matchRaw(menu, g);
+  if (r.refused && ctx) r.refused = explainRefusal(menu, g, ctx) ?? r.refused;
+  return r;
+}
+
+const LANE = ['left', 'middle', 'right'];
+
+// Why a gesture was refused, and what to do, in words (null: the plain refusal says it already).
+// Mana is the rules' available_mana(): charged - spent; the costs are the hand's (the card designs').
+// Every fixed sentence the headset says has a rendered clip (test/voice.test.js), so a refusal that
+// needs no numbers or names keeps its plain, voiced text; the ones composed here carry a card's name,
+// a cost, a count or a lane, so they are drawn on the band and not spoken (0033: the band is the truth).
+// `mode` (#200: 'hands', 'gaze' or 'voice'): the way to charge is said as that mode does it.
+export function explainRefusal(menu, g, { hand = [], view = null, near = 0, mode = 'hands' } = {}) {
+  const me = view && view.phase !== 'lobby' ? view.seats?.[near] ?? null : null;
+  const mana = me ? Math.max(0, (me.charged ?? 0) - (me.spent ?? 0)) : 0;
+  const canCharge = menu.some((m) => m.kind === 'Charge');
+  if (!menu.length) return view && (view.phase === 'over' || view.last_over) ? 'The match is over.' : null;
+  const owed = me?.owed_draws ?? 0;
+  if (menu.every((m) => m.kind === 'Draw') && g.source !== 'deck') {
+    return `Draw ${owed > 1 ? `${owed} cards` : 'a card'} first: touch the top card of your deck to the stone.`;
+  }
+  if (g.source === 'deck') return null;
+  if (g.source === 'lane') return `The ${LANE[g.pad] ?? 'that'} lane has already advanced this turn.`;
+  if (g.source === 'castle') return null;
+  const card = hand.find((c) => c && c.card === g.card);
+  if (!card) return null;
+  // The card is castable somewhere and the refusal already names the lane or the missing target.
+  if (menu.some((m) => (m.kind === 'CastUnit' || m.kind === 'CastSpell') && m.card === g.card)) return null;
+  if (g.face === 'down') return canCharge ? null : `${card.name} stays in your hand: you've charged a card this round already, so charge again next round.`;
+  if (card.cost > mana) {
+    if (!canCharge) return `${card.name} needs ${card.cost} mana — you have ${mana}. You can charge a card again next round.`;
+    const charge = hand.find((c) => c && c.card === menu.find((m) => m.kind === 'Charge').card)?.name ?? card.name;
+    const how = mode === 'voice' ? `say “charge ${charge}”.` : mode === 'gaze' ? 'look at it twice, then at a pad.' : 'flip it face down and touch it to the stone.';
+    return `${card.name} needs ${card.cost} mana — you have ${mana}. Charge a card: ${how}`;
+  }
+  if (card.kind === 'unit') return `${card.name} needs an open entry cell, and that lane's is taken: try another pad.`;
+  if (card.kind === 'spell') return `${card.name} has nothing it can reach now.`;
+  return null;
+}
+
+function matchRaw(menu, g) {
   if (!menu.length) return { refused: "It isn't your move." };
   const draws = menu.filter((m) => m.kind === 'Draw');
   // 0036: while draws are owed the engine offers nothing else.

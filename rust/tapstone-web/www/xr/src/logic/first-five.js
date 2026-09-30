@@ -97,6 +97,14 @@ export class FirstFive {
     return this.enter(this.i + 1, now, 'payoff');
   }
 
+  // Guide v2 (guide/lesson.js): jump forward to beat `i`, the first one the match state hasn't done,
+  // never back. A resumed round-3 match starts on its first unlearned beat instead of "claim", and a
+  // beat whose move the person has already made (seen in the view or the journal) is not taught.
+  sync(i, now) {
+    if (this.i < 0 || this.done || i <= this.i) return null;
+    return this.enter(Math.min(i, this.beats.length), now, 'state');
+  }
+
   // Call every frame: a missing payoff gives way after payoffMs; a watching beat ends with its
   // clock; a teaching beat whose gesture hasn't come repeats its sentence once per beat length.
   poll(now) {
@@ -131,8 +139,8 @@ export class FirstFive {
     return r;
   }
 
-  // `why` the last beat started: 'start', 'payoff', 'fallback' (no payoff within payoffMs) or
-  // 'clock' (a watching beat ran out), so a run can say whether each payoff really came.
+  // `why` the last beat started: 'start', 'payoff', 'fallback' (no payoff within payoffMs), 'clock' (a
+  // watching beat ran out) or 'state' (sync: the match had already done it), so a run can say why.
   enter(i, now, why) {
     this.i = i;
     this.why = why;

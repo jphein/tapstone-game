@@ -274,6 +274,16 @@ def run(cmd, cwd, env=None, capture=False):
     return r.stdout.strip() if capture else ""
 
 
+def kws_env(env):
+    """The environment fetch_kws.mjs (and the quantizer it runs) gets: no PYTHON* variable (PYTHONPATH,
+    PYTHONHOME, PYTHONSTARTUP, ...) and no PIP_* variable, which could change what Python imports or what
+    pip fetches, and pip reading no config file. fetch_kws.mjs cleans its children the same way and runs
+    Python with -I; this keeps the freeze's own environment out of it too."""
+    out = {k: v for k, v in env.items() if not k.startswith(("PYTHON", "PIP_"))}
+    out.update(PIP_CONFIG_FILE="/dev/null", PYTHONNOUSERSITE="1")
+    return out
+
+
 def build(args):
     repo, out = Path(args.repo).resolve(), Path(args.out).resolve()
     base = args.base if args.base.endswith("/") else args.base + "/"
@@ -282,6 +292,8 @@ def build(args):
         if p.exists():
             raise Refusal(f"{p} exists; a frozen bundle is never rebuilt in place (move it aside)")
     check_clean(repo)
+    if args.kws_from and not Path(args.kws_from).is_dir():
+        raise Refusal(f"--kws-from {args.kws_from} is not a directory (make one with fetch_kws.mjs --save)")
     src = resolve_source(repo, args.ref, args.allow_untagged)
     name = re.sub(r"[^A-Za-z0-9._-]", "-", src.ref if src.tagged else f"{src.ref}-{src.commit[:7]}")
     sigil = Path(args.sigil_dir)
@@ -330,6 +342,11 @@ def build(args):
         env_js = {**os.environ, "SOURCE_DATE_EPOCH": str(src.epoch)}
         env_js.pop("NODE_ENV", None)
         run(["npm", "ci", "--no-audit", "--no-fund", "--loglevel=error"], xr, env=env_js)
+        # The keyword spotter for voice commands (public/kws): too big for git history, so fetched and
+        # built here; fetch_kws.mjs pins every byte by sha256 and refuses anything else. With
+        # --kws-from, from a `fetch_kws.mjs --save` copy instead, with no network, under the same pins.
+        kws = ["--from", str(Path(args.kws_from).resolve())] if args.kws_from else []
+        run(["node", "tools/fetch_kws.mjs", *kws], xr, env=kws_env(env_js))
         run([xr / "node_modules/.bin/vite", "build", "--base", base, "--emptyOutDir"], xr,
             env={**env_js, "NODE_ENV": "production"})
         vite = json.loads((xr / "node_modules/vite/package.json").read_text())["version"]
@@ -343,6 +360,8 @@ def build(args):
         problems = check_base((bundle / "index.html").read_text(), base)
         if not (bundle / "tapstone_web.wasm").is_file() or _sha256(bundle / "tapstone_web.wasm") != wasm_sha:
             problems.append("the bundle's tapstone_web.wasm is not the gated build")
+        if not (bundle / "kws" / "kws.wasm").is_file():
+            problems.append("the bundle has no keyword spotter (kws/kws.wasm): voice commands would be unavailable")
         info = stamp(clone, bundle / "index.html", sigil, src.epoch)
         buildinfo = {
             "ref": src.ref, "tagged": src.tagged, "commit": src.commit,
@@ -355,7 +374,8 @@ def build(args):
                           "npm": run(["npm", "-v"], xr, capture=True), "vite": vite},
             "inputs_sha256": {"realm-sigil/static/build.sh": _sha256(sigil / "static" / "build.sh"),
                               "realm-sigil/words/realms.json": _sha256(sigil / "words" / "realms.json"),
-                              "tools/freeze_contest.py": _sha256(Path(__file__).resolve())},
+                              "tools/freeze_contest.py": _sha256(Path(__file__).resolve()),
+                              "xr/tools/fetch_kws.mjs": _sha256(xr / "tools" / "fetch_kws.mjs")},
             "generator": "tools/freeze_contest.py",
         }
         (bundle / BUILDINFO).write_text(json.dumps(buildinfo, indent=2) + "\n")
@@ -402,6 +422,8 @@ def main(argv=None):
     ap.add_argument("--base", default=DEFAULT_BASE, help=f"the served path (default {DEFAULT_BASE})")
     ap.add_argument("--sigil-dir", default=str(DEFAULT_SIGIL), help="the realm-sigil checkout")
     ap.add_argument("--keep-work", action="store_true", help="keep <out>.work (the clone and target)")
+    ap.add_argument("--kws-from", metavar="DIR", help="build the voice spotter offline from a "
+                    "`fetch_kws.mjs --save DIR` copy (the same pins; no network)")
     args = ap.parse_args(argv)
     try:
         if args.verify:

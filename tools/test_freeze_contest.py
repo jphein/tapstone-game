@@ -270,6 +270,23 @@ class Refusals(unittest.TestCase):
         self.assertIn("exists", r.stderr)
         self.assertEqual([p.name for p in self.out.iterdir()], ["keep"])
 
+    def test_a_missing_kws_from_dir_refuses(self):
+        # --kws-from builds the voice spotter offline from a `fetch_kws.mjs --save` copy; a copy that
+        # isn't there refuses before anything is written.
+        r = self.run_tool("vr-competition-v1", "--kws-from", str(Path(self.tmp.name) / "no-such-copy"))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("--kws-from", r.stderr)
+        self.assertFalse(self.out.exists())
+
+
+class KwsEnv(unittest.TestCase):
+    def test_python_and_pip_variables_are_dropped_and_pip_reads_no_config(self):
+        env = fc.kws_env({"PATH": "/usr/bin", "HOME": "/h", "PYTHONPATH": "/poison", "PYTHONHOME": "/x",
+                          "PYTHONSTARTUP": "/s.py", "PYTHONSAFEPATH": "", "PIP_INDEX_URL": "https://evil.test/simple",
+                          "PIP_TRUSTED_HOST": "evil.test", "PIP_CONFIG_FILE": "/home/me/pip.conf", "SOURCE_DATE_EPOCH": "1"})
+        self.assertEqual(env, {"PATH": "/usr/bin", "HOME": "/h", "SOURCE_DATE_EPOCH": "1",
+                               "PIP_CONFIG_FILE": "/dev/null", "PYTHONNOUSERSITE": "1"})
+
 
 class Stamp(unittest.TestCase):
     """The realm-sigil stamp, through realm-sigil's own static/build.sh."""

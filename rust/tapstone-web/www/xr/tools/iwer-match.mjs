@@ -2,6 +2,7 @@
 // Chromium. Every move is __tapstone.gestureStep(): one gesture through play(), never propose().
 //
 //   npx @iwsdk/cli dev up --headless --allow-browser-automation --foreground   (in tmux)
+//   npx @iwsdk/cli browser run tools/iwer-forget.mjs && npx @iwsdk/cli browser reload   # a fresh match: a stored journal resumes otherwise
 //   npx @iwsdk/cli xr enter
 //   npx @iwsdk/cli xr set-input-mode --input-json '{"mode":"hand"}'   # IWER starts with controllers,
 //     which the hands-only guard (src/guard.js) refuses: every gesture would count as `guarded`
@@ -30,5 +31,8 @@ export default async function run({ page, frame }) {
     const n = globalThis.__tapstoneNet ?? globalThis.__spikeNet;
     return n ? { afterLoad: n.after.length, urls: n.after.slice(0, 5), total: n.total } : null;
   });
-  return { steps, stats, net };
+  // The match's journal (logic/journal.js), for tools/journal-check.mjs; `resumed` says whether this
+  // page replayed a stored one (iwer-reload.mjs) or started fresh.
+  const journal = await f.evaluate(() => __tapstone.journal());
+  return { steps, stats, net, resumed: { ...journal.resumed }, journal };
 }

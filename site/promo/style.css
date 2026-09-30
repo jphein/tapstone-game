@@ -195,6 +195,35 @@ main > section + section { border-top: 1px solid var(--line); }
 .art.missing::after { content: attr(data-alt); }
 .art-card.missing { aspect-ratio: 5 / 7; min-height: 0; }
 
+/* ---------- the promo video (degrades to the labelled panel above when the media is absent) ---------- */
+
+.film { padding-top: 2.5rem; }
+.film-h { text-align: center; }
+.film-frame {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+.film-frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: .75rem;
+  border: 2px solid var(--line);
+  background: var(--bg-deep);
+  box-shadow: 0 0 2.5rem var(--glow), 0 .8rem 2rem rgba(0, 0, 0, .35);
+}
+.film-frame figcaption {
+  max-width: var(--measure);
+  margin: 1rem auto 0;
+  color: var(--ink-soft);
+  font-size: .95rem;
+  text-align: center;
+}
+.film-frame.missing { aspect-ratio: 16 / 9; min-height: 0; max-width: 64rem; }
+.film-frame.missing video,
+.film-frame.missing figcaption { display: none; }
+
 /* ---------- how a match works ---------- */
 
 .steps {

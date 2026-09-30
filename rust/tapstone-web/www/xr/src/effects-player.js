@@ -11,6 +11,7 @@ import { soundFor } from './logic/sfx.js';
 import { motion } from './logic/access.js';
 import { access } from './access.js';
 import { createSfx } from './sfx.js';
+import { enrich } from './summons/enrich.js';
 
 export class EffectsSystem extends createSystem({}) {
   init() {
@@ -40,7 +41,8 @@ export class EffectsSystem extends createSystem({}) {
     play.root.add(this.spark);
     play.sfxStats = this.sfx.stats;
     play.onView = (prev, next, near) => {
-      this.queue.push(diffViews(prev, next, near));
+      // The summons' strikes, spells and Undertow's shift join the queue (src/summons/enrich.js).
+      this.queue.push(enrich(prev, next, diffViews(prev, next, near)));
       for (const fn of this.viewListeners) fn(next);
     };
     this.bound = true;

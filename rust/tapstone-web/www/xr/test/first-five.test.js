@@ -337,3 +337,17 @@ test('release() reports the hand-back once, so the held line can be said then', 
   m.event('over', len + 2 + len1 + 1);
   assert.equal(m.release(len + 2 + len1 + 2), false, 'already handed back');
 });
+
+test('sync jumps forward to the state\'s beat, says it once, and never goes back', () => {
+  const m = new FirstFive();
+  m.start(0);
+  assert.equal(m.sync(3, 100), BEATS[3].say, 'a resumed match lands on flip');
+  assert.equal(m.beat.id, 'flip');
+  assert.equal(m.why, 'state');
+  assert.equal(m.sync(1, 200), null, 'never back to claim');
+  assert.equal(m.sync(3, 300), null, 'the same beat again is not a new beat');
+  assert.equal(m.beat.id, 'flip');
+  assert.equal(m.sync(BEATS.length, 400), null, 'all done');
+  assert.ok(m.done);
+  assert.equal(new FirstFive().sync(3, 0), null, 'not started: nothing to sync');
+});

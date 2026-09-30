@@ -3,3 +3,7 @@ dist/
 .iwsdk/
 .mcp.json
 *.log
+# fetched by tools/fetch_kws.mjs (sha256-pinned); never committed
+tools/.kws/
+# fetch_kws.mjs stages installs here (outside public/, so nothing interrupted can ship).
+.kws-staging/

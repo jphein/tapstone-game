@@ -3,6 +3,7 @@
 // kind), and the claim beat's castle tap through castleTap(), the method the castle's Pressed calls.
 //
 //   npx @iwsdk/cli dev up --headless --allow-browser-automation   (its own port; not nx-m1b-iwer's)
+//   npx @iwsdk/cli browser run tools/iwer-forget.mjs && npx @iwsdk/cli browser reload   # a fresh match: a stored journal resumes otherwise
 //   npx @iwsdk/cli xr enter
 //   npx @iwsdk/cli xr set-input-mode --input-json '{"mode":"hand"}'
 //   npx @iwsdk/cli browser run tools/iwer-first-five.mjs --timeout 105000
@@ -17,6 +18,8 @@ export default async function run({ page, frame }, untilBeat = 'bot') {
   const until = Date.now() + 95000;
   const trail = [];
   for (;;) {
+    // #200's first-run offer comes first (the guide waits for it): answer it with the hands.
+    await f.evaluate(() => __tapstone.assist?.().offerShown && __tapstone.tile('offer.hands'));
     const b = await f.evaluate(() => __tapstone.beats());
     if (b.done || b.beat === untilBeat || Date.now() > until) break;
     if (b.beat === 'claim') trail.push(await f.evaluate(() => (__tapstone.play.castleTap(), 'castle')));

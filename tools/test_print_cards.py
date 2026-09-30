@@ -96,15 +96,21 @@ class PrintCards(unittest.TestCase):
         self.assertTrue(any(c["type"] == "unit" and c["attack"] != c["toughness"] for c in cards))
 
     def test_a_card_awaiting_art_is_skipped_in_a_set_run_and_refused_by_id(self):
-        # #147's cards have no painting yet: a whole-set run leaves them out and says so, and asking
-        # for one by id is refused rather than printing a face with an empty art window.
-        self.assertIn("st1-014", pc.AWAITING_ART)
-        with self.assertRaisesRegex(SystemExit, "awaiting art.*Forge Runner"):
-            pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out2"), "st1-014"])
-        # a set run gets past the awaiting cards to the first card with no scene here (st1-000):
-        with self.assertRaisesRegex(SystemExit, r"no scene.png for: Ember Castle") as e:
-            pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out3")])
-        self.assertNotIn("Forge Runner", str(e.exception))
+        # A card with no painting yet: a whole-set run leaves it out and says so, and asking for it by
+        # id is refused rather than printing a face with an empty art window. Every card is painted
+        # since 2026-09-28 (#166's six), so the mechanism is exercised with a patched list.
+        self.assertEqual(pc.AWAITING_ART, frozenset(), "awaiting-art.toml: every set 1 card has its painting")
+        real = pc.AWAITING_ART
+        pc.AWAITING_ART = frozenset({"st1-014"})
+        try:
+            with self.assertRaisesRegex(SystemExit, "awaiting art.*Forge Runner"):
+                pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out2"), "st1-014"])
+            # a set run gets past the awaiting card to the first card with no scene here (st1-000):
+            with self.assertRaisesRegex(SystemExit, r"no scene.png for: Ember Castle") as e:
+                pc.main(["--art", str(self.dir / "art"), "--out", str(self.dir / "out3")])
+            self.assertNotIn("Forge Runner", str(e.exception))
+        finally:
+            pc.AWAITING_ART = real
 
     def test_no_card_carries_a_proposal_mark(self):
         doors = pc.doors()

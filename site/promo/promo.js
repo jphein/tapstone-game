@@ -14,4 +14,17 @@
     img.addEventListener("error", function () { mark(img); });
     if (img.complete) img.decode().catch(function () { mark(img); });
   });
+
+  // The promo video: site/media/ is deployed separately (site/README.md). When its poster doesn't load,
+  // the media aren't there, so the frame shows its description instead of an empty player. A source
+  // that fails once someone presses play does the same.
+  document.querySelectorAll(".film-frame video").forEach(function (video) {
+    var fig = video.closest(".film-frame");
+    function missing() { fig.classList.add("missing"); }
+    var poster = new Image();
+    poster.onerror = missing;
+    poster.src = video.getAttribute("poster");
+    var sources = video.querySelectorAll("source");
+    if (sources.length) sources[sources.length - 1].addEventListener("error", missing);
+  });
 })();

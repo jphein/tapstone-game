@@ -25,31 +25,5 @@
   }
  },
  "resources": {},
- "nodes": [
-  {
-   "id": "welcome-panel",
-   "name": "Welcome Panel",
-   "content": {
-    "type": "asset",
-    "asset": "welcome-panel"
-   },
-   "transform": {
-    "position": [
-     0,
-     1.6,
-     -2
-    ],
-    "scale": 0.4
-   },
-   "components": {
-    "RayInteractable": {},
-    "ScreenSpace": {
-     "top": "20px",
-     "left": "20px",
-     "width": "25vw",
-     "height": "40%"
-    }
-   }
-  }
- ]
+ "nodes": []
 }

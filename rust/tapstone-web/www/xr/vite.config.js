@@ -6,8 +6,22 @@
  */
 import { iwsdkDev } from '@iwsdk/vite-plugin-dev';
 import { defineConfig } from 'vite';
+import { installProblems } from './tools/fetch_kws.mjs';
+
+// The voice spotter's install (tools/fetch_kws.mjs) is two renames; a crash between them is detected
+// here, not shipped: a public/kws that lost its committed files, a leftover staging directory, or
+// public/kws and tools/.kws from different installs stop the build. A clone that never fetched builds
+// fine (voice shows "not installed").
+const kwsGuard = () => ({
+    name: 'tapstone-kws-guard',
+    apply: 'build',
+    buildStart() {
+        const bad = installProblems();
+        if (bad.length) throw new Error(`the voice spotter's install is broken:\n  ${bad.join('\n  ')}\nrun: node tools/fetch_kws.mjs`);
+    },
+});
 export default defineConfig({
-    plugins: [iwsdkDev()],
+    plugins: [iwsdkDev(), kwsGuard()],
     // XR_PORT lets a second dev server (another lane's IWER run) coexist with one on 8081.
     server: { host: '0.0.0.0', port: Number(process.env.XR_PORT) || 8081, open: false },
     build: {

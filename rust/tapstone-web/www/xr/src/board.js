@@ -3,48 +3,27 @@
 // said. 0027 in 3D: the person's own units are objects (tall, lit, stats on a plate); the other
 // seat's are entries (low stone plinths with one tag). Positions come from logic/layout.js, the same
 // numbers the FoV test checks.
-import { BoxGeometry, CanvasTexture, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry } from '@iwsdk/core';
-import { BOARD, CASTLE_PLAQUE, FAR_KEEP, LANE_W, ROW_D, cellCenter } from './logic/layout.js';
+//
+// The look is the world art's (src/art/board-mat.js): one painted mat for the Dueling Grounds, a
+// stone slab and brass rim under it, a stone keep, and life and mana on engraved plates.
+import { BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry } from '@iwsdk/core';
+import { CASTLE_PLAQUE, FAR_KEEP, LANE_W, ROW_D, cellCenter } from './logic/layout.js';
+import { canvasTexture, label } from './art/plates.js';
+import { onArtTheme, ready } from './art/contrast.js';
+import { LABELS, minPxOf } from './art/labels.js';
+import { buildKeep, buildMat, buildPlaque, paintLife } from './art/board-mat.js';
+import { factionOf } from './art/palette.js';
 
 export const FACTION = { ember: 0xe0663a, tide: 0x3a9be0, neutral: 0x7d8793 };
 
-// A small canvas label, redrawn in place.
-export function label(w = 256, h = 96, bg = 'rgba(16,20,26,0.85)', fg = '#f0ece2') {
-  const c = document.createElement('canvas');
-  c.width = w;
-  c.height = h;
-  const tex = new CanvasTexture(c);
-  const draw = (text) => {
-    const g = c.getContext('2d');
-    g.clearRect(0, 0, w, h);
-    g.fillStyle = bg;
-    g.fillRect(0, 0, w, h);
-    g.fillStyle = fg;
-    const lines = String(text).split('\n');
-    const size = Math.floor(h / (lines.length + 0.5));
-    g.font = `600 ${size}px system-ui, sans-serif`;
-    g.textAlign = 'center';
-    lines.forEach((l, i) => g.fillText(l, w / 2, size * (i + 1), w - 8));
-    tex.needsUpdate = true;
-  };
-  return { tex, draw };
-}
+// A small canvas label, redrawn in place: the world art's engraved plate (src/art/plates.js).
+export { label };
 
 export class Board {
   constructor() {
     this.group = new Group();
-    const base = new Mesh(new PlaneGeometry(BOARD.w, BOARD.d), new MeshStandardMaterial({ color: 0x2b2f3a, roughness: 0.9 }));
-    base.rotation.x = -Math.PI / 2;
-    this.group.add(base);
-    const cellGeo = new PlaneGeometry(LANE_W * 0.92, ROW_D * 0.88);
-    for (let lane = 0; lane < 3; lane++) {
-      for (let row = 0; row < 6; row++) {
-        const m = new Mesh(cellGeo, new MeshBasicMaterial({ color: row < 3 ? 0x444a5c : 0x3c4252 }));
-        m.rotation.x = -Math.PI / 2;
-        m.position.set(-BOARD.w / 2 + LANE_W * (lane + 0.5), 0.001, -BOARD.d / 2 + ROW_D * (row + 0.5));
-        this.group.add(m);
-      }
-    }
+    // The Dueling Grounds: one painted mat (its cells, lanes and numerals) on a slab with a brass rim.
+    this.group.add(...buildMat());
     // One figure and one plinth per (seat, lane, cell), shown per view: pooled, so a view never allocates.
     this.slots = new Map();
     const figureGeo = new BoxGeometry(LANE_W * 0.45, 1, ROW_D * 0.55);
@@ -54,24 +33,38 @@ export class Board {
         for (let cell = 0; cell < 3; cell++) {
           const figure = new Mesh(figureGeo, new MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }));
           const plinth = new Mesh(plinthGeo, new MeshStandardMaterial({ color: 0x6d7480, roughness: 1 }));
-          const tag = label(192, 64);
-          const plate = new Mesh(new PlaneGeometry(LANE_W * 0.7, 0.022), new MeshBasicMaterial({ map: tag.tex, transparent: true, side: DoubleSide }));
+          const tag = label('unitTag');
+          const plate = new Mesh(new PlaneGeometry(...LABELS.unitTag.plate), new MeshBasicMaterial({ map: tag.tex, transparent: true, side: DoubleSide }));
           figure.visible = plinth.visible = plate.visible = false;
           this.group.add(figure, plinth, plate);
           this.slots.set(`${seat}:${lane}:${cell}`, { figure, plinth, plate, tag, seat, lane, cell });
         }
       }
     }
-    this.myPlaque = new Mesh(new BoxGeometry(CASTLE_PLAQUE.w, CASTLE_PLAQUE.h, CASTLE_PLAQUE.d), new MeshStandardMaterial({ color: 0x7d8793 }));
-    this.myPlaque.position.set(0, CASTLE_PLAQUE.h / 2, CASTLE_PLAQUE.z);
-    this.farKeep = new Mesh(new BoxGeometry(FAR_KEEP.w, FAR_KEEP.h, FAR_KEEP.d), new MeshStandardMaterial({ color: 0x7d8793 }));
-    this.farKeep.position.set(0, FAR_KEEP.h / 2, FAR_KEEP.z);
+    this.myPlaque = buildPlaque(CASTLE_PLAQUE.w, CASTLE_PLAQUE.d, CASTLE_PLAQUE.h);
+    this.myPlaque.position.set(0, 0, CASTLE_PLAQUE.z);
+    this.farKeep = buildKeep();
+    this.farKeep.position.set(0, 0, FAR_KEEP.z);
     this.group.add(this.myPlaque, this.farKeep);
-    this.lifeTags = [label(256, 64), label(256, 64)];
-    this.lifeMeshes = this.lifeTags.map((t) => new Mesh(new PlaneGeometry(0.16, 0.04), new MeshBasicMaterial({ map: t.tex, transparent: true, side: DoubleSide })));
+    // Life and mana: a heart crest and mana crystals on engraved plates (board-mat.js paintLife).
+    this.lifeTags = ['lifeMine', 'lifeTheirs'].map((name) => {
+      const { c, tex } = canvasTexture(...LABELS[name].canvas);
+      let key = null, last = null;
+      const draw = (v) => {
+        const k = JSON.stringify(v);
+        if (k === key) return;
+        key = k;
+        last = v;
+        paintLife(c, v, minPxOf(name));
+        tex.needsUpdate = true;
+      };
+      onArtTheme(() => last && ((key = null), draw(last))); // the high-contrast plate (board-mat.js)
+      return { tex: ready(tex), draw };
+    });
+    this.lifeMeshes = ['lifeMine', 'lifeTheirs'].map((name, k) => new Mesh(new PlaneGeometry(...LABELS[name].plate), new MeshBasicMaterial({ map: this.lifeTags[k].tex, transparent: true, side: DoubleSide })));
     this.lifeMeshes[0].position.set(0, 0.035, CASTLE_PLAQUE.z + 0.02);
     this.lifeMeshes[0].rotation.x = -Math.PI / 4;
-    this.lifeMeshes[1].position.set(0, FAR_KEEP.h + 0.03, FAR_KEEP.z);
+    this.lifeMeshes[1].position.set(0, LABELS.lifeTheirs.at.y, FAR_KEEP.z);
     this.group.add(...this.lifeMeshes);
   }
 
@@ -113,9 +106,10 @@ export class Board {
       s.plate.visible = true;
     }
     const mine = b.seats[near], theirs = b.seats[1 - near];
-    this.myPlaque.material.color.setHex(FACTION[mine.faction] ?? FACTION.neutral);
-    this.farKeep.material.color.setHex(FACTION[theirs.faction] ?? FACTION.neutral);
-    this.lifeTags[0].draw(`♥ ${mine.life}  mana ${mine.charged - mine.spent}/${mine.charged}`);
-    this.lifeTags[1].draw(`♥ ${theirs.life}`);
+    this.myPlaque.material.color.setHex(factionOf(mine.faction).mid);
+    this.farKeep.material.color.setHex(factionOf(theirs.faction).light);
+    this.lifeTags[0].draw({ life: mine.life, charged: mine.charged, spent: mine.spent });
+    this.lifeTags[1].draw({ life: theirs.life });
+    this.onFaction?.(mine.faction); // the altar's castle card shows my castle (play.js wires it)
   }
 }
