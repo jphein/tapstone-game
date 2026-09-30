@@ -37,6 +37,7 @@ const reduce = opt('--motion', '') === 'reduce';
 const vr = argv.includes('--vr'); // full VR through the page's own button (the Tea House interior)
 const contrast = argv.includes('--contrast');
 const per = Number(opt('--per', 9));
+const close = argv.includes('--close'); // the head low over the board's near edge, for stills of the units
 // --drop <model>: the page acts as if that model's file failed to load (?summonsDrop), for the fallback.
 const drop = opt('--drop', '');
 const expectModel = drop === 'drake' ? 'wyrm' : 'drake';
@@ -91,12 +92,13 @@ try {
   await app.evaluate(`(${hideEmulatorChrome})()`);
   // Framed as a seated player leaning in, looking at the board (xr_capture/start.mjs's framing,
   // leaning further in, so the pads and the board's rows fill the frame).
-  await app.evaluate(async () => {
+  await app.evaluate(async (close) => {
     const pl = __tapstone.play;
     const pad = pl.altar.pads[1].m.getWorldPosition(pl.altar.pads[1].m.position.clone());
-    await __xrHands.frame({ x: pad.x, y: pad.y + 0.24, z: pad.z + 0.06 }, { x: pad.x, y: pad.y - 0.02, z: pad.z - 0.3 });
+    if (close) await __xrHands.frame({ x: pad.x, y: pad.y + 0.13, z: pad.z - 0.14 }, { x: pad.x, y: pad.y - 0.04, z: pad.z - 0.52 });
+    else await __xrHands.frame({ x: pad.x, y: pad.y + 0.24, z: pad.z + 0.06 }, { x: pad.x, y: pad.y - 0.02, z: pad.z - 0.3 });
     await __xrHands.rest();
-  });
+  }, close);
   await sleep(800);
   record.baseline = await app.evaluate(() => ({ render: __tapstone.render(), summons: globalThis.__tapstoneSummons?.stats() ?? null }));
   const shot = async (name) => {

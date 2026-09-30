@@ -153,10 +153,28 @@ fn desk_ledger(path: &std::path::Path) -> Result<(Ledger, PathBuf), String> {
     Ok((l, path))
 }
 
+/// How the arena finds its gateway: the configured port alone, or (only with none configured) a scan
+/// of every Espressif USB port, which PINGs each one (`SerialLink::discover`).
+#[derive(Debug, PartialEq, Eq)]
+enum GatewayChoice {
+    Port(String),
+    Scan,
+}
+
+fn gateway_choice(cfg: &Config) -> GatewayChoice {
+    match &cfg.gateway_port {
+        Some(p) => GatewayChoice::Port(p.to_string_lossy().into_owned()),
+        None => GatewayChoice::Scan,
+    }
+}
+
 fn gateway_parts(path: PathBuf, remotes: &[Deck]) -> Result<Parts, String> {
     let text = std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     let cfg: Config = toml::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-    let (port, serial) = SerialLink::discover(&cfg.gateway_mac)?;
+    let (port, serial) = match gateway_choice(&cfg) {
+        GatewayChoice::Port(path) => SerialLink::open_checked(&path, &cfg.gateway_mac)?,
+        GatewayChoice::Scan => SerialLink::discover(&cfg.gateway_mac)?,
+    };
     let Some(GwLine::Hello { node, .. }) = serial.hello.clone() else {
         return Err("the gateway sent no HELLO".into());
     };
@@ -572,5 +590,35 @@ async fn main() -> Result<(), String> {
                 }
             });
         }
+    }
+}
+
+#[cfg(test)]
+mod gateway_choice_tests {
+    use super::*;
+
+    fn cfg(text: &str) -> Config {
+        toml::from_str(text).unwrap()
+    }
+
+    // With a port configured the arena opens that port alone and never scans: a scan PINGs every
+    // Espressif USB port, the scry among them.
+    #[test]
+    fn a_configured_port_is_opened_alone() {
+        let c = cfg(
+            "gateway_mac = \"14:c1:9f:d1:c6:38\"\ngateway_port = \"/dev/serial/by-id/x-14:C1:9F:D1:C6:38-if00\"\n",
+        );
+        assert_eq!(
+            gateway_choice(&c),
+            GatewayChoice::Port("/dev/serial/by-id/x-14:C1:9F:D1:C6:38-if00".into())
+        );
+    }
+
+    #[test]
+    fn without_one_it_scans_as_before() {
+        assert_eq!(
+            gateway_choice(&cfg("gateway_mac = \"14:c1:9f:d1:c6:38\"\n")),
+            GatewayChoice::Scan
+        );
     }
 }

@@ -208,3 +208,21 @@ fn an_empty_token_file_refuses_to_start() {
         "control: a real token is used"
     );
 }
+
+// The gateway's port (tapstone#132 table, 2026-09-29): a configured by-id path is read as given,
+// and a config without one still parses (the arena then scans, as before).
+#[test]
+fn gateway_port_is_optional_and_read_as_given() {
+    let c: Config = toml::from_str("gateway_mac = \"14:c1:9f:d1:c6:38\"").unwrap();
+    assert_eq!(c.gateway_port, None);
+    let c: Config = toml::from_str(
+        "gateway_mac = \"14:c1:9f:d1:c6:38\"\ngateway_port = \"/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_14:C1:9F:D1:C6:38-if00\"\n",
+    )
+    .unwrap();
+    assert_eq!(
+        c.gateway_port.as_deref(),
+        Some(std::path::Path::new(
+            "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_14:C1:9F:D1:C6:38-if00"
+        ))
+    );
+}

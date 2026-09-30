@@ -267,7 +267,16 @@ export class SummonsSystem extends createSystem({}) {
       // The drake's bones the summons drive: its jaw (fire), its head (the fire's source), its chest
       // (the fire heart, riding it).
       const bone = (n) => scene.getObjectByName(n) ?? null;
-      c.bones = { jaw: bone('beak_001B'), head: bone('head'), chest: bone('spine005') };
+      c.bones = { jaw: bone('beak_001B'), head: bone('head'), chest: bone('spine005'), fire: spec.fireFrom ? bone(spec.fireFrom) : null };
+      if (spec.glowBone && bone(spec.glowBone)) {
+        // Forge Runner's ember, glowing in his hand.
+        const ember = new Mesh(this.coreGeo, glowMaterial(0xffa040, 0.9));
+        ember.scale.setScalar(0.005 / scale);
+        ember.renderOrder = 2;
+        ember.frustumCulled = false;
+        bone(spec.glowBone).add(ember);
+        c.core = ember;
+      }
       if (spec.soars && c.bones.chest) {
         const core = new Mesh(this.coreGeo, glowMaterial(0xff9a3a, 0.85));
         core.scale.setScalar(0.006 / scale); // ~6 mm at board size, in the chest bone's (scaled) space
@@ -497,8 +506,9 @@ export class SummonsSystem extends createSystem({}) {
     const tint = FACTION[c.unit.faction] ?? FACTION.neutral;
     const target = this.targetPoint(op.target);
     this.playClip(c, 'attack', 0, { once: true, seconds: 0.65 });
-    if (c.spec.soars && !reduced) {
-      c.fire = { until: now + 320, n: 4, speed: 0.4, at: target };
+    if ((c.spec.soars || c.spec.fireFrom) && !reduced) {
+      // The whelp breathes at its target; Bellows Raider's bellows throw a jet of flame from his hand.
+      c.fire = { until: now + (c.spec.fireFrom ? 420 : 320), n: c.spec.fireFrom ? 5 : 4, speed: 0.4, at: target };
       c.jawUntil = now + 420;
     }
     if (op.ranged) {
@@ -645,6 +655,10 @@ export class SummonsSystem extends createSystem({}) {
       if (!m) return;
       p = this.group.worldToLocal(w.object.localToWorld(new Vector3(m.x, m.y, m.z)));
       q = this.group.worldToLocal(w.object.localToWorld(new Vector3(m.x + m.dx * 0.2, m.y + m.dy * 0.2 - 0.03, m.z + m.dz * 0.2)));
+    } else if (c.bones?.fire) {
+      // From a hand (Bellows Raider), toward the target.
+      p = this.group.worldToLocal(c.bones.fire.getWorldPosition(new Vector3()));
+      q = p.clone().add(new Vector3(0, 0, c.facing === 0 ? 0.05 : -0.05));
     } else if (c.bones?.head) {
       // The drake: from its head, ahead along its body's heading.
       p = this.group.worldToLocal(c.bones.head.getWorldPosition(new Vector3()));

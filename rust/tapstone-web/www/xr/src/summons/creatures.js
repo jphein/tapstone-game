@@ -7,16 +7,22 @@
 // A model: its file (public/creatures/<model>.glb), its height on the board (m, the top of its bind
 // pose above the cell), and whether it flies (it hovers, and the summon flight plays its `move`).
 export const MODELS = {
-  'dragon-evolved': { height: 0.085, flies: true },
-  goleling: { height: 0.07, flies: true },
-  'goleling-evolved': { height: 0.076, flies: true },
-  squidle: { height: 0.075, flies: true },
-  imp: { height: 0.07, flies: true },
-  fish: { height: 0.06, flies: false },
-  birb: { height: 0.06, flies: false },
-  demon: { height: 0.072, flies: false },
-  skeleton: { height: 0.075, flies: false },
-  wolf: { height: 0.055, flies: false },
+  // Set 1's people (2026-09-29, the units fidelity pass), each after its card's painting (public/cards):
+  // Quaternius's CC0 outfits, heads and animation library, with KayKit's CC0 props, assembled by
+  // tools/assemble-units.py (public/CREDITS.md). PROPOSAL: the bible names none of these figures.
+  'ashen-vanguard': { height: 0.085, flies: false },
+  'hearth-warden': { height: 0.085, flies: false },
+  'pearl-shieldbearer': { height: 0.085, flies: false },
+  'reef-archer': { height: 0.088, flies: false },
+  tidecaller: { height: 0.084, flies: false },
+  'brine-skimmer': { height: 0.084, flies: false },
+  // Forge Runner carries an ember that glows in his hand (`glowBone`); Bellows Raider's attack is a jet of
+  // flame from his (`fireFrom`), as his card's bellows.
+  'forge-runner': { height: 0.084, flies: false, glowBone: 'hand_r' },
+  'bellows-raider': { height: 0.084, flies: false, fireFrom: 'hand_r' },
+  // The beasts: Quaternius's Giant as the basalt Slag Brute, his Crab Enemy as the Trench Leviathan.
+  'slag-brute': { height: 0.095, flies: false },
+  'trench-crab': { height: 0.06, flies: false },
   // The commanders (the fidelity pass, 2026-09-29): Quaternius's crowned King for Ember, the Hooded
   // Adventurer with her sword for Tide (PROPOSAL: the bible names no commander figures).
   king: { height: 0.092, flies: false },
@@ -41,16 +47,16 @@ export const modelFile = (model) => `creatures/${model}.glb`;
 // Peaks (0039); their tint is the faction's.
 export const UNIT_CREATURE = {
   'Cinder Whelp': 'drake', // JP, 2026-09-28: "animate into a 3d flying dragon when you summon the whelp"
-  'Forge Runner': 'wolf', // a forge hound
-  'Bellows Raider': 'imp',
-  'Ashen Vanguard': 'demon',
-  'Hearth Warden': 'goleling',
-  'Slag Brute': 'goleling-evolved',
-  'Reef Archer': 'fish',
-  'Brine Skimmer': 'birb',
-  Tidecaller: 'squidle',
-  'Pearl Shieldbearer': 'skeleton', // a drowned knight in pearl light
-  'Trench Leviathan': 'dragon-evolved', // a sea dragon from the trench
+  'Ashen Vanguard': 'ashen-vanguard', // a charging helmed knight, a two-handed sword
+  'Hearth Warden': 'hearth-warden', // a helmed guard, sword and shield
+  'Pearl Shieldbearer': 'pearl-shieldbearer', // a pearl-helmed warrior, a round shield
+  'Reef Archer': 'reef-archer', // a hooded archer with a bow
+  Tidecaller: 'tidecaller', // a hooded caster with a staff
+  'Brine Skimmer': 'brine-skimmer', // a hooded youth on a shell, harpoon in hand
+  'Forge Runner': 'forge-runner', // a young man running, an ember in his hand
+  'Bellows Raider': 'bellows-raider', // a bearded raider, an axe, and flame on the attack
+  'Slag Brute': 'slag-brute', // a hulking basalt golem, an ember eye
+  'Trench Leviathan': 'trench-crab', // the trench's great crab
   Commander: 'king', // by faction: COMMANDER
 };
 
@@ -74,7 +80,7 @@ export function creatureFor(u) {
 
 const specOf = (model, m, u, ranged) => ({
   model, height: m.height, flies: m.flies, procedural: !!m.procedural, span: m.span ?? null, length: m.length ?? null,
-  soars: !!m.soars, clipFrom: m.clipFrom ?? null, fallback: m.fallback ?? null, faction: u.faction, ranged, commander: !!u.commander,
+  soars: !!m.soars, clipFrom: m.clipFrom ?? null, fallback: m.fallback ?? null, glowBone: m.glowBone ?? null, fireFrom: m.fireFrom ?? null, faction: u.faction, ranged, commander: !!u.commander,
 });
 
 // The creature actually built: the spec's model if it loaded (or is built in code), else its fallback

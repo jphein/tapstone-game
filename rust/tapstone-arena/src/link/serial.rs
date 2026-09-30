@@ -120,7 +120,27 @@ impl SerialLink {
         Ok(())
     }
 
-    /// Find the gateway whose `HELLO` carries `mac` among Espressif USB ports.
+    /// Open the gateway at `path` and nothing else, and require its `HELLO` to carry `mac`
+    /// (config `gateway_port`). The port is traced as `discover` traces the one it chooses.
+    pub fn open_checked(path: &str, mac: &str) -> Result<(String, SerialLink), String> {
+        let mut link = SerialLink::open_path(path).map_err(|e| format!("{path}: {e}"))?;
+        match link.await_hello(Duration::from_secs(5)) {
+            Some(GwLine::Hello { mac: m, .. }) if m.eq_ignore_ascii_case(mac) => {}
+            Some(GwLine::Hello { mac: m, .. }) => {
+                return Err(format!("{path} answered HELLO with MAC {m}, not {mac}"));
+            }
+            _ => return Err(format!("{path} sent no HELLO in 5 s")),
+        }
+        if let Some(trace) = std::env::var_os(TRACE_ENV) {
+            link.trace_to(std::path::Path::new(&trace))
+                .map_err(|e| format!("{TRACE_ENV}: {e}"))?;
+        }
+        Ok((path.to_string(), link))
+    }
+
+    /// Find the gateway whose `HELLO` carries `mac` among Espressif USB ports. This PINGs every
+    /// Espressif port it tries: prefer `open_checked` (config `gateway_port`) wherever another
+    /// Espressif board shares the host.
     pub fn discover(mac: &str) -> Result<(String, SerialLink), String> {
         let ports = serialport::available_ports().map_err(|e| e.to_string())?;
         for p in ports {

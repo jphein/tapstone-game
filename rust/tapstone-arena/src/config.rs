@@ -10,6 +10,13 @@ use crate::poster::Sink;
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub gateway_mac: String,
+    /// The gateway's port, as a path (use `/dev/serial/by-id/…<MAC>…`, never a ttyACM number).
+    /// Set, the arena opens THAT port alone and requires its `HELLO` to carry `gateway_mac`: it
+    /// never scans. Unset, it scans every Espressif USB port for `gateway_mac`, which writes a
+    /// `@TS1 PING` to each one it tries, and at a table with a scry (another Espressif board
+    /// that must not be written to) that is not acceptable. The radio runners always set it.
+    #[serde(default)]
+    pub gateway_port: Option<PathBuf>,
     #[serde(default = "default_bind")]
     pub http_bind: String,
     #[serde(default)]

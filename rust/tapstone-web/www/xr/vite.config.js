@@ -7,6 +7,7 @@
 import { iwsdkDev } from '@iwsdk/vite-plugin-dev';
 import { defineConfig } from 'vite';
 import { installProblems } from './tools/fetch_kws.mjs';
+import { noDotfiles } from './tools/vite-no-dotfiles.mjs';
 
 // The voice spotter's install (tools/fetch_kws.mjs) is two renames; a crash between them is detected
 // here, not shipped: a public/kws that lost its committed files, a leftover staging directory, or
@@ -21,7 +22,8 @@ const kwsGuard = () => ({
     },
 });
 export default defineConfig({
-    plugins: [iwsdkDev(), kwsGuard()],
+    // noDotfiles: public/'s dotfiles (public/kws/.gitignore, .install) are build metadata; they don't ship.
+    plugins: [iwsdkDev(), kwsGuard(), noDotfiles()],
     // XR_PORT lets a second dev server (another lane's IWER run) coexist with one on 8081.
     server: { host: '0.0.0.0', port: Number(process.env.XR_PORT) || 8081, open: false },
     build: {

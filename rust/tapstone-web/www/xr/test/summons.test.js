@@ -396,3 +396,32 @@ test('every creature file shipped is credited with its license; the drake with i
   assert.ok(credits.includes(sha), 'the vendored drake.glb is the file whose hash is recorded');
   assert.ok(existsSync(join(here, '../public/licenses/LICENSE-CC0-1.0.txt')));
 });
+
+test('every shipped creature file is the one whose sha256 CREDITS.md records', () => {
+  const credits = readFileSync(join(here, '../public/CREDITS.md'), 'utf8');
+  const shipped = readdirSync(join(here, '../public/creatures')).filter((x) => x.endsWith('.glb'));
+  const recorded = shipped.filter((f) => credits.includes(createHash('sha256').update(readFileSync(join(here, '../public/creatures', f))).digest('hex')));
+  // The drake and every model of the units fidelity pass carry their hash (the earlier Quaternius
+  // bakes, the King and the Hooded Adventurer, predate the rule and are credited by source).
+  const want = ['drake', 'ashen-vanguard', 'hearth-warden', 'pearl-shieldbearer', 'reef-archer', 'tidecaller', 'brine-skimmer', 'forge-runner', 'bellows-raider', 'slag-brute', 'trench-crab'];
+  for (const m of want) assert.ok(recorded.includes(`${m}.glb`), `${m}.glb's sha256 is in CREDITS.md`);
+});
+
+test('the cards that are people are people: each humanoid card maps to its own assembled figure', () => {
+  const people = { 'Ashen Vanguard': 'ashen-vanguard', 'Hearth Warden': 'hearth-warden', 'Pearl Shieldbearer': 'pearl-shieldbearer', 'Reef Archer': 'reef-archer', Tidecaller: 'tidecaller', 'Brine Skimmer': 'brine-skimmer', 'Forge Runner': 'forge-runner', 'Bellows Raider': 'bellows-raider' };
+  for (const [card, model] of Object.entries(people)) {
+    assert.equal(UNIT_CREATURE[card], model, card);
+    // Built on the Universal Animation Library's rig (its hand and head bones are there).
+    const j = glbJson(join(here, '../public', modelFile(model)));
+    const bones = new Set(j.nodes.map((n) => n.name));
+    for (const b of ['Head', 'hand_r', 'hand_l']) assert.ok(bones.has(b), `${model} has ${b}`);
+  }
+  assert.equal(UNIT_CREATURE['Slag Brute'], 'slag-brute');
+  assert.equal(UNIT_CREATURE['Trench Leviathan'], 'trench-crab');
+  // Forge Runner's ember and Bellows Raider's flame come from real bones of their models.
+  for (const [m, key] of [['forge-runner', 'glowBone'], ['bellows-raider', 'fireFrom']]) {
+    const bone = MODELS[m][key];
+    const j = glbJson(join(here, '../public', modelFile(m)));
+    assert.ok(j.nodes.some((n) => n.name === bone), `${m}'s ${key} ${bone} is a bone of its model`);
+  }
+});

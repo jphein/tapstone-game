@@ -15,6 +15,7 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { dedup, prune, weld, joinPrimitives, resample, getBounds } from '@gltf-transform/functions';
 import { MeshoptSimplifier } from 'meshoptimizer';
 import sharp from 'sharp';
+import { RECOLOUR } from './recolour.mjs';
 import { mkdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,10 @@ const OUT = join(here, '../public/creatures');
 const UM_FLY = { idle: 'Flying_Idle', attack: 'Headbutt', hit: 'HitReact', death: 'Death', move: 'Fast_Flying' };
 const BLOB = { idle: 'Idle', attack: 'Bite_Front', hit: 'HitRecieve', death: 'Death', move: 'Walk' };
 const ENEMY = { idle: 'Idle', attack: 'Attack', hit: 'HitRecieve', death: 'Death', move: 'Run' };
+// The Universal Animation Library's clips, per kind of fighter (tools/assemble-units.py keeps these).
+const UAL_FIGHT = { idle: 'Sword_Idle', attack: 'Sword_Attack', hit: 'Hit_Chest', death: 'Death01', move: 'Jog_Fwd_Loop' };
+const UAL_CAST = { idle: 'Spell_Simple_Idle_Loop', attack: 'Spell_Simple_Shoot', hit: 'Hit_Chest', death: 'Death01', move: 'Walk_Loop' };
+const UAL_RUN = { idle: 'Idle_Loop', attack: 'Punch_Cross', hit: 'Hit_Head', death: 'Death01', move: 'Sprint_Loop' };
 const HERO = { idle: 'Idle_Sword', attack: 'Sword_Slash', hit: 'HitRecieve', death: 'Death', move: 'Run' };
 export const SOURCES = {
   'dragon-evolved': { file: 'dragon_evolved.glb', clips: UM_FLY },
@@ -44,32 +49,27 @@ export const SOURCES = {
   // The Cinder Whelp (2026-09-29): xTerryx's Low Poly Ice Dragon, CC0, via tools/convert-drake.py. Its
   // one clip is its flight; the summons drive its idle, attack and death from it (creatures.js).
   drake: { file: 'drake-src.glb', lod1: 'drake-lod1-src.glb', clips: { move: 'Flying' }, recolour: 'forge' },
+  // Set 1's people (2026-09-29, the units fidelity pass): assembled by tools/assemble-units.py from
+  // Quaternius's CC0 outfits, heads and Universal Animation Library, with KayKit's CC0 props; LOD1 is
+  // Blender's Decimate, like the drake's.
+  'ashen-vanguard': { file: 'units/ashen-vanguard-src.glb', lod1: 'units/ashen-vanguard-lod1-src.glb', clips: UAL_FIGHT, recolour: 'forge-people' },
+  'hearth-warden': { file: 'units/hearth-warden-src.glb', lod1: 'units/hearth-warden-lod1-src.glb', clips: UAL_FIGHT, recolour: 'forge-people' },
+  'pearl-shieldbearer': { file: 'units/pearl-shieldbearer-src.glb', lod1: 'units/pearl-shieldbearer-lod1-src.glb', clips: UAL_FIGHT, recolour: 'deeps' },
+  'reef-archer': { file: 'units/reef-archer-src.glb', lod1: 'units/reef-archer-lod1-src.glb', clips: UAL_CAST, recolour: 'deeps' },
+  'tidecaller': { file: 'units/tidecaller-src.glb', lod1: 'units/tidecaller-lod1-src.glb', clips: UAL_CAST, recolour: 'deeps' },
+  'brine-skimmer': { file: 'units/brine-skimmer-src.glb', lod1: 'units/brine-skimmer-lod1-src.glb', clips: UAL_RUN, recolour: 'deeps' },
+  'forge-runner': { file: 'units/forge-runner-src.glb', lod1: 'units/forge-runner-lod1-src.glb', clips: UAL_RUN, recolour: 'forge-people' },
+  'bellows-raider': { file: 'units/bellows-raider-src.glb', lod1: 'units/bellows-raider-lod1-src.glb', clips: UAL_FIGHT, recolour: 'forge-people' },
+  // The beasts (2026-09-29): Quaternius's Giant (poly.pizza BldaiPtyJa) as the Slag Brute, recoloured to
+  // basalt and ember; his Crab Enemy (Gs3yfsV5lB) as the Trench Leviathan, in the trench's blue and pearl.
+  'slag-brute': { file: 'Giant_BldaiPtyJa.glb', clips: ENEMY, recolour: 'slag' },
+  'trench-crab': { file: 'Crab_Enemy_Gs3yfsV5lB.glb', clips: { idle: 'Idle', attack: 'Bite_Front', hit: 'HitRecieve', death: 'Death', move: 'Walk' }, recolour: 'trench' },
+
 };
 
 const LOD1_RATIO = 0.4;
 
-// Recolours, on linear RGB (a model's own light and dark kept, its hues moved): 'forge' turns the ice
-// dragon into a Forge Peaks whelp (0039: Ember comes from the Forge Peaks): its mauve hide goes ember
-// crimson, and its green-tipped spines and claws go gold. PROPOSAL (art direction), credited as modified.
-function hsl([r, g, b]) {
-  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
-  if (d < 1e-6) return [0, 0, l];
-  const s = d / (1 - Math.abs(2 * l - 1));
-  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return [(h * 60 + 360) % 360, s, l];
-}
-function rgbOf([h, s, l]) {
-  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2;
-  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
-  return [r + m, g + m, b + m];
-}
-const RECOLOUR = {
-  forge: (rgb) => {
-    const [h, s, l] = hsl(rgb);
-    const green = h > 70 && h < 170;
-    return rgbOf(green ? [42, Math.max(0.75, s), Math.min(0.55, l * 1.1 + 0.08)] : [6, Math.min(1, 0.55 + s * 0.6), l * 0.9]);
-  },
-};
+
 
 async function texturePixels(tex) {
   const { data, info } = await sharp(Buffer.from(tex.getImage())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -96,6 +96,9 @@ async function bakeColours(doc, recolour = null) {
       const n = pos.getCount();
       const out = new Float32Array(n * 3);
       const sample = tex ? await texturePixels(tex) : null;
+      // A person's skin, eyes and hair (the base body's own materials) keep their colour through a recolour.
+      const keepsColour = /Superhero|Regular|Eye|Hair|Brow/i.test(mat?.getName() ?? '');
+      const isHair = /Hair|Brow/i.test(mat?.getName() ?? '');
       const uv = prim.getAttribute('TEXCOORD_0');
       const t = [0, 0];
       for (let i = 0; i < n; i++) {
@@ -105,7 +108,9 @@ async function bakeColours(doc, recolour = null) {
           c = sample(t[0], t[1]).map(srgbToLinear);
         }
         let rgb = [c[0] * f[0], c[1] * f[1], c[2] * f[2]];
-        if (recolour) rgb = recolour(rgb);
+        if (recolour && !keepsColour) rgb = recolour(rgb);
+        // Hair whose texture the download doesn't carry comes in pale grey: a dark brown instead.
+        if (isHair && Math.min(...rgb) > 0.3) rgb = [0.05, 0.03, 0.018];
         out[i * 3] = rgb[0];
         out[i * 3 + 1] = rgb[1];
         out[i * 3 + 2] = rgb[2];

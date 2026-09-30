@@ -144,7 +144,10 @@ chooses its taps with `shrine::Autoplay` until a reader is wired. One image carr
   station with another group key sees the arena's frames as `BadTag` and refuses them.
 - **Decks:** the arena binaries find `decks/` relative to the path they were built at. Build them
   from a source tree at a path that exists on the board host too (tonight
-  `~/tapstone-radio-selene/src/tapstone`), and copy `decks/` there.
+  `~/tapstone-radio-selene/src/tapstone`), and copy `decks/` there, along with an (empty)
+  `rust/tapstone-sim/` directory, since the path is resolved through it.
+- **Ports:** the runners hand the arena its board's by-id path (`gateway_port`), so the arena never
+  PINGs another Espressif board (the scry) on the host.
 
 ```sh
 # (i) two real shrines: board 61 = the arena's radio + seat A (ember, index 0, station node 161),
@@ -167,6 +170,42 @@ lines arrive in the arena's serial trace.
 | run-t4 | two stations | CI throwaway (both) | 57b95826 | 105 | 17.7 s | VERIFIED, both heads | run-t5: stuck at mseq 13, CONTROL OK |
 | run-t6 | two stations | fleet | 57b95b7d | 95 | 14.7 s | VERIFIED | — |
 | run-r2 | station vs /remote/* | fleet | 57b95acd | 83 | 6.3 s | VERIFIED | run-r3: remote 6 taps, CONTROL OK |
+| run-t10 | two stations | fleet | 57bc8fc4 | 117 | 17.5 s | VERIFIED, both heads 77aded67… | run-t12-control: 13 records in 90 s, CONTROL OK |
+| run-t11 | two stations | fleet | 57bc8feb | 110 | 12.1 s | VERIFIED, both heads 235d6e36… | — |
+| run-t14 | two stations | fleet | 57bc923e | 110 | 39.6 s | VERIFIED, both heads b57f3fc9… | — |
+
+**2026-09-29 regression on current main** (katana, overnight, JP-authorised; lane log
+`scratch/issues/selene.md`). Arena, `radio_shrine` and `tapstone-sim` came from tapstone 5ff4520 plus
+the `gateway_port` change below (port selection only). The stations are smol 0ec9eb9's
+`s3-tapstone-station` images, vendoring `rules-v0.2.2`: board 61 was node 61, station 161,
+ember-neutral/0, and board 62 was node 62, tide-neutral/1.
+- **No re-vendor was needed.** The vendored `tapstone-rules` and deck lists are byte-identical to main,
+  so 0040's 30-card decks were already in `rules-v0.2.2`, and `tapstone-progression` is too. Main's
+  `tapstone-proto/src/shrine.rs` differs only by smol#558's seatless dark discovery, which is inactive
+  in a normal match. Main's `shrine-render` differs only in screens and the voice-pack reader.
+- Every `openat` of the runs was traced. The only serial devices opened were the two shrines;
+  the scry (`…CC:64`) and the CP2102 never were.
+
+Found tonight:
+- **The arena used to scan every Espressif port.** `SerialLink::discover` PINGs each Espressif USB
+  port until one answers with `gateway_mac`, and the scry on this table is an Espressif port that must
+  never be written to. `arena.toml` now takes `gateway_port` (a `/dev/serial/by-id` path): the arena
+  opens that port alone and requires its HELLO MAC. `radio_table.py`, `radio_match.py` and
+  `radio_dark.py` always set it. With no `gateway_port`, the arena scans as before.
+- **Reset board A after a stall control.** The control's arena exits mid-match, and board A's station
+  keeps that match in its dark window as the interim arbiter (arena spec §7). The next arena, on a
+  fresh ledger, isn't a revived arena, so board A never leaves the old match and the lobby never fills
+  (run-t13 stalled that way). `espflash reset --port <board A by-id>` before the next run (run-t14).
+- **Flashing from katana.** espflash 4.5.0's stub failed three times on board 61 with
+  `Timeout while running FlashDeflData`, and once misread the flash as 4 MB. Other commands on the same
+  port (`board-info`, `reset`) were fine. The ROM loader works: `espflash flash --chip esp32s3
+  --port /dev/serial/by-id/…<MAC>… --flash-size 16mb --no-stub --partition-table
+  partitions-ota-s3.csv <elf>`. It ends with `Error while running FlashEnd command: Other (0x1)`, which is
+  benign: `espflash reset` boots the new image, and its HELLO carries the build's hash. Never pass
+  `--baud` (smol `targets/s3-cyd/BOARD.md` L8).
+- **Decks on the board host.** `radio_shrine` resolves the deck book as
+  `<build path>/rust/tapstone-sim/../../decks`, so `rust/tapstone-sim/` must exist at that path on the
+  board host too, not just `decks/` (run-t9 failed setup without it; no board was touched).
 
 Found while getting there (smol firmware): the arena heads its frames with its gateway's node, not
 200, so the station recognises the arena by what it sends. After a match the station holds the

@@ -72,6 +72,9 @@ with open(os.path.join(run, "registry.jsonl"), "w") as f:
 with open(os.path.join(run, "arena.toml"), "w") as f:
     f.write(
         f'gateway_mac = "{args.arena_mac.lower()}"\n'
+        # The arena opens its board by this path ALONE (arena.toml gateway_port): without it the
+        # arena scans every Espressif USB port with @TS1 PING, the scry on the table among them.
+        f'gateway_port = "{by_id(args.arena_mac)}"\n'
         f'http_bind = "{BOARD}"\n'
         f'ledger_path = "{run}/ledger.sqlite"\n'
         f'registry_path = "{run}/registry.jsonl"\n'

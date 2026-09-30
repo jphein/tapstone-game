@@ -23,18 +23,49 @@ vertex colour, clips trimmed and renamed, and a simplified LOD1 added.
 
 | File | Model | Source | License |
 |---|---|---|---|
-| dragon-evolved.glb | Dragon Evolved (Ultimate Monsters) | https://poly.pizza/m/LlwD0QNUPj | CC0 1.0 |
-| goleling.glb | Goleling (Ultimate Monsters) | https://poly.pizza/m/71gomWolax | CC0 1.0 |
-| goleling-evolved.glb | Goleling Evolved (Ultimate Monsters) | https://poly.pizza/m/iHEuXiH6Aj | CC0 1.0 |
-| squidle.glb | Squidle (Ultimate Monsters) | https://poly.pizza/m/54QyRcsogk | CC0 1.0 |
-| imp.glb | Enemy Small | https://poly.pizza/m/4LjT020LQh | CC0 1.0 |
-| fish.glb | Fish | https://poly.pizza/m/7V4gaDMQV8 | CC0 1.0 |
-| birb.glb | Birb | https://poly.pizza/m/gZ2ExU9OAB | CC0 1.0 |
-| demon.glb | Demon | https://poly.pizza/m/LnfIziKv4o | CC0 1.0 |
-| skeleton.glb | Skeleton | https://poly.pizza/m/DM4QScSmbS | CC0 1.0 |
-| wolf.glb | Wolf | https://poly.pizza/m/XU7oNeKShV | CC0 1.0 |
 | king.glb | King (Ultimate Animated Character pack): the Ember commander | https://poly.pizza/m/I1gTjmuK2m | CC0 1.0 |
 | hooded.glb | Hooded Adventurer (Ultimate Animated Character pack), with her sword: the Tide commander | https://poly.pizza/m/y9KWOVG21R | CC0 1.0 |
+| slag-brute.glb | Giant (Ultimate Monsters), **modified**: recoloured to basalt and ember | https://poly.pizza/m/BldaiPtyJa | CC0 1.0 |
+| trench-crab.glb | Crab Enemy, **modified**: recoloured to the trench's blue and pearl | https://poly.pizza/m/Gs3yfsV5lB | CC0 1.0 |
+
+## Set 1's people (public/creatures/*.glb: the units fidelity pass, 2026-09-29)
+
+Eight units are assembled by `tools/assemble-units.py`: Ashen Vanguard, Hearth Warden, Pearl
+Shieldbearer, Reef Archer, Tidecaller, Brine Skimmer, Forge Runner and Bellows Raider. Each is built
+from the parts below, all **CC0 1.0 Universal** (text in `licenses/LICENSE-CC0-1.0.txt`).
+
+Every file is **modified**:
+- parts joined on one rig; the base body cut to its head (and hands);
+- props bound to hand and head bones;
+- decimated (a Blender-decimated LOD1 besides);
+- baked to vertex colour, recoloured for its faction (0039);
+- only five clips kept.
+
+Downloaded 2026-09-29 without an account. The itch.io packs came through each page's own free
+download ("Name your own price", minimum 0); only the free tiers were taken, never the paid ones.
+Each license was read on its page and in the pack's own license file.
+
+| Source | Page | License as stated there | Download sha256 |
+|---|---|---|---|
+| Modular Character Outfits - Fantasy [Standard], Quaternius: the Ranger and Peasant outfits | https://quaternius.itch.io/modular-character-outfits-fantasy | "Creative Commons Zero v1.0 Universal"; License_Standard.txt: "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication" | c3468b18871cc8c8f05ab14df7712baf22cb9f389cbd870babf130e595187f70 |
+| Universal Base Characters [Standard], Quaternius: the heads, hair and beard | https://quaternius.itch.io/universal-base-characters | "Creative Commons Zero v1.0 Universal" | fdbf1804c90dfc1ea03e992bff7da2dfd1a79318e13270a660180f9308455f40 |
+| Universal Animation Library [Standard], Quaternius: the rig and the clips | https://quaternius.itch.io/universal-animation-library | "Creative Commons Zero v1.0 Universal"; License.txt: "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication" | cc73fc4e495b82958207316596317a3f40b9fa38065bde1027937452da537724 |
+| KayKit Adventurers 2.0 [Free], Kay Lousberg (www.kaylousberg.com): props only (the knight's helm and visor, swords, shields, a staff, a bow, an axe) | https://kaylousberg.itch.io/kaykit-adventurers | "Creative Commons Zero v1.0 Universal"; License.txt: "License: (Creative Commons Zero, CC0)" | abe48f4763fba0896bab486ee9e6d08ca6b5b3884b9601f235c8847ae94dc479 |
+| Giant, Quaternius (poly.pizza) | https://poly.pizza/m/BldaiPtyJa | "CC0 1.0" | 09f2fc7a7d8e9504bea781df0730de0f9e479d04be10af134ae618a158f7abb1 |
+| Crab Enemy, Quaternius (poly.pizza) | https://poly.pizza/m/Gs3yfsV5lB | "CC0 1.0" | b5487be2c83059cf5b834d4d90cccc69346af36427a8d9ee4509f96af0c148f6 |
+
+| Vendored file | sha256 |
+|---|---|
+| ashen-vanguard.glb | 024d5bf6ca54b45c847b6fc4ab24785a4460153a2faff0a0be145a7209e3e978 |
+| hearth-warden.glb | 43c7fdf2eba418b52e0fdda9ae89e397d66bd2dc52800752eccd04243fcd1670 |
+| pearl-shieldbearer.glb | 309ad45543087140779d12becdc6b409f1f40943e1bb7ecb2e4b15434ea4ddd3 |
+| reef-archer.glb | f458052af479fda5d8fcbaebd1825896e982c3990e9edae52d57e9d148234c9a |
+| tidecaller.glb | aa662955abf29a88eb7438f1e0afdac6e45eeb94b4aab963504a1f82eecb5173 |
+| brine-skimmer.glb | 4404c0de339e6ae5c2314d5ee1bec45d5cd0d6fd9e2b36d3146497c2b1b96be1 |
+| forge-runner.glb | 1fc1a30ec10ad8dfabe0e987551121fceaa805dffd95fd3c68effb29ab9beb3a |
+| bellows-raider.glb | e68f921601b70879a4be2c8af88fcdc10e5da37f87375fde42d06883cc5e6df7 |
+| slag-brute.glb | cd7fa2f0177e67fa7c1a35ccb6c131a6f3f350fbcc500f6246a259a6261df3a8 |
+| trench-crab.glb | 145f314ce79dcae7bff2a641b66d9728c1e677d97f9359d22083ca2838249b28 |
 
 ## The Cinder Whelp (public/creatures/drake.glb)
 

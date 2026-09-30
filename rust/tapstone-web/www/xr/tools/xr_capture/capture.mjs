@@ -4,7 +4,7 @@
 //
 //   XR_PORT=<free port> npx @iwsdk/cli dev up --headless --no-open
 //   node tools/xr_capture/capture.mjs <idle|match|teahouse> [--seconds N] [--max N] [--input hands|gesture]
-//        [--vr] [--resume] [--returning] [--pan DEG] [--contrast] [--frame altar|room] [--gpu b60|p102|rtx2080|swiftshader] [--allow-renderer] [--out file.mp4]
+//        [--vr] [--resume] [--returning] [--pan DEG] [--contrast] [--frame altar|room|board] [--gpu b60|p102|rtx2080|swiftshader] [--allow-renderer] [--out file.mp4]
 //   npx @iwsdk/cli dev down
 //
 // The capture launches and owns its Chromium (gpu.mjs: the Intel Arc Pro B60 by default), opens the
@@ -49,7 +49,7 @@ const argv = process.argv.slice(2);
 const segment = argv[0];
 const opt = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
 if (!['idle', 'match', 'teahouse'].includes(segment)) {
-  console.error('usage: capture.mjs <idle|match|teahouse> [--seconds N] [--max N] [--input hands|gesture] [--vr] [--resume] [--returning] [--pan DEG] [--contrast] [--frame altar|room] [--gpu b60|p102|rtx2080|swiftshader] [--allow-renderer] [--out file.mp4]');
+  console.error('usage: capture.mjs <idle|match|teahouse> [--seconds N] [--max N] [--input hands|gesture] [--vr] [--resume] [--returning] [--pan DEG] [--contrast] [--frame altar|room|board] [--gpu b60|p102|rtx2080|swiftshader] [--allow-renderer] [--out file.mp4]');
   process.exit(2);
 }
 const seconds = Number(opt('--seconds', segment === 'idle' ? 8 : 0)) || null;
